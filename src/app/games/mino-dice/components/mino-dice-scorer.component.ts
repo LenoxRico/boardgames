@@ -222,7 +222,17 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
           @let forecast = getPlayerForecast(player.id);
           @let currentRank = getPlayerRank(player.id);
 
-          <div class="player-card" [class.leader-card]="currentRank === 1">
+          <div
+            class="player-card"
+            [class.leader-card]="currentRank === 1"
+            [style.background-image]="gameTheme()?.gradient"
+          >
+            @if (gameTheme()?.bgImageUrl; as bg) {
+              <div
+                class="card-thematic-art"
+                [style.background-image]="'url(' + bg + ')'"
+              ></div>
+            }
             <div class="player-card-header">
               <div class="player-profile">
                 <div class="player-avatar" [class.leader-avatar]="currentRank === 1">
@@ -368,7 +378,16 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
       </div>
 
       <!-- SECCIÓN 3: Tabla Matriz Informativa de Puntos por Ronda -->
-      <div class="matrix-card">
+      <div
+        class="matrix-card"
+        [style.background-image]="gameTheme()?.gradient"
+      >
+        @if (gameTheme()?.bgImageUrl; as bg) {
+          <div
+            class="card-thematic-art"
+            [style.background-image]="'url(' + bg + ')'"
+          ></div>
+        }
         <div class="matrix-header">
           <h3 class="section-title">
             <span class="material-symbols-outlined">table_chart</span>
@@ -705,6 +724,8 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
     }
 
     .player-card {
+      position: relative;
+      overflow: hidden;
       background: var(--color-surface-container);
       border: 1px solid var(--color-border-default);
       border-radius: var(--radius-xl);
@@ -713,6 +734,11 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
       flex-direction: column;
       gap: var(--space-md);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    }
+
+    .player-card > * {
+      position: relative;
+      z-index: 1;
     }
 
     .player-card.leader-card {
@@ -935,11 +961,18 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
 
     /* Tabla Matriz */
     .matrix-card {
+      position: relative;
+      overflow: hidden;
       background: var(--color-surface-container);
       border: 1px solid var(--color-border-default);
       border-radius: var(--radius-xl);
       padding: var(--space-md);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .matrix-card > * {
+      position: relative;
+      z-index: 1;
     }
 
     .matrix-header {

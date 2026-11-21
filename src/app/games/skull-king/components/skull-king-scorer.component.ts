@@ -231,7 +231,17 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
           @let forecast = getPlayerForecast(player.id);
           @let currentRank = getPlayerRank(player.id);
 
-          <div class="player-card" [class.leader-card]="currentRank === 1">
+          <div
+            class="player-card"
+            [class.leader-card]="currentRank === 1"
+            [style.background-image]="gameTheme()?.gradient"
+          >
+            @if (gameTheme()?.bgImageUrl; as bg) {
+              <div
+                class="card-thematic-art"
+                [style.background-image]="'url(' + bg + ')'"
+              ></div>
+            }
             <div class="player-card-header">
               <div class="player-profile">
                 <div class="player-avatar" [class.leader-avatar]="currentRank === 1">
@@ -362,7 +372,16 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
       </div>
 
       <!-- SECCIÓN 3: Visualización Informativa de Puntos Ronda por Ronda -->
-      <div class="matrix-card">
+      <div
+        class="matrix-card"
+        [style.background-image]="gameTheme()?.gradient"
+      >
+        @if (gameTheme()?.bgImageUrl; as bg) {
+          <div
+            class="card-thematic-art"
+            [style.background-image]="'url(' + bg + ')'"
+          ></div>
+        }
         <div class="matrix-header">
           <h3 class="section-title">
             <span class="material-symbols-outlined">table_chart</span>
@@ -981,6 +1000,8 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
     }
 
     .player-card {
+      position: relative;
+      overflow: hidden;
       background: var(--color-surface-container);
       border: 1px solid var(--color-border-default);
       border-radius: var(--radius-xl);
@@ -989,6 +1010,11 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
       display: flex;
       flex-direction: column;
       gap: var(--space-sm);
+    }
+
+    .player-card > * {
+      position: relative;
+      z-index: 1;
     }
 
     .player-card.leader-card {
@@ -1187,11 +1213,18 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
 
     /* Matriz de Historial */
     .matrix-card {
+      position: relative;
+      overflow: hidden;
       background: var(--color-surface-container);
       border: 1px solid var(--color-border-default);
       border-radius: var(--radius-xl);
       padding: var(--space-md);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .matrix-card > * {
+      position: relative;
+      z-index: 1;
     }
 
     .matrix-header {

@@ -27,7 +27,15 @@ public/assets/games/
 Para garantizar una experiencia visual inmersiva, cohesiva y uniforme sin problemas de encajonamiento por paddings de página, la aplicación sigue una **arquitectura basada en tarjetas (Card-Based Theme)** idéntica a la vista de Catálogo:
 
 ### 2.1 El Fondo Pertenece a Cada Tarjeta (Nunca a la Página)
-Los gradientes y el arte alusivo de cada juego **se renderizan dentro de las tarjetas principales** (`.game-card`, `.active-match-hero`, `.match-header-card`, `.match-setup-card`, `.controls-card`, `.final-results-card`).
+Los gradientes y el arte alusivo de cada juego **se renderizan dentro de TODAS las tarjetas principales**, garantizando una estricta simetría visual en cualquier pantalla:
+- **En Catálogo:** Cada `.game-card` y el hero `.active-match-hero`.
+- **En Configuración de Partida:** La tarjeta de configuración `.match-setup-card`.
+- **En Visor de Reglas:** La tarjeta de controles `.controls-card`.
+- **En la Partida en Vivo:** **TODAS las tarjetas de la mesa**:
+  1. `.match-header-card` (cabecera con steppers y repartidor).
+  2. Cada `.player-card` (tarjeta de interacción y captura de datos por jugador).
+  3. `.matrix-card` (tabla histórica ronda por ronda).
+  4. `.final-results-card` (podio de victoria y resultados).
 - Las vistas de página (`.catalog-page`, `.new-match-page`, `.rules-page`, `.match-live-page`) mantienen su layout limpio con paddings estándar (`padding: var(--space-md); max-width: 900px; margin: 0 auto;`).
 - Ninguna vista debe definir backdrops o capas globales sueltas a nivel de viewport o wrapper.
 
@@ -193,14 +201,47 @@ Diseña un componente standalone enfocado 100% en la interacción táctil en mes
   private registry = inject(GameRegistryService);
   readonly gameTheme = computed(() => this.registry.getGame(this.match().gameId)?.metadata?.theme);
   ```
-- Aplica el fondo y la marca de agua temática en `.match-header-card` y en `.final-results-card`:
+- Aplica el fondo y la marca de agua temática en **TODAS las cards del marcador** (`.match-header-card`, `.player-card`, `.matrix-card` y `.final-results-card`):
   ```html
+  <!-- En la Cabecera -->
   <div class="match-header-card" [style.background-image]="gameTheme()?.gradient">
     @if (gameTheme()?.bgImageUrl; as bg) {
       <div class="card-thematic-art" [style.background-image]="'url(' + bg + ')'"></div>
     }
     <!-- Contenido de la cabecera (z-index: 1) -->
   </div>
+
+  <!-- En cada Tarjeta de Jugador -->
+  <div class="player-card" [style.background-image]="gameTheme()?.gradient">
+    @if (gameTheme()?.bgImageUrl; as bg) {
+      <div class="card-thematic-art" [style.background-image]="'url(' + bg + ')'"></div>
+    }
+    <!-- Inputs y perfil del jugador (z-index: 1) -->
+  </div>
+
+  <!-- En la Tabla Matriz -->
+  <div class="matrix-card" [style.background-image]="gameTheme()?.gradient">
+    @if (gameTheme()?.bgImageUrl; as bg) {
+      <div class="card-thematic-art" [style.background-image]="'url(' + bg + ')'"></div>
+    }
+    <!-- Tabla de puntuaciones (z-index: 1) -->
+  </div>
+  ```
+- En estilos SCSS, aplica la simetría a todas las tarjetas:
+  ```scss
+  .match-header-card,
+  .player-card,
+  .matrix-card,
+  .final-results-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .player-card > *,
+  .matrix-card > * {
+    position: relative;
+    z-index: 1;
+  }
   ```
 - Recibe `match = input.required<MatchRecord<MyGameConfig, MyGameRoundInput>>()`.
 - Botones táctiles grandes (mínimo 44px a 48px).
