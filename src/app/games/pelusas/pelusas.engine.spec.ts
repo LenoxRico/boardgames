@@ -108,4 +108,68 @@ describe('PelusasEngine', () => {
     expect(status.isGameOver).toBe(true);
     expect(status.winnerIds).toEqual(['p2']);
   });
+
+  describe('Pelusas Revolution Mode', () => {
+    const revConfig: PelusasConfig = { rounds: 3, revolutionMode: true };
+
+    it('calcula la penalización de -7 puntos por cada Diablillo en modo Revolution', () => {
+      const inputs: Record<string, PelusasRoundInput> = {
+        p1: { points: 20, diablillos: 2 }, // 20 - 14 = 6
+        p2: { points: 0, diablillos: 1 },  // 0 - 7 = -7
+      };
+      const prev = { p1: 10, p2: 15 };
+
+      const results = engine.calculateRound(0, inputs, prev, revConfig);
+
+      expect(results['p1'].roundScore).toBe(6);
+      expect(results['p1'].cumulativeScore).toBe(16);
+      expect(results['p1'].diablillos).toBe(2);
+
+      expect(results['p2'].roundScore).toBe(-7);
+      expect(results['p2'].cumulativeScore).toBe(8);
+      expect(results['p2'].diablillos).toBe(1);
+    });
+
+    it('combina desglose de cartas (1-10) con Diablillos restando -7 cada uno', () => {
+      const inputs: Record<string, PelusasRoundInput> = {
+        p1: {
+          points: 0,
+          cardCounts: {
+            5: 2, // 10 pts
+            10: 1, // 10 pts -> Total cartas = 20
+          },
+          diablillos: 1, // -7 pts -> Total ronda = 13
+        },
+        p2: {
+          points: 0,
+          cardCounts: {
+            2: 1, // 2 pts
+          },
+          diablillos: 2, // -14 pts -> Total ronda = -12
+        },
+      };
+      const prev = { p1: 0, p2: 0 };
+
+      const results = engine.calculateRound(0, inputs, prev, revConfig);
+
+      expect(results['p1'].roundScore).toBe(13);
+      expect(results['p1'].cumulativeScore).toBe(13);
+
+      expect(results['p2'].roundScore).toBe(-12);
+      expect(results['p2'].cumulativeScore).toBe(-12);
+    });
+
+    it('permite puntuaciones negativas acumuladas en la partida', () => {
+      const totalScores = { p1: 25, p2: -5, p3: 40 };
+
+      const status = engine.evaluateMatchStatus(totalScores, 3, revConfig);
+
+      expect(status.isGameOver).toBe(true);
+      expect(status.winnerIds).toEqual(['p3']);
+      expect(status.rankings[0].playerId).toBe('p3');
+      expect(status.rankings[1].playerId).toBe('p1');
+      expect(status.rankings[2].playerId).toBe('p2');
+      expect(status.rankings[2].totalScore).toBe(-5);
+    });
+  });
 });

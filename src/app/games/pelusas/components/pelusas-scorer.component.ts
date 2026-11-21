@@ -40,6 +40,9 @@ import { PELUSAS_RULES } from '../pelusas.rules';
             <div class="game-title-row">
               <span class="game-icon">🧶</span>
               <h2 class="game-name">Pelusas</h2>
+              @if (isRevolutionMode()) {
+                <span class="badge badge-revolution">🔥 Revolution</span>
+              }
               <span class="badge badge-table">
                 Ronda {{ viewingRound() }} de {{ totalRounds() }}
               </span>
@@ -208,6 +211,17 @@ import { PELUSAS_RULES } from '../pelusas.rules';
                 >
                   +20
                 </button>
+                @if (isRevolutionMode()) {
+                  <button
+                    type="button"
+                    class="btn-quick-val btn-diablillo"
+                    (click)="addPoints(player.id, -7)"
+                    [disabled]="pData.lostToWind"
+                    title="Diablillo (-7 pts)"
+                  >
+                    😈 -7
+                  </button>
+                }
               </div>
 
               <!-- Botón Toggle de Corriente de Aire -->
@@ -231,7 +245,7 @@ import { PELUSAS_RULES } from '../pelusas.rules';
                     type="button"
                     class="btn-step"
                     (click)="addPoints(player.id, -1)"
-                    [disabled]="pData.lostToWind || (pData.points || 0) <= 0"
+                    [disabled]="pData.lostToWind || (!isRevolutionMode() && (pData.points || 0) <= 0)"
                   >
                     -
                   </button>
@@ -242,7 +256,7 @@ import { PELUSAS_RULES } from '../pelusas.rules';
                     [value]="pData.points || 0"
                     (change)="onDirectPointsChange(player.id, $event)"
                     [disabled]="pData.lostToWind"
-                    min="0"
+                    [min]="isRevolutionMode() ? -100 : 0"
                   />
                   <button
                     type="button"
@@ -296,6 +310,37 @@ import { PELUSAS_RULES } from '../pelusas.rules';
                           type="button"
                           class="btn-chip-add"
                           (click)="adjustCardCount(player.id, num, 1)"
+                          [disabled]="pData.lostToWind"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  }
+
+                  @if (isRevolutionMode()) {
+                    @let diablillosCount = pData.diablillos || 0;
+                    <div class="card-item-counter diablillo-counter">
+                      <div class="card-chip-val diablillo-chip" [class.has-cards]="diablillosCount > 0">
+                        <span class="card-badge-num">😈</span>
+                        <span class="card-sub-mult">
+                          {{ diablillosCount > 0 ? diablillosCount + 'x = -' + (7 * diablillosCount) : 'Diablillo (-7)' }}
+                        </span>
+                      </div>
+                      <div class="chip-stepper">
+                        <button
+                          type="button"
+                          class="btn-chip-sub"
+                          (click)="adjustDiablillos(player.id, -1)"
+                          [disabled]="diablillosCount <= 0 || pData.lostToWind"
+                        >
+                          -
+                        </button>
+                        <span class="chip-qty-num">{{ diablillosCount }}</span>
+                        <button
+                          type="button"
+                          class="btn-chip-add"
+                          (click)="adjustDiablillos(player.id, 1)"
                           [disabled]="pData.lostToWind"
                         >
                           +
@@ -1584,6 +1629,37 @@ import { PELUSAS_RULES } from '../pelusas.rules';
     .btn-modal-confirm-abandon:hover {
       background: #b91c1c;
     }
+
+    /* Pelusas Revolution Elements */
+    .badge-revolution {
+      background: linear-gradient(135deg, #ef4444, #f59e0b);
+      color: #ffffff;
+      font-weight: 800;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-diablillo {
+      background: rgba(239, 68, 68, 0.15) !important;
+      border-color: rgba(239, 68, 68, 0.4) !important;
+      color: #f87171 !important;
+      font-weight: 800;
+    }
+
+    .btn-diablillo:hover {
+      background: rgba(239, 68, 68, 0.25) !important;
+    }
+
+    .diablillo-counter {
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .diablillo-chip {
+      color: #ef4444;
+    }
   `],
 })
 export class PelusasScorerComponent {
@@ -1605,6 +1681,7 @@ export class PelusasScorerComponent {
 
   totalRounds = computed(() => this.match().config.rounds || 3);
   currentMatchRound = computed(() => this.match().currentRound);
+  isRevolutionMode = computed(() => !!this.match().config.revolutionMode);
 
   isLastRound = computed(() => this.viewingRound() >= this.totalRounds());
   isEditingPastRound = computed(() => this.viewingRound() < this.currentMatchRound());
@@ -1690,7 +1767,8 @@ export class PelusasScorerComponent {
 
     if (pData.lostToWind) return;
 
-    pData.points = Math.max(0, (pData.points || 0) + delta);
+    const newPts = (pData.points || 0) + delta;
+    pData.points = this.isRevolutionMode() ? newPts : Math.max(0, newPts);
     current[playerId] = pData;
     this.draftInputs.set(current);
   }
@@ -1702,7 +1780,13 @@ export class PelusasScorerComponent {
 
     if (pData.lostToWind) return;
 
-    pData.points = isNaN(val) ? 0 : Math.max(0, val);
+    if (isNaN(val)) {
+      pData.points = 0;
+    } else {
+      pData.points = this.isRevolutionMode() ? val : Math.max(0, val);
+    }
+    pData.cardCounts = undefined;
+    pData.diablillos = undefined;
     current[playerId] = pData;
     this.draftInputs.set(current);
   }
@@ -1725,6 +1809,36 @@ export class PelusasScorerComponent {
     this.expandedCardCounter.set(current);
   }
 
+  adjustDiablillos(playerId: string, delta: number) {
+    const current = { ...this.draftInputs() };
+    const pData = { ...(current[playerId] || { points: 0, lostToWind: false }) };
+
+    if (pData.lostToWind) return;
+
+    const currentCount = pData.diablillos || 0;
+    const newCount = Math.max(0, currentCount + delta);
+
+    if (newCount === 0) {
+      delete pData.diablillos;
+    } else {
+      pData.diablillos = newCount;
+    }
+
+    // Recalcular puntos a partir de cartas y diablillos
+    let sum = 0;
+    if (pData.cardCounts && Object.keys(pData.cardCounts).length > 0) {
+      for (const [k, v] of Object.entries(pData.cardCounts)) {
+        sum += parseInt(k, 10) * (v || 0);
+      }
+      pData.points = sum - newCount * 7;
+    } else {
+      pData.points = (pData.points || 0) + delta * -7;
+    }
+
+    current[playerId] = pData;
+    this.draftInputs.set(current);
+  }
+
   adjustCardCount(playerId: string, cardNum: number, delta: number) {
     const current = { ...this.draftInputs() };
     const pData = { ...(current[playerId] || { points: 0, lostToWind: false }) };
@@ -1743,10 +1857,13 @@ export class PelusasScorerComponent {
 
     pData.cardCounts = cards;
 
-    // Recalcular puntos a partir de cartas
+    // Recalcular puntos a partir de cartas y diablillos
     let sum = 0;
     for (const [k, v] of Object.entries(cards)) {
       sum += parseInt(k, 10) * (v || 0);
+    }
+    if (this.isRevolutionMode() && pData.diablillos) {
+      sum -= pData.diablillos * 7;
     }
     pData.points = sum;
 

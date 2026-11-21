@@ -36,6 +36,13 @@ export const PELUSAS_DEFINITION: GameDefinition<
   },
   configOptions: [
     {
+      key: 'revolutionMode',
+      label: 'Versión Pelusas Revolution',
+      type: 'boolean',
+      defaultValue: false,
+      description: 'Activa la edición Revolution: cartas especiales, Diablillos (-7 pts), cartas de acción y mayor interacción.',
+    },
+    {
       key: 'rounds',
       label: 'Número de Rondas',
       type: 'number',

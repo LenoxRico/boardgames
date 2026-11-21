@@ -3,12 +3,14 @@ import { GameEngine } from '../../core/models/game.interface';
 export interface PelusasConfig {
   rounds: number; // Número de rondas a jugar (por defecto 3)
   targetScore?: number; // Opcional: alcanzar puntaje objetivo (ej. 100)
+  revolutionMode?: boolean; // Versión Pelusas Revolution
 }
 
 export interface PelusasRoundInput {
   points: number; // Puntos obtenidos en la ronda
   lostToWind?: boolean; // ¿Perdió todo por corriente de aire en esta ronda?
   cardCounts?: Record<number, number>; // Desglose opcional de cartas (1 al 10)
+  diablillos?: number; // Pelusas Revolution: cada diablillo resta -7 puntos
 }
 
 export interface PelusasRoundResult {
@@ -17,6 +19,7 @@ export interface PelusasRoundResult {
   lostToWind: boolean;
   totalCardsCount: number;
   cardCounts?: Record<number, number>;
+  diablillos?: number;
 }
 
 export interface PelusasRanking {
@@ -25,6 +28,7 @@ export interface PelusasRanking {
   rank: number;
   onesCount: number;
   twosCount: number;
+  diablillosCount?: number;
 }
 
 export class PelusasEngine
@@ -40,10 +44,12 @@ export class PelusasEngine
     config: PelusasConfig
   ): Record<string, PelusasRoundResult> {
     const results: Record<string, PelusasRoundResult> = {};
+    const isRev = !!config.revolutionMode;
 
     for (const [playerId, input] of Object.entries(inputs)) {
       const prev = previousScores[playerId] ?? 0;
       const lostToWind = !!input.lostToWind;
+      const diablillos = isRev && input.diablillos ? input.diablillos : 0;
 
       let roundScore = 0;
       let totalCardsCount = 0;
@@ -58,9 +64,19 @@ export class PelusasEngine
             roundScore += val * qty;
             totalCardsCount += qty;
           }
+          if (diablillos > 0) {
+            roundScore += diablillos * -7;
+          }
         } else {
           // Si ingresó los puntos directamente
-          roundScore = Math.max(0, input.points ?? 0);
+          const basePoints = input.points ?? 0;
+          roundScore = basePoints;
+          if (diablillos > 0) {
+            roundScore += diablillos * -7;
+          }
+          if (!isRev) {
+            roundScore = Math.max(0, roundScore);
+          }
         }
       }
 
@@ -70,6 +86,7 @@ export class PelusasEngine
         lostToWind,
         totalCardsCount,
         cardCounts: input.cardCounts ? { ...input.cardCounts } : undefined,
+        diablillos: diablillos > 0 ? diablillos : undefined,
       };
     }
 
@@ -109,8 +126,10 @@ export class PelusasEngine
 
     // Calcular desglose acumulado de cartas para desempate si está disponible
     const aggregatedCards: Record<string, Record<number, number>> = {};
+    const diablillosTotals: Record<string, number> = {};
     for (const pid of playerIds) {
       aggregatedCards[pid] = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0 };
+      diablillosTotals[pid] = 0;
     }
 
     if (allRoundResults) {
@@ -121,6 +140,9 @@ export class PelusasEngine
               const val = parseInt(valStr, 10);
               aggregatedCards[pid][val] = (aggregatedCards[pid][val] || 0) + (qty || 0);
             }
+          }
+          if (res.diablillos) {
+            diablillosTotals[pid] = (diablillosTotals[pid] || 0) + res.diablillos;
           }
         }
       }
@@ -166,6 +188,7 @@ export class PelusasEngine
       rank: idx + 1,
       onesCount: aggregatedCards[pid]?.[1] ?? 0,
       twosCount: aggregatedCards[pid]?.[2] ?? 0,
+      diablillosCount: diablillosTotals[pid],
     }));
 
     let reason: string | undefined;

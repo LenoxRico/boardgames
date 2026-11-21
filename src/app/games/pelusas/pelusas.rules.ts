@@ -65,6 +65,18 @@ export const PELUSAS_RULES: GameRules = {
             'Desempate oficial: más unos, luego más doses, etc.',
           ],
         },
+        {
+          id: 'sec-revolution',
+          title: 'Novedades de Pelusas Revolution',
+          icon: 'local_fire_department',
+          content:
+            'La edición Revolution añade gran interacción y caos con cartas especiales: Diablillos (-7 pts obligatorios), Aspiradoras para asegurar columnas al instante, Atrapa para robar columnas enteras a rivales, Seguro anti-corriente de aire, Regalos envenenados y Angelitos.',
+          highlights: [
+            'Diablillos: -7 puntos cada uno (¡restan al marcador!)',
+            'Cartas de acción: Aspira (Aspiradora), Atrapa y Seguro',
+            'Pelusas especiales: Regalo, Angelito y Parejita',
+          ],
+        },
       ],
       full: [
         {
@@ -102,6 +114,18 @@ export const PELUSAS_RULES: GameRules = {
             '1. Gana el jugador con la mayor cantidad de cartas con el número 1.\n' +
             '2. Si persiste el empate, quien tenga más cartas del número 2.\n' +
             '3. Se continúa comparando número por número (3, 4, 5...) hasta desempatar.',
+        },
+        {
+          id: 'full-revolution',
+          title: '5. Reglas Especiales: Pelusas Revolution',
+          icon: 'bolt',
+          content:
+            'En la edición Pelusas Revolution se incorporan cartas con dinámicas directas:\n\n' +
+            '• Diablillos (-7 Puntos): Si revelas un diablillo, estás obligado a cargarlo junto con todos los diablillos visibles en mesa. Cada uno resta 7 puntos de tu puntuación total.\n\n' +
+            '• Aspira (Aspiradora): Acción inmediata que permite enviar una columna entera de cartas descubiertas a tu montón seguro de puntos antes de seguir tentando la suerte.\n\n' +
+            '• Atrapa: Te permite robar una columna completa de pelusas descubiertas a otro jugador, sin importar el número.\n\n' +
+            '• Seguro: Protege tu turno; si revelas un número repetido, el Seguro se descarta pero no sufres la corriente de aire.\n\n' +
+            '• Regalos & Angelitos: Los regalos alteran el aseguramiento de cartas al inicio del turno y los angelitos otorgan bonificaciones directas.',
         },
       ],
     },
@@ -167,6 +191,18 @@ export const PELUSAS_RULES: GameRules = {
             'Official tiebreaker: most 1s, then most 2s, etc.',
           ],
         },
+        {
+          id: 'sec-revolution',
+          title: 'Pelusas Revolution Edition',
+          icon: 'local_fire_department',
+          content:
+            'The Revolution edition introduces high player interaction and special cards: Little Devils / Diablillos (-7 points each), Vacuums (Aspira) to instantly bank a column, Traps (Atrapa) to steal columns, Insurance against busts, and Poisoned Gifts.',
+          highlights: [
+            'Diablillos: -7 points each (subtracted from score!)',
+            'Action cards: Vacuum (Aspira), Steal (Atrapa), Insurance (Seguro)',
+            'Special dust bunnies: Gifts, Angels, and Pairs',
+          ],
+        },
       ],
       full: [
         {
@@ -204,6 +240,18 @@ export const PELUSAS_RULES: GameRules = {
             '1. The player with the most number 1 cards wins.\n' +
             '2. If still tied, the player with the most number 2 cards wins.\n' +
             '3. Continue comparing card counts in ascending order (3, 4, 5...) until broken.',
+        },
+        {
+          id: 'full-revolution',
+          title: '5. Revolution Edition: Special Cards & Actions',
+          icon: 'bolt',
+          content:
+            'In Pelusas Revolution, special cards shake up gameplay:\n\n' +
+            '• Diablillos (-7 Points): Whenever a devil is drawn, the player must take it and all other visible devils on the table. Each subtracts 7 points from the final score.\n\n' +
+            '• Aspira (Vacuum): An action card allowing you to immediately move an entire column of face-up cards to your safe score pile before risking further.\n\n' +
+            '• Atrapa (Steal Column): Allows you to steal any opponent’s entire face-up column regardless of number.\n\n' +
+            '• Seguro (Insurance): Discarded instead of losing your cards when drawing a duplicate number.\n\n' +
+            '• Gifts & Angels: Gifts disrupt banking and angels provide direct positive scoring.',
         },
       ],
     },
