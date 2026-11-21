@@ -14,7 +14,17 @@ import { GameDefinition } from '../../core/models/game.interface';
   template: `
     <div class="new-match-page">
       @if (selectedGame(); as game) {
-        <div class="match-setup-card">
+        <div
+          class="match-setup-card"
+          [style.background-image]="game.metadata.theme?.gradient"
+        >
+          @if (game.metadata.theme?.bgImageUrl; as bg) {
+            <div
+              class="card-thematic-art"
+              [style.background-image]="'url(' + bg + ')'"
+            ></div>
+          }
+
           <!-- Encabezado de Juego -->
           <div class="game-header">
             <div class="game-badge-icon">
@@ -198,6 +208,8 @@ import { GameDefinition } from '../../core/models/game.interface';
     }
 
     .match-setup-card {
+      position: relative;
+      overflow: hidden;
       background: var(--color-surface-container);
       border: 1px solid var(--color-border-default);
       border-radius: var(--radius-xl);
@@ -206,6 +218,34 @@ import { GameDefinition } from '../../core/models/game.interface';
       flex-direction: column;
       gap: var(--space-lg);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-thematic-art {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 260px;
+      height: 260px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: top right;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 85%);
+      -webkit-mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 85%);
+      transition: opacity 0.2s ease;
+    }
+
+    :host-context([data-theme="light"]) .card-thematic-art {
+      opacity: 0.6;
+    }
+
+    .game-header,
+    .setup-section,
+    .start-match-bar {
+      position: relative;
+      z-index: 1;
     }
 
     .game-header {

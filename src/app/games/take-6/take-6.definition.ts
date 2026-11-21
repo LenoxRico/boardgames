@@ -16,6 +16,13 @@ export const TAKE_6_DEFINITION: GameDefinition<Take6Config, Take6RoundInput> = {
     hasLoser: true,
     scoreUnit: 'cuernos',
     tagline: 'Coloca cartas con astucia en 4 filas y evita ser quien coloque la 6ª carta.',
+    theme: {
+      primaryColor: '#10b981',
+      secondaryColor: '#dc2626',
+      accentColor: '#047857',
+      gradient: 'radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.16) 0%, rgba(220, 38, 38, 0.14) 50%, transparent 80%)',
+      bgImageUrl: 'assets/games/take-6-bg.svg',
+    },
   },
   configOptions: [
     {

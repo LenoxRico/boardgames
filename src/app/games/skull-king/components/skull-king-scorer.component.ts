@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatchRecord } from '../../../core/models/match.interface';
 import { MatchManagerService } from '../../../core/services/match-manager.service';
+import { GameRegistryService } from '../../../core/services/game-registry.service';
 import {
   SkullKingConfig,
   SkullKingRoundInput,
@@ -24,7 +25,16 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
   template: `
     <div class="scorer-container">
       <!-- 1. Cabecera Contextual de Partida -->
-      <div class="match-header-card">
+      <div
+        class="match-header-card"
+        [style.background-image]="gameTheme()?.gradient"
+      >
+        @if (gameTheme()?.bgImageUrl; as bg) {
+          <div
+            class="card-thematic-art"
+            [style.background-image]="'url(' + bg + ')'"
+          ></div>
+        }
         <div class="header-top">
           <div class="game-info">
             <div class="game-title-row">
@@ -127,7 +137,16 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
       <!-- Modal / Vista de Resultado Final de Partida -->
       @if (showFinalResultsModal() || match().status === 'completed') {
         <div class="final-results-overlay">
-          <div class="final-results-card">
+          <div
+            class="final-results-card"
+            [style.background-image]="gameTheme()?.gradient"
+          >
+            @if (gameTheme()?.bgImageUrl; as bg) {
+              <div
+                class="card-thematic-art"
+                [style.background-image]="'url(' + bg + ')'"
+              ></div>
+            }
             <div class="results-header">
               <span class="trophy-badge">🏆</span>
               <h2 class="results-title">¡Partida Finalizada!</h2>
@@ -500,18 +519,56 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
   `,
   styles: [`
     .scorer-container {
+      position: relative;
       display: flex;
       flex-direction: column;
       gap: var(--space-md);
       padding-bottom: 120px;
     }
 
+    .match-header-card,
+    .players-list,
+    .matrix-card {
+      position: relative;
+      z-index: 1;
+    }
+
     .match-header-card {
+      position: relative;
+      overflow: hidden;
       background: var(--color-surface-container);
       border: 1px solid var(--color-border-default);
       border-radius: var(--radius-xl);
       padding: var(--space-md);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-thematic-art {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 220px;
+      height: 100%;
+      max-height: 220px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: top right;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 85%);
+      -webkit-mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 85%);
+      transition: opacity 0.2s ease;
+    }
+
+    :host-context([data-theme="light"]) .card-thematic-art {
+      opacity: 0.6;
+    }
+
+    .header-top,
+    .stepper-section {
+      position: relative;
+      z-index: 1;
     }
 
     .header-top {
@@ -759,6 +816,8 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
     }
 
     .final-results-card {
+      position: relative;
+      overflow: hidden;
       background: var(--color-surface-container);
       border: 1px solid var(--color-border-strong);
       border-radius: var(--radius-xl);
@@ -771,6 +830,13 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
       display: flex;
       flex-direction: column;
       gap: var(--space-md);
+    }
+
+    .results-header,
+    .podium-display,
+    .results-actions {
+      position: relative;
+      z-index: 1;
     }
 
     .results-header {
@@ -1462,9 +1528,11 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
 export class SkullKingScorerComponent {
   match = input.required<MatchRecord<SkullKingConfig, SkullKingRoundInput>>();
   private matchManager = inject(MatchManagerService);
+  private registry = inject(GameRegistryService);
   private router = inject(Router);
   private engine = new SkullKingEngine();
 
+  readonly gameTheme = computed(() => this.registry.getGame(this.match().gameId)?.metadata?.theme);
   readonly quickRules = SKULL_KING_RULES.content.es.summary;
 
   showRulesModal = signal(false);

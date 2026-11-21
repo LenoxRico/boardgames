@@ -17,6 +17,13 @@ export const SKULL_KING_DEFINITION: GameDefinition<SkullKingConfig, SkullKingRou
     hasLoser: false,
     scoreUnit: 'pts',
     tagline: 'Predice tus bazas con precisión pirata a lo largo de 10 rondas intensas.',
+    theme: {
+      primaryColor: '#f59e0b',
+      secondaryColor: '#1e3a8a',
+      accentColor: '#d97706',
+      gradient: 'radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.16) 0%, rgba(30, 58, 138, 0.22) 50%, transparent 80%)',
+      bgImageUrl: 'assets/games/skull-king-bg.svg',
+    },
   },
   configOptions: [
     {

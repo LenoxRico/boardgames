@@ -11,9 +11,19 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
   imports: [CommonModule, RouterModule],
   template: `
     <div class="rules-page">
-      <!-- Selector de Juego y Barra Superior de Controles -->
-      <div class="controls-card">
-        <div class="selector-lang-row">
+      @if (selectedGame(); as game) {
+        <!-- Selector de Juego y Barra Superior de Controles -->
+        <div
+          class="controls-card"
+          [style.background-image]="game.metadata.theme?.gradient"
+        >
+          @if (game.metadata.theme?.bgImageUrl; as bg) {
+            <div
+              class="card-thematic-art"
+              [style.background-image]="'url(' + bg + ')'"
+            ></div>
+          }
+          <div class="selector-lang-row">
           <!-- Selector Dropdown de Juego -->
           <div class="game-dropdown-container">
             <select
@@ -87,8 +97,9 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
           </button>
         </div>
       </div>
+    }
 
-      <!-- Contenido de Reglas -->
+    <!-- Contenido de Reglas -->
       @if (selectedGame(); as game) {
         <div class="rules-content-section">
           <!-- Chips de Secciones Rápidas -->
@@ -159,7 +170,15 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
       padding-bottom: 90px;
     }
 
+    .controls-card,
+    .rules-content-section {
+      position: relative;
+      z-index: 1;
+    }
+
     .controls-card {
+      position: relative;
+      overflow: hidden;
       background: var(--color-surface-container);
       border: 1px solid var(--color-border-default);
       border-radius: var(--radius-xl);
@@ -168,6 +187,34 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
       flex-direction: column;
       gap: var(--space-sm);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-thematic-art {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 240px;
+      height: 240px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: top right;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 85%);
+      -webkit-mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 85%);
+      transition: opacity 0.2s ease;
+    }
+
+    :host-context([data-theme="light"]) .card-thematic-art {
+      opacity: 0.6;
+    }
+
+    .selector-lang-row,
+    .rules-meta-indicator,
+    .mode-segmented-bar {
+      position: relative;
+      z-index: 1;
     }
 
     .selector-lang-row {

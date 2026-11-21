@@ -2,6 +2,14 @@ import { Type } from '@angular/core';
 
 export type VictoryConditionType = 'highest_score' | 'lowest_score';
 
+export interface GameVisualTheme {
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  gradient: string;
+  bgImageUrl: string;
+}
+
 export interface GameMetadata {
   id: string;
   name: string;
@@ -15,6 +23,7 @@ export interface GameMetadata {
   hasLoser: boolean;
   scoreUnit: string;
   tagline: string;
+  theme?: GameVisualTheme;
 }
 
 export interface GameConfigOption<T = unknown> {

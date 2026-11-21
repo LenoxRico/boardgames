@@ -16,6 +16,13 @@ export const MINO_DICE_DEFINITION: GameDefinition<MinoDiceConfig, MinoDiceRoundI
     hasLoser: false,
     scoreUnit: 'pts',
     tagline: 'Lanza tus dados en el laberinto, predice con precisión tus bazas y desata al Minotauro, Grifo y Sirena.',
+    theme: {
+      primaryColor: '#06b6d4',
+      secondaryColor: '#312e81',
+      accentColor: '#0d9488',
+      gradient: 'radial-gradient(circle at 85% 15%, rgba(6, 182, 212, 0.16) 0%, rgba(49, 46, 129, 0.22) 50%, transparent 80%)',
+      bgImageUrl: 'assets/games/mino-dice-bg.svg',
+    },
   },
   configOptions: [
     {

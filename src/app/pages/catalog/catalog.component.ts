@@ -13,8 +13,14 @@ import { StorageService } from '../../core/services/storage.service';
       <!-- Banner de Partida Activa si existe -->
       @if (latestActiveMatch(); as active) {
         @let game = getGame(active.gameId);
-        <div class="active-match-hero">
+        <div class="active-match-hero" [style.background-image]="game?.metadata?.theme?.gradient">
           <div class="hero-glow"></div>
+          @if (game?.metadata?.theme?.bgImageUrl; as bg) {
+            <div
+              class="hero-thematic-art"
+              [style.background-image]="'url(' + bg + ')'"
+            ></div>
+          }
           <div class="hero-content">
             <div class="hero-header-row">
               <span class="badge badge-pulse">
@@ -48,7 +54,13 @@ import { StorageService } from '../../core/services/storage.service';
       <!-- Cuadrícula de Juegos -->
       <div class="games-grid">
         @for (game of games(); track game.metadata.id) {
-          <div class="game-card">
+          <div class="game-card" [style.background-image]="game.metadata.theme?.gradient">
+            @if (game.metadata.theme?.bgImageUrl; as bg) {
+              <div
+                class="card-thematic-art"
+                [style.background-image]="'url(' + bg + ')'"
+              ></div>
+            }
             <div class="card-top">
               <div class="game-badge-icon">
                 <span class="game-emoji">{{ game.metadata.emoji }}</span>
@@ -201,6 +213,26 @@ import { StorageService } from '../../core/services/storage.service';
       color: var(--color-text-secondary);
     }
 
+    .hero-thematic-art {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 320px;
+      height: 100%;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: top right;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 1;
+      mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 80%);
+      -webkit-mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 80%);
+    }
+
+    :host-context([data-theme="light"]) .hero-thematic-art {
+      opacity: 0.6;
+    }
+
     .games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -208,6 +240,8 @@ import { StorageService } from '../../core/services/storage.service';
     }
 
     .game-card {
+      position: relative;
+      overflow: hidden;
       background: var(--color-surface-container);
       border: 1px solid var(--color-border-default);
       border-radius: var(--radius-xl);
@@ -217,6 +251,41 @@ import { StorageService } from '../../core/services/storage.service';
       gap: var(--space-sm);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
       transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .card-thematic-art {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 170px;
+      height: 170px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: top right;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 80%);
+      -webkit-mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 80%);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .game-card:hover .card-thematic-art {
+      opacity: 0.8;
+      transform: scale(1.06);
+    }
+
+    :host-context([data-theme="light"]) .card-thematic-art {
+      opacity: 0.6;
+    }
+
+    :host-context([data-theme="light"]) .game-card:hover .card-thematic-art {
+      opacity: 0.8;
+    }
+
+    .card-top, .card-tagline, .card-meta-chips, .card-actions {
+      position: relative;
+      z-index: 1;
     }
 
     .game-card:hover {
