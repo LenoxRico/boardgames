@@ -22,7 +22,7 @@ export const TAKE_6_DEFINITION: GameDefinition<Take6Config, Take6RoundInput> = {
       key: 'roundsMode',
       label: 'Modo de Rondas Fijas (4 Rondas)',
       type: 'boolean',
-      defaultValue: false,
+      defaultValue: true,
       description: 'Juega solo 4 rondas. Al terminar la 4ª ronda, pierde quien haya acumulado más cuernos.',
     },
     {

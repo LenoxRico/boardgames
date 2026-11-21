@@ -314,79 +314,116 @@ import { TAKE_6_RULES } from '../take-6.rules';
               </span>
             </div>
 
-            <!-- Botonera Táctil Rápida de Cuernos -->
-            <div class="horns-buttons-grid">
-              <button
-                type="button"
-                class="horn-btn"
-                [class.active-horn]="pData.bullheads === 0"
-                (click)="setPlayerBullheads(player.id, 0)"
-              >
-                <span class="btn-num">0</span>
-                <span class="btn-sub">Limpio</span>
-              </button>
-              <button
-                type="button"
-                class="horn-btn"
-                [class.active-horn]="pData.bullheads === 1"
-                (click)="setPlayerBullheads(player.id, 1)"
-              >
-                <span class="btn-num">+1</span>
-                <span class="btn-sub">🐂</span>
-              </button>
-              <button
-                type="button"
-                class="horn-btn"
-                [class.active-horn]="pData.bullheads === 2"
-                (click)="setPlayerBullheads(player.id, 2)"
-              >
-                <span class="btn-num">+2</span>
-                <span class="btn-sub">🐂🐂</span>
-              </button>
-              <button
-                type="button"
-                class="horn-btn"
-                [class.active-horn]="pData.bullheads === 3"
-                (click)="setPlayerBullheads(player.id, 3)"
-              >
-                <span class="btn-num">+3</span>
-                <span class="btn-sub">🐂</span>
-              </button>
-              <button
-                type="button"
-                class="horn-btn"
-                [class.active-horn]="pData.bullheads === 5"
-                (click)="setPlayerBullheads(player.id, 5)"
-              >
-                <span class="btn-num">+5</span>
-                <span class="btn-sub">🐂</span>
-              </button>
-              <button
-                type="button"
-                class="horn-btn"
-                [class.active-horn]="pData.bullheads === 7"
-                (click)="setPlayerBullheads(player.id, 7)"
-              >
-                <span class="btn-num">+7</span>
-                <span class="btn-sub">🐂</span>
-              </button>
-              <button
-                type="button"
-                class="horn-btn"
-                [class.active-horn]="pData.bullheads === 10"
-                (click)="setPlayerBullheads(player.id, 10)"
-              >
-                <span class="btn-num">+10</span>
-                <span class="btn-sub">🐂</span>
-              </button>
-              <button
-                type="button"
-                class="horn-btn horn-btn-stepper"
-                (click)="incrementPlayerBullheads(player.id, 1)"
-              >
-                <span class="btn-num">+1</span>
-                <span class="btn-sub">Sumar</span>
-              </button>
+            <!-- Control de Ingreso de Cuernos: Entrada Manual y Presets -->
+            <div class="horns-entry-section">
+              <div class="manual-horns-box">
+                <div class="manual-label-row">
+                  <label [for]="'horns-input-' + player.id" class="manual-input-label">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span>Cuernos obtenidos:</span>
+                  </label>
+                  <span class="manual-value-pill tabular-nums" [class.danger-val]="pData.bullheads > 10">
+                    +{{ pData.bullheads }} cuernos 🐂
+                  </span>
+                </div>
+
+                <div class="manual-input-control-row">
+                  <button
+                    type="button"
+                    class="stepper-action-btn minus"
+                    (click)="incrementPlayerBullheads(player.id, -1)"
+                    [disabled]="(pData.bullheads || 0) <= 0"
+                    title="Restar 1 cuerno"
+                  >
+                    <span class="material-symbols-outlined">remove</span>
+                  </button>
+
+                  <div class="input-number-wrap">
+                    <input
+                      [id]="'horns-input-' + player.id"
+                      type="number"
+                      min="0"
+                      max="150"
+                      inputmode="numeric"
+                      class="manual-numeric-field tabular-nums"
+                      [value]="pData.bullheads ?? 0"
+                      (input)="onManualBullheadsInput(player.id, $event)"
+                      (focus)="$any($event.target).select()"
+                      placeholder="0"
+                    />
+                    <span class="field-unit">cuernos</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="stepper-action-btn plus"
+                    (click)="incrementPlayerBullheads(player.id, 1)"
+                    title="Sumar 1 cuerno"
+                  >
+                    <span class="material-symbols-outlined">add</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Atajos / Presets para agilidad en mesa -->
+              <div class="quick-presets-row">
+                <button
+                  type="button"
+                  class="preset-chip"
+                  [class.active-preset]="pData.bullheads === 0"
+                  (click)="setPlayerBullheads(player.id, 0)"
+                >
+                  0
+                </button>
+                <button
+                  type="button"
+                  class="preset-chip"
+                  [class.active-preset]="pData.bullheads === 1"
+                  (click)="setPlayerBullheads(player.id, 1)"
+                >
+                  +1
+                </button>
+                <button
+                  type="button"
+                  class="preset-chip"
+                  [class.active-preset]="pData.bullheads === 2"
+                  (click)="setPlayerBullheads(player.id, 2)"
+                >
+                  +2
+                </button>
+                <button
+                  type="button"
+                  class="preset-chip"
+                  [class.active-preset]="pData.bullheads === 3"
+                  (click)="setPlayerBullheads(player.id, 3)"
+                >
+                  +3
+                </button>
+                <button
+                  type="button"
+                  class="preset-chip"
+                  [class.active-preset]="pData.bullheads === 5"
+                  (click)="setPlayerBullheads(player.id, 5)"
+                >
+                  +5
+                </button>
+                <button
+                  type="button"
+                  class="preset-chip"
+                  [class.active-preset]="pData.bullheads === 7"
+                  (click)="setPlayerBullheads(player.id, 7)"
+                >
+                  +7
+                </button>
+                <button
+                  type="button"
+                  class="preset-chip"
+                  [class.active-preset]="pData.bullheads === 10"
+                  (click)="setPlayerBullheads(player.id, 10)"
+                >
+                  +10
+                </button>
+              </div>
             </div>
           </div>
         }
@@ -499,13 +536,45 @@ import { TAKE_6_RULES } from '../take-6.rules';
           <button
             type="button"
             class="btn-secondary-action btn-danger"
-            (click)="finishGameEarly()"
+            (click)="askToAbandonMatch()"
           >
-            <span class="material-symbols-outlined">home</span>
+            <span class="material-symbols-outlined">exit_to_app</span>
             <span>Finalizar Partida</span>
           </button>
         </div>
       </div>
+
+      <!-- Modal de Confirmación: Abandonar Partida en Medio del Juego -->
+      @if (showAbandonConfirmModal()) {
+        <div class="modal-overlay" (click)="cancelAbandon()">
+          <div class="modal-dialog-card" (click)="$event.stopPropagation()">
+            <div class="modal-icon-badge danger-badge">
+              <span class="material-symbols-outlined">warning</span>
+            </div>
+            <h3 class="modal-title">¿Abandonar la partida?</h3>
+            <p class="modal-message">
+              Estás en medio de una partida de Take 6. Si confirmas, saldrás al catálogo de juegos y esta partida <strong>no se guardará en el historial</strong>.
+            </p>
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-modal-cancel"
+                (click)="cancelAbandon()"
+              >
+                Cancelar y Continuar Jugando
+              </button>
+              <button
+                type="button"
+                class="btn-modal-confirm-abandon"
+                (click)="confirmAbandon()"
+              >
+                <span class="material-symbols-outlined">delete_forever</span>
+                <span>Sí, Abandonar Partida</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
   styles: [`
@@ -1111,57 +1180,258 @@ import { TAKE_6_RULES } from '../take-6.rules';
       color: var(--color-primary);
     }
 
-    .horns-buttons-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
+    .horns-entry-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .manual-horns-box {
+      background: var(--color-surface-container-high);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-sm);
+      display: flex;
+      flex-direction: column;
       gap: 6px;
     }
 
-    @media (max-width: 600px) {
-      .horns-buttons-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
+    .manual-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
     }
 
-    .horn-btn {
-      min-height: 48px;
-      padding: 6px 2px;
+    .manual-input-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .manual-input-label .material-symbols-outlined {
+      font-size: 16px;
+      color: var(--color-primary);
+    }
+
+    .manual-value-pill {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--color-primary);
+    }
+
+    .manual-value-pill.danger-val {
+      color: #ef4444;
+    }
+
+    .manual-input-control-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .stepper-action-btn {
+      width: 44px;
+      height: 44px;
       border-radius: var(--radius-md);
-      background: var(--color-surface-container-high);
-      border: 1px solid var(--color-border-subtle);
+      background: var(--color-surface-container-highest);
+      border: 1px solid var(--color-border-default);
       color: var(--color-text-primary);
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: background 0.15s ease;
+      flex-shrink: 0;
     }
 
-    .horn-btn:active {
-      transform: scale(0.95);
+    .stepper-action-btn:hover:not(:disabled) {
+      background: var(--color-primary-container);
+      color: var(--color-primary);
     }
 
-    .btn-num {
-      font-size: 16px;
+    .stepper-action-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .input-number-wrap {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .manual-numeric-field {
+      width: 100%;
+      height: 44px;
+      background: var(--color-surface-container-lowest);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      color: var(--color-text-primary);
+      font-size: 18px;
       font-weight: 800;
+      text-align: center;
+      padding: 0 44px 0 12px;
+      font-family: inherit;
+      transition: border-color 0.15s ease;
     }
 
-    .btn-sub {
-      font-size: 10px;
+    .manual-numeric-field:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(163, 206, 241, 0.25);
+    }
+
+    .field-unit {
+      position: absolute;
+      right: 12px;
+      font-size: 11px;
+      font-weight: 700;
       color: var(--color-text-muted);
+      pointer-events: none;
     }
 
-    .horn-btn.active-horn {
+    .quick-presets-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 2px 0;
+    }
+
+    .preset-chip {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface-container-high);
+      border: 1px solid var(--color-border-subtle);
+      color: var(--color-text-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .preset-chip:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    .preset-chip.active-preset {
       background: var(--color-primary);
       color: var(--color-on-primary);
       border-color: var(--color-primary);
-      box-shadow: 0 2px 8px rgba(163, 206, 241, 0.4);
+      box-shadow: 0 2px 8px rgba(163, 206, 241, 0.35);
     }
 
-    .horn-btn.active-horn .btn-sub {
-      color: var(--color-on-primary);
+    /* Modal de Confirmación de Abandono */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-md);
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-dialog-card {
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-2xl);
+      padding: var(--space-xl);
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-md);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-icon-badge {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .modal-icon-badge .material-symbols-outlined {
+      font-size: 30px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .modal-message {
+      margin: 0;
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      width: 100%;
+      margin-top: var(--space-xs);
+    }
+
+    .btn-modal-cancel {
+      width: 100%;
+      min-height: 44px;
+      border-radius: var(--radius-lg);
+      background: var(--color-surface-container-high);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
       font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-modal-cancel:hover {
+      background: var(--color-surface-container-highest);
+    }
+
+    .btn-modal-confirm-abandon {
+      width: 100%;
+      min-height: 44px;
+      border-radius: var(--radius-lg);
+      background: #dc2626;
+      border: none;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      transition: background 0.15s ease;
+    }
+
+    .btn-modal-confirm-abandon:hover {
+      background: #b91c1c;
     }
 
     .matrix-card {
@@ -1411,6 +1681,7 @@ export class Take6ScorerComponent {
 
   showRulesModal = signal(false);
   showFinalResultsModal = signal(false);
+  showAbandonConfirmModal = signal(false);
   draftInputs = signal<Record<string, Take6RoundInput>>({});
 
   isRoundsMode = computed(() => !!this.match().config.roundsMode);
@@ -1563,11 +1834,25 @@ export class Take6ScorerComponent {
     }
   }
 
-  async finishGameEarly(): Promise<void> {
-    if (confirm('¿Deseas finalizar la partida y volver al catálogo?')) {
-      await this.matchManager.finalizeMatch();
-      this.router.navigate(['/tabs/catalog']);
-    }
+  onManualBullheadsInput(playerId: string, event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const val = target.value.trim();
+    const parsed = val === '' ? 0 : parseInt(val, 10);
+    this.setPlayerBullheads(playerId, isNaN(parsed) ? 0 : Math.max(0, parsed));
+  }
+
+  askToAbandonMatch(): void {
+    this.showAbandonConfirmModal.set(true);
+  }
+
+  cancelAbandon(): void {
+    this.showAbandonConfirmModal.set(false);
+  }
+
+  async confirmAbandon(): Promise<void> {
+    this.showAbandonConfirmModal.set(false);
+    await this.matchManager.abandonMatch();
+    this.router.navigate(['/tabs/catalog']);
   }
 
   returnToCatalog(): void {

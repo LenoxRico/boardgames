@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Take6Engine } from './take-6.engine';
+import { TAKE_6_DEFINITION } from './take-6.definition';
 
 describe('Take6Engine', () => {
   const engine = new Take6Engine();
@@ -79,5 +80,11 @@ describe('Take6Engine', () => {
     expect(status.isGameOver).toBe(true);
     expect(status.winnerIds).toEqual(['p1', 'p2']);
     expect(status.loserIds).toEqual(['p3', 'p4']);
+  });
+
+  it('has roundsMode checked (default true) in definition config options', () => {
+    const roundsOpt = TAKE_6_DEFINITION.configOptions.find((opt) => opt.key === 'roundsMode');
+    expect(roundsOpt).toBeDefined();
+    expect(roundsOpt?.defaultValue).toBe(true);
   });
 });

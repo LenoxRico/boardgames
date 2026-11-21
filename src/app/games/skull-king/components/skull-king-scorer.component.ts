@@ -456,14 +456,46 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
             <button
               type="button"
               class="btn-secondary-action btn-danger"
-              (click)="finishGameEarly()"
+              (click)="askToAbandonMatch()"
             >
-              <span class="material-symbols-outlined">home</span>
+              <span class="material-symbols-outlined">exit_to_app</span>
               <span>Finalizar Partida</span>
             </button>
           </div>
         }
       </div>
+
+      <!-- Modal de Confirmación: Abandonar Partida en Medio del Juego -->
+      @if (showAbandonConfirmModal()) {
+        <div class="modal-overlay" (click)="cancelAbandon()">
+          <div class="modal-dialog-card" (click)="$event.stopPropagation()">
+            <div class="modal-icon-badge danger-badge">
+              <span class="material-symbols-outlined">warning</span>
+            </div>
+            <h3 class="modal-title">¿Abandonar la partida?</h3>
+            <p class="modal-message">
+              Estás en medio de una partida de Skull King. Si confirmas, saldrás al catálogo de juegos y esta partida <strong>no se guardará en el historial</strong>.
+            </p>
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-modal-cancel"
+                (click)="cancelAbandon()"
+              >
+                Cancelar y Continuar Jugando
+              </button>
+              <button
+                type="button"
+                class="btn-modal-confirm-abandon"
+                (click)="confirmAbandon()"
+              >
+                <span class="material-symbols-outlined">delete_forever</span>
+                <span>Sí, Abandonar Partida</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
   styles: [`
@@ -1320,6 +1352,111 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
       font-weight: 700;
       cursor: pointer;
     }
+
+    /* Modal de Confirmación de Abandono */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-md);
+      z-index: 1000;
+    }
+
+    .modal-dialog-card {
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-2xl);
+      padding: var(--space-xl);
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-md);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-icon-badge {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .modal-icon-badge .material-symbols-outlined {
+      font-size: 30px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .modal-message {
+      margin: 0;
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      width: 100%;
+      margin-top: var(--space-xs);
+    }
+
+    .btn-modal-cancel {
+      width: 100%;
+      min-height: 44px;
+      border-radius: var(--radius-lg);
+      background: var(--color-surface-container-high);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-modal-cancel:hover {
+      background: var(--color-surface-container-highest);
+    }
+
+    .btn-modal-confirm-abandon {
+      width: 100%;
+      min-height: 44px;
+      border-radius: var(--radius-lg);
+      background: #dc2626;
+      border: none;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      transition: background 0.15s ease;
+    }
+
+    .btn-modal-confirm-abandon:hover {
+      background: #b91c1c;
+    }
   `],
 })
 export class SkullKingScorerComponent {
@@ -1332,6 +1469,7 @@ export class SkullKingScorerComponent {
 
   showRulesModal = signal(false);
   showFinalResultsModal = signal(false);
+  showAbandonConfirmModal = signal(false);
   viewingRound = signal(1);
   draftInputs = signal<Record<string, SkullKingRoundInput>>({});
 
@@ -1528,11 +1666,18 @@ export class SkullKingScorerComponent {
     }
   }
 
-  async finishGameEarly(): Promise<void> {
-    if (confirm('¿Deseas finalizar la partida con las puntuaciones actuales y volver al catálogo?')) {
-      await this.matchManager.finalizeMatch();
-      this.router.navigate(['/tabs/catalog']);
-    }
+  askToAbandonMatch(): void {
+    this.showAbandonConfirmModal.set(true);
+  }
+
+  cancelAbandon(): void {
+    this.showAbandonConfirmModal.set(false);
+  }
+
+  async confirmAbandon(): Promise<void> {
+    this.showAbandonConfirmModal.set(false);
+    await this.matchManager.abandonMatch();
+    this.router.navigate(['/tabs/catalog']);
   }
 
   returnToCatalog(): void {

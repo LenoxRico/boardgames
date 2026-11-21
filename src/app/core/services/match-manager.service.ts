@@ -249,4 +249,11 @@ export class MatchManagerService {
     this.currentMatch.set(completed);
     await this.storage.completeMatch(completed);
   }
+
+  async abandonMatch(): Promise<void> {
+    const match = this.currentMatch();
+    if (!match) return;
+    await this.storage.removeActiveMatch(match.id);
+    this.currentMatch.set(null);
+  }
 }
