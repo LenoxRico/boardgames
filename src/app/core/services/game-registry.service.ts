@@ -2,6 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { GameDefinition } from '../models/game.interface';
 import { SKULL_KING_DEFINITION } from '../../games/skull-king/skull-king.definition';
 import { TAKE_6_DEFINITION } from '../../games/take-6/take-6.definition';
+import { MINO_DICE_DEFINITION } from '../../games/mino-dice/mino-dice.definition';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ export class GameRegistryService {
     // Register initial core games
     this.register(SKULL_KING_DEFINITION);
     this.register(TAKE_6_DEFINITION);
+    this.register(MINO_DICE_DEFINITION);
   }
 
   register(definition: GameDefinition): void {
