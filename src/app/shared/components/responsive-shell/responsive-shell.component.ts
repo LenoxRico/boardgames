@@ -117,6 +117,10 @@ import { StorageService } from '../../../core/services/storage.service';
       padding: var(--space-md);
       flex-direction: column;
       flex-shrink: 0;
+      position: sticky;
+      top: 60px;
+      height: calc(100vh - 60px);
+      overflow-y: auto;
     }
 
     @media (min-width: 768px) {
@@ -234,7 +238,6 @@ import { StorageService } from '../../../core/services/storage.service';
       flex: 1;
       width: 100%;
       min-width: 0;
-      overflow-y: auto;
     }
 
     /* Mobile Bottom Tab Bar (< 768px) */

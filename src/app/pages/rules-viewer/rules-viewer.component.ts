@@ -94,9 +94,13 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
           <!-- Chips de Secciones Rápidas -->
           <div class="section-chips-row">
             @for (sec of currentSections(); track sec.id) {
-              <a [href]="'#' + sec.id" class="section-chip">
+              <button
+                type="button"
+                class="section-chip"
+                (click)="scrollToSection(sec.id)"
+              >
                 <span>{{ sec.title }}</span>
-              </a>
+              </button>
             }
           </div>
 
@@ -310,12 +314,17 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
       font-weight: 600;
       text-decoration: none;
       white-space: nowrap;
-      transition: border-color 0.15s ease;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
     }
 
     .section-chip:hover {
       border-color: var(--color-primary);
       color: var(--color-primary);
+      background: var(--color-surface-container-high);
     }
 
     .sections-list {
@@ -490,5 +499,12 @@ export class RulesViewerComponent {
 
   setViewMode(mode: 'summary' | 'full'): void {
     this.viewMode.set(mode);
+  }
+
+  scrollToSection(sectionId: string): void {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 }

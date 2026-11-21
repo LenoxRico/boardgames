@@ -1,3 +1,7 @@
+[build]
+  publish = "dist/tabletop-companion/browser"
+  command = "npm run build"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
