@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "tertiary-container": "#a8cbfd",
+          "surface-midnight": "#0B1326",
+          "primary-fixed-dim": "#a1ccee",
+          "surface-container-high": "#292a28",
+          "secondary-container": "#084e6f",
+          "on-error-container": "#ffdad6",
+          "deep-navy": "#274C77",
+          "on-error": "#690005",
+          "secondary": "#97cdf3",
+          "on-secondary": "#00344c",
+          "tertiary": "#d7e6ff",
+          "on-secondary-fixed-variant": "#034c6c",
+          "inverse-primary": "#376381",
+          "surface-tier-2": "#1B2A4A",
+          "on-surface": "#e3e3df",
+          "tertiary-fixed": "#d3e4ff",
+          "primary-fixed": "#cae6ff",
+          "inverse-surface": "#e3e3df",
+          "on-primary-container": "#0B1326",
+          "error": "#ffb4ab",
+          "outline-variant": "#41474d",
+          "ice-white": "#E7ECEF",
+          "on-tertiary-fixed": "#001c38",
+          "surface-tier-1": "#131E38",
+          "sky-blue": "#A3CEF1",
+          "on-tertiary-fixed-variant": "#234873",
+          "on-background": "#e3e3df",
+          "on-primary-fixed": "#001e2f",
+          "error-container": "#93000a",
+          "surface-variant": "#24375E",
+          "surface-container": "#131E38",
+          "slate-neutral": "#8B8C89",
+          "primary-container": "#A3CEF1",
+          "surface-tier-3": "#24375E",
+          "on-primary-fixed-variant": "#1c4b68",
+          "background": "#0B1326",
+          "surface-container-highest": "#24375E",
+          "surface": "#0B1326",
+          "on-surface-variant": "#8B8C89",
+          "surface-container-low": "#10182c",
+          "secondary-fixed": "#c7e7ff",
+          "on-tertiary": "#02315b",
+          "surface-dim": "#0B1326",
+          "on-tertiary-container": "#325681",
+          "outline": "#8B8C89",
+          "surface-container-lowest": "#070c18",
+          "primary": "#A3CEF1",
+          "surface-tint": "#A3CEF1",
+          "surface-bright": "#1B2A4A",
+          "tertiary-fixed-dim": "#a6c9fb",
+          "on-secondary-fixed": "#001e2e",
+          "on-primary": "#0B1326",
+          "inverse-on-surface": "#2f312f",
+          "steel-blue": "#6096BA",
+          "secondary-fixed-dim": "#97cdf3",
+          "on-secondary-container": "#A3CEF1"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "margin-mobile": "1rem",
+          "space-sm": "0.5rem",
+          "space-md": "1rem",
+          "gutter": "1rem",
+          "space-xs": "0.25rem",
+          "gutter-mobile": "0.75rem",
+          "space-lg": "1.5rem",
+          "margin": "1.5rem",
+          "space-xl": "2rem"
+        },
+        "fontFamily": {
+          "headline-xl-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-xl": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-md": [
+            "Plus Jakarta Sans"
+          ],
+          "tabular-score-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "body-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "label-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "tabular-score": [
+            "Plus Jakarta Sans"
+          ],
+          "label-md": [
+            "Plus Jakarta Sans"
+          ],
+          "label-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "body-md": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "body-lg": [
+            "Plus Jakarta Sans"
+          ]
+        },
+        "fontSize": {
+          "headline-xl-mobile": [
+            "32px",
+            {
+              "lineHeight": "40px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "800"
+            }
+          ],
+          "headline-xl": [
+            "40px",
+            {
+              "lineHeight": "48px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "800"
+            }
+          ],
+          "headline-md": [
+            "22px",
+            {
+              "lineHeight": "28px",
+              "fontWeight": "700"
+            }
+          ],
+          "tabular-score-sm": [
+            "24px",
+            {
+              "lineHeight": "28px",
+              "fontWeight": "700"
+            }
+          ],
+          "body-sm": [
+            "12px",
+            {
+              "lineHeight": "16px",
+              "fontWeight": "400"
+            }
+          ],
+          "label-lg": [
+            "14px",
+            {
+              "lineHeight": "20px",
+              "letterSpacing": "0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "tabular-score": [
+            "36px",
+            {
+              "lineHeight": "40px",
+              "letterSpacing": "-0.03em",
+              "fontWeight": "800"
+            }
+          ],
+          "label-md": [
+            "12px",
+            {
+              "lineHeight": "16px",
+              "letterSpacing": "0.02em",
+              "fontWeight": "600"
+            }
+          ],
+          "label-sm": [
+            "10px",
+            {
+              "lineHeight": "12px",
+              "letterSpacing": "0.04em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-lg": [
+            "28px",
+            {
+              "lineHeight": "36px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-md": [
+            "14px",
+            {
+              "lineHeight": "20px",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-sm": [
+            "18px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "600"
+            }
+          ],
+          "body-lg": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      },
+    },
+  }
+</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#0B1326;color:#E7ECEF;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-surface font-body-md text-on-surface min-h-screen flex flex-col antialiased selection:bg-primary selection:text-on-primary"><header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.25)] border-b border-steel-blue/15"><div class="h-16 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="Tabletop ScoreKeeper Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDkxfsBJ7i-Vssgi-TlOwPIub1P2x3Xb_mQG60V_bH41DbrxVtG6WLrg9WkppC1PWxOIecTDHLREMjaVSC_15-3wVQ0IunP-1wWn5im3jbTZCYKLCWoK-XKg0vLUjHvoHrQIP5zvieZk4Kiz_Ex4QTUwM3z19BChuxs81RqEPxZYMdhLV1pRSpos5JV6X5Mii9ykKE2S43c7P1_bPi7o1lFl7pgXbw5F2vJtiE76du-4A"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-sky-blue leading-tight tracking-tight">Tabletop Companion</span><span class="font-label-sm text-label-sm text-slate-neutral uppercase tracking-wider">Reglas</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Sesión en juego" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-secondary hover:bg-surface-variant/40 transition-colors" type="button"><span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-secondary-container"></span></span></button><button aria-label="Alternar modo oscuro o claro" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-slate-neutral hover:text-ice-white hover:bg-surface-variant/40 transition-colors" onclick="document.documentElement.classList.toggle('dark')" type="button"><span class="material-symbols-outlined text-[22px]">routine</span></button><div class="w-8 h-8 rounded-full bg-sky-blue flex items-center justify-center ml-1 text-surface-midnight"><span class="material-symbols-outlined text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface px-gutter"><div class="flex flex-col w-full gap-space-md">
+<!-- Game Switcher & Language Bar -->
+<div class="flex items-center justify-between gap-space-sm">
+<!-- Game Dropdown Selector -->
+<div class="relative flex-1 min-w-0">
+<button aria-expanded="false" class="w-full flex items-center justify-between px-space-md py-space-sm rounded-xl bg-surface-container border border-steel-blue/20 text-ice-white shadow-sm active:scale-[0.98] transition-transform" id="game-selector-btn" type="button">
+<div class="flex items-center gap-space-sm truncate">
+<span class="material-symbols-outlined text-sky-blue text-[20px]" style="font-variation-settings: 'FILL' 1;">skull</span>
+<span class="font-headline-sm text-headline-sm text-sky-blue truncate" id="selected-game-label">Skull King</span>
+</div>
+<span class="material-symbols-outlined text-slate-neutral text-[20px] transition-transform duration-200" id="game-dropdown-arrow">expand_more</span>
+</button>
+<!-- Dropdown Menu -->
+<div class="hidden absolute top-full left-0 right-0 mt-space-xs p-space-xs rounded-xl bg-surface-container-highest border border-steel-blue/30 shadow-xl z-30 flex-col gap-1" id="game-dropdown-menu">
+<button class="w-full flex items-center justify-between px-space-md py-space-sm rounded-lg bg-deep-navy text-ice-white text-left" onclick="selectGame('Skull King', 'skull')" type="button">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-sky-blue text-[18px]">skull</span>
+<span class="font-label-lg text-label-lg text-sky-blue">Skull King</span>
+</div>
+<span class="material-symbols-outlined text-sky-blue text-[18px]">check</span>
+</button>
+<button class="w-full flex items-center justify-between px-space-md py-space-sm rounded-lg hover:bg-surface-variant/40 text-on-surface-variant text-left transition-colors" onclick="selectGame('¡Toma 6! (6 nimmt!)', 'pets')" type="button">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">pets</span>
+<span class="font-label-lg text-label-lg text-ice-white">¡Toma 6!</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary-container text-sky-blue">104 Cartas</span>
+</button>
+</div>
+</div>
+<!-- Language Selector Pill -->
+<div class="flex items-center gap-space-xs bg-surface-container p-1 rounded-full border border-steel-blue/20 shadow-sm">
+<button class="px-space-sm py-1 rounded-full font-label-md text-label-md bg-sky-blue text-surface-midnight font-bold transition-all shadow-sm" id="lang-es-btn" onclick="setLanguage('ES')" type="button">
+        ES
+      </button>
+<button class="px-space-sm py-1 rounded-full font-label-md text-label-md text-slate-neutral hover:text-ice-white transition-all" id="lang-en-btn" onclick="setLanguage('EN')" type="button">
+        EN
+      </button>
+</div>
+</div>
+<!-- Multilingual Toast / Badge Indicator -->
+<div class="flex items-center justify-between px-space-md py-space-xs rounded-lg bg-surface-container border border-steel-blue/20 text-steel-blue">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-sky-blue">translate</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-slate-neutral">Multilenguaje disponible</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold text-sky-blue">Oficial v3.2</span>
+</div>
+<!-- Segmented View Mode Toggle: Resumen vs Completas -->
+<div class="p-1 rounded-xl bg-surface-container border border-steel-blue/20 grid grid-cols-2 gap-1 shadow-inner">
+<button class="flex items-center justify-center gap-space-xs py-space-sm rounded-lg bg-deep-navy text-sky-blue font-label-lg text-label-lg shadow-sm transition-all duration-150" id="tab-summary-btn" onclick="switchRulesMode('summary')" type="button">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span>Resumen Rápido</span>
+</button>
+<button class="flex items-center justify-center gap-space-xs py-space-sm rounded-lg text-slate-neutral hover:text-ice-white font-label-lg text-label-lg transition-all duration-150" id="tab-full-btn" onclick="switchRulesMode('full')" type="button">
+<span class="material-symbols-outlined text-[18px]">menu_book</span>
+<span>Reglas Completas</span>
+</button>
+</div>
+<!-- Horizontal Scroll Section Chips (Jumps to sections) -->
+<div class="flex items-center gap-space-xs overflow-x-auto py-1 -mx-gutter px-gutter no-scrollbar scroll-smooth">
+<a class="shrink-0 flex items-center gap-1 px-space-md py-1.5 rounded-full bg-surface-container border border-steel-blue/25 text-ice-white font-label-md text-label-md active:bg-sky-blue active:text-surface-midnight transition-colors shadow-sm" href="#sec-round">
+<span>🎯</span> <span>Objetivo</span>
+</a>
+<a class="shrink-0 flex items-center gap-1 px-space-md py-1.5 rounded-full bg-surface-container border border-steel-blue/25 text-ice-white font-label-md text-label-md active:bg-sky-blue active:text-surface-midnight transition-colors shadow-sm" href="#sec-round">
+<span>📦</span> <span>Preparación</span>
+</a>
+<a class="shrink-0 flex items-center gap-1 px-space-md py-1.5 rounded-full bg-surface-container border border-steel-blue/25 text-ice-white font-label-md text-label-md active:bg-sky-blue active:text-surface-midnight transition-colors shadow-sm" href="#sec-hierarchy">
+<span>🔄</span> <span>Flujo de Ronda</span>
+</a>
+<a class="shrink-0 flex items-center gap-1 px-space-md py-1.5 rounded-full bg-surface-container border border-steel-blue/25 text-ice-white font-label-md text-label-md active:bg-sky-blue active:text-surface-midnight transition-colors shadow-sm" href="#sec-scoring">
+<span>🧮</span> <span>Puntuación</span>
+</a>
+<a class="shrink-0 flex items-center gap-1 px-space-md py-1.5 rounded-full bg-surface-container border border-steel-blue/25 text-ice-white font-label-md text-label-md active:bg-sky-blue active:text-surface-midnight transition-colors shadow-sm" href="#sec-faq">
+<span>⚡</span> <span>Reglas &amp; FAQ</span>
+</a>
+</div>
+<!-- CONTENT MODE 1: RESUMEN RÁPIDO DE MESA (Active) -->
+<div class="flex flex-col gap-space-md" id="view-summary">
+<!-- Card 1: Mecánica de Ronda & Apuesta -->
+<div class="rounded-xl bg-surface-container border border-steel-blue/20 p-space-md flex flex-col gap-space-sm shadow-md" id="sec-round">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-sky-blue animate-pulse"></span>
+<h2 class="font-headline-sm text-headline-sm text-sky-blue">Mecánica de Ronda</h2>
+</div>
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-sky-blue/15 text-sky-blue border border-sky-blue/30 font-semibold">10 Rondas</span>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-high/60 border border-steel-blue/20 flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-sky-blue flex flex-col items-center justify-center text-surface-midnight shrink-0 shadow-sm">
+<span class="font-headline-sm text-headline-sm font-extrabold leading-none">N</span>
+<span class="font-label-sm text-label-sm uppercase tracking-tighter font-bold">Cartas</span>
+</div>
+<p class="font-body-md text-body-md text-ice-white">
+          En la <span class="font-semibold text-sky-blue">Ronda N se reparten N cartas</span>. Ronda 1 reparte 1 carta, Ronda 5 reparte 5, hasta la Ronda 10.
+        </p>
+</div>
+<!-- Live Table Callout -->
+<div class="rounded-lg bg-deep-navy/40 border border-steel-blue/30 p-space-sm flex items-center justify-between text-secondary">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[24px] text-sky-blue">campaign</span>
+<div>
+<div class="font-label-lg text-label-lg font-bold text-ice-white">Apuesta Simultánea</div>
+<div class="font-body-sm text-body-sm text-slate-neutral">Golpear la mesa 3 veces al unísono: <span class="text-sky-blue font-bold">"¡Yo-Ho-Ho!"</span> y mostrar dedos.</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2: Jerarquía de Cartas & Triunfos (Bento Style) -->
+<div class="rounded-xl bg-surface-container border border-steel-blue/20 p-space-md flex flex-col gap-space-sm shadow-md" id="sec-hierarchy">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-sky-blue text-[20px]">military_tech</span>
+<h2 class="font-headline-sm text-headline-sm text-sky-blue">Jerarquía y Triunfos</h2>
+</div>
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-steel-blue/20 text-sky-blue border border-steel-blue/30 font-semibold">Piedra-Papel-Tijera</span>
+</div>
+<p class="font-body-sm text-body-sm text-slate-neutral">
+        Las cartas especiales rompen las reglas de palo ordinario y otorgan bonus de captura instantáneos:
+      </p>
+<div class="grid grid-cols-1 gap-space-xs">
+<!-- Skull King Card -->
+<div class="p-space-sm rounded-lg bg-surface-tier-2/50 border border-steel-blue/20 flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-deep-navy flex items-center justify-center text-sky-blue">
+<span class="material-symbols-outlined text-[18px]">crown</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-ice-white font-bold">Skull King vence a Piratas</div>
+<div class="font-body-sm text-body-sm text-slate-neutral">Captura a cualquier pirata jugado en la baza</div>
+</div>
+</div>
+<span class="font-label-md text-label-md px-2 py-1 rounded bg-secondary-container text-sky-blue font-bold shrink-0">+30 pts/c.u.</span>
+</div>
+<!-- Pirate Card -->
+<div class="p-space-sm rounded-lg bg-surface-tier-2/50 border border-steel-blue/20 flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-deep-navy flex items-center justify-center text-steel-blue">
+<span class="material-symbols-outlined text-[18px]">swords</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-ice-white font-bold">Piratas vencen a Sirenas</div>
+<div class="font-body-sm text-body-sm text-slate-neutral">Ganan a todas las cartas numéricas y sirenas</div>
+</div>
+</div>
+<span class="font-label-md text-label-md px-2 py-1 rounded bg-secondary-container text-sky-blue font-bold shrink-0">+30 pts</span>
+</div>
+<!-- Mermaid Card (The Twist) -->
+<div class="p-space-sm rounded-lg bg-surface-tier-2/50 border border-steel-blue/20 flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-deep-navy flex items-center justify-center text-sky-blue">
+<span class="material-symbols-outlined text-[18px]">water_drop</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-ice-white font-bold">Sirena seduce a Skull King</div>
+<div class="font-body-sm text-body-sm text-slate-neutral">¡Gana la baza si el Rey Pirata fue jugado!</div>
+</div>
+</div>
+<span class="font-label-md text-label-md px-2.5 py-1 rounded bg-sky-blue text-surface-midnight font-extrabold shrink-0 shadow-sm">+40 pts</span>
+</div>
+<!-- Jolly Roger (Black Cards) -->
+<div class="p-space-sm rounded-lg bg-surface-container-lowest border border-steel-blue/20 flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-tier-1 flex items-center justify-center text-ice-white">
+<span class="material-symbols-outlined text-[18px]">flag</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-ice-white">Jolly Roger (Cartas Negras)</div>
+<div class="font-body-sm text-body-sm text-slate-neutral">Palo de triunfo supremo sobre amarillo, rojo y verde</div>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-steel-blue font-semibold shrink-0">Triunfo</span>
+</div>
+</div>
+</div>
+<!-- Card 3: Cálculo Rápido de Puntos (Glanceable Matrix) -->
+<div class="rounded-xl bg-surface-container border border-steel-blue/20 p-space-md flex flex-col gap-space-sm shadow-md" id="sec-scoring">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-sky-blue text-[20px]">calculate</span>
+<h2 class="font-headline-sm text-headline-sm text-sky-blue">Cálculo Rápido de Puntos</h2>
+</div>
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-deep-navy text-sky-blue border border-steel-blue/30 font-medium">Fin de Ronda</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<!-- Apuesta > 0: Acertar -->
+<div class="p-space-sm rounded-lg bg-surface-tier-2/50 border border-steel-blue/20 flex flex-col gap-1">
+<div class="flex items-center gap-1 text-sky-blue">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span class="font-label-sm text-label-sm uppercase font-bold">Apuesta &gt; 0 Acertada</span>
+</div>
+<div class="font-tabular-score-sm text-tabular-score-sm text-sky-blue font-bold">+20 pts</div>
+<div class="font-body-sm text-body-sm text-slate-neutral">Por cada baza ganada</div>
+</div>
+<!-- Apuesta > 0: Fallar -->
+<div class="p-space-sm rounded-lg bg-surface-tier-2/50 border border-steel-blue/20 flex flex-col gap-1">
+<div class="flex items-center gap-1 text-error">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+<span class="font-label-sm text-label-sm uppercase font-bold">Apuesta &gt; 0 Fallada</span>
+</div>
+<div class="font-tabular-score-sm text-tabular-score-sm text-error font-bold">-10 pts</div>
+<div class="font-body-sm text-body-sm text-slate-neutral">Por baza de diferencia</div>
+</div>
+<!-- Apuesta = 0: Acertar -->
+<div class="p-space-sm rounded-lg bg-surface-tier-2/50 border border-steel-blue/20 flex flex-col gap-1">
+<div class="flex items-center gap-1 text-steel-blue">
+<span class="material-symbols-outlined text-[16px]">stars</span>
+<span class="font-label-sm text-label-sm uppercase font-bold">Apuesta Cero Éxito</span>
+</div>
+<div class="font-tabular-score-sm text-tabular-score-sm text-steel-blue font-bold">Ronda × 10</div>
+<div class="font-body-sm text-body-sm text-slate-neutral">Ej: Ronda 6 = +60 pts</div>
+</div>
+<!-- Apuesta = 0: Fallar -->
+<div class="p-space-sm rounded-lg bg-surface-tier-2/50 border border-steel-blue/20 flex flex-col gap-1">
+<div class="flex items-center gap-1 text-error">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+<span class="font-label-sm text-label-sm uppercase font-bold">Apuesta Cero Fallo</span>
+</div>
+<div class="font-tabular-score-sm text-tabular-score-sm text-error font-bold">-(Ronda × 10)</div>
+<div class="font-body-sm text-body-sm text-slate-neutral">Ej: Ronda 6 = -60 pts</div>
+</div>
+</div>
+</div>
+<!-- Accordion: Preguntas Frecuentes y Dudas Rápidas en Mesa -->
+<div class="rounded-xl bg-surface-container border border-steel-blue/20 p-space-md flex flex-col gap-space-sm shadow-md" id="sec-faq">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-sky-blue text-[20px]">help_center</span>
+<h2 class="font-headline-sm text-headline-sm text-sky-blue">Dudas Frecuentes en Mesa</h2>
+</div>
+<span class="font-label-sm text-label-sm text-slate-neutral">Arbitraje rápido</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<!-- FAQ Item 1 (Expanded by default for immediate delight) -->
+<div class="rounded-lg bg-surface-tier-2/40 border border-steel-blue/20 overflow-hidden">
+<button class="w-full flex items-center justify-between p-space-sm text-left" onclick="toggleAccordion('faq-1', 'faq-icon-1')" type="button">
+<span class="font-label-lg text-label-lg text-ice-white font-semibold">¿Debo asistir al palo obligado si tengo carta especial?</span>
+<span class="material-symbols-outlined text-slate-neutral text-[20px] transition-transform duration-200 rotate-180" id="faq-icon-1">expand_more</span>
+</button>
+<div class="px-space-sm pb-space-sm text-slate-neutral font-body-sm text-body-sm" id="faq-1">
+<p><span class="text-sky-blue font-bold">No.</span> Las cartas especiales (Piratas, Sirenas, Skull King, Escapadas y Botín) se pueden jugar en cualquier momento, incluso si tienes cartas del palo de salida.</p>
+</div>
+</div>
+<!-- FAQ Item 2 -->
+<div class="rounded-lg bg-surface-tier-2/40 border border-steel-blue/20 overflow-hidden">
+<button class="w-full flex items-center justify-between p-space-sm text-left" onclick="toggleAccordion('faq-2', 'faq-icon-2')" type="button">
+<span class="font-label-lg text-label-lg text-ice-white font-semibold">¿Qué pasa si dos Piratas se enfrentan?</span>
+<span class="material-symbols-outlined text-slate-neutral text-[20px] transition-transform duration-200" id="faq-icon-2">expand_more</span>
+</button>
+<div class="hidden px-space-sm pb-space-sm text-slate-neutral font-body-sm text-body-sm" id="faq-2">
+<p>Gana el <span class="text-sky-blue font-bold">primer Pirata jugado</span> en esa baza cronológicamente.</p>
+</div>
+</div>
+<!-- FAQ Item 3 -->
+<div class="rounded-lg bg-surface-tier-2/40 border border-steel-blue/20 overflow-hidden">
+<button class="w-full flex items-center justify-between p-space-sm text-left" onclick="toggleAccordion('faq-3', 'faq-icon-3')" type="button">
+<span class="font-label-lg text-label-lg text-ice-white font-semibold">¿Se suman puntos de bonificación si fallas la apuesta?</span>
+<span class="material-symbols-outlined text-slate-neutral text-[20px] transition-transform duration-200" id="faq-icon-3">expand_more</span>
+</button>
+<div class="hidden px-space-sm pb-space-sm text-slate-neutral font-body-sm text-body-sm" id="faq-3">
+<p><span class="text-error font-bold">No.</span> Los puntos de bonificación (como capturar Piratas o Skull King) SOLO se reciben si aciertas exactamente tu apuesta inicial de la ronda.</p>
+</div>
+</div>
+<!-- FAQ Item 4 -->
+<div class="rounded-lg bg-surface-tier-2/40 border border-steel-blue/20 overflow-hidden">
+<button class="w-full flex items-center justify-between p-space-sm text-left" onclick="toggleAccordion('faq-4', 'faq-icon-4')" type="button">
+<span class="font-label-lg text-label-lg text-ice-white font-semibold">¿Y si todos juegan carta de Escapada (Tigresa Blanca / Bandera)?</span>
+<span class="material-symbols-outlined text-slate-neutral text-[20px] transition-transform duration-200" id="faq-icon-4">expand_more</span>
+</button>
+<div class="hidden px-space-sm pb-space-sm text-slate-neutral font-body-sm text-body-sm" id="faq-4">
+<p>La baza se la lleva el <span class="text-steel-blue font-bold">primer jugador</span> que haya puesto su carta de Escapada en la mesa.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- CONTENT MODE 2: REGLAS COMPLETAS (Hidden initially, accessible via segmented control) -->
+<div class="hidden flex-col gap-space-md" id="view-full">
+<!-- Comprehensive Search Input -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-slate-neutral text-[20px]">search</span>
+<input class="w-full pl-11 pr-space-md py-space-sm rounded-xl bg-surface-container border border-steel-blue/20 text-ice-white placeholder:text-slate-neutral focus:outline-none focus:ring-1 focus:ring-sky-blue font-body-md text-body-md" placeholder="Buscar regla, palabra clave o término..." type="text"/>
+</div>
+<div class="rounded-xl bg-surface-container border border-steel-blue/20 p-space-md flex flex-col gap-space-md shadow-md">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-sky-blue text-[22px]">menu_book</span>
+<h3 class="font-headline-sm text-headline-sm text-sky-blue">Reglamento Detallado Oficial</h3>
+</div>
+<div class="space-y-space-md font-body-md text-body-md text-slate-neutral">
+<div>
+<h4 class="font-label-lg text-label-lg text-ice-white mb-1">1. Componentes del Juego</h4>
+<p>La baraja contiene 66 cartas: 56 cartas numeradas del 1 al 14 en cuatro palos (Monedas Amarillas, Cofres Azules, Cañones Verdes y Jolly Roger Negros), 5 Piratas, 2 Sirenas, 1 Skull King, y 5 cartas de Escapada blanca.</p>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg text-ice-white mb-1">2. El Palo de Salida y Obligación</h4>
+<p>El jugador que abre la baza puede jugar cualquier carta. Si juega un palo de color, los siguientes jugadores deben asistir obligatoriamente si tienen ese palo, a menos que decidan jugar una carta especial.</p>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg text-ice-white mb-1">3. Tigresa Blanca (Carta Dual)</h4>
+<p>La Tigresa puede ser jugada como carta de Escapada o como Pirata según decida el portador al momento exacto de colocarla sobre el tapete.</p>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg text-ice-white mb-1">4. Resolución de Empates al Final de la Partida</h4>
+<p>Tras las 10 rondas reglamentarias, quien tenga el puntaje neto más alto gana. En caso de empate, el jugador que haya acertado más apuestas de 0 a lo largo del juego se corona vencedor.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom CTA: Start Game with these rules -->
+<div class="pt-space-sm pb-space-xs">
+<button class="w-full min-h-[52px] px-space-lg py-space-md rounded-xl bg-sky-blue text-surface-midnight hover:bg-sky-blue/90 font-headline-sm text-headline-sm font-bold flex items-center justify-center gap-space-sm shadow-lg shadow-sky-blue/10 active:scale-[0.98] transition-all" type="button">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+<span>Comenzar Partida con estas reglas</span>
+</button>
+</div>
+</div>
+<script>
+  // Game Selector Dropdown Toggle
+  const gameBtn = document.getElementById('game-selector-btn');
+  const gameMenu = document.getElementById('game-dropdown-menu');
+  const gameArrow = document.getElementById('game-dropdown-arrow');
+
+  gameBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isHidden = gameMenu.classList.contains('hidden');
+    if (isHidden) {
+      gameMenu.classList.remove('hidden');
+      gameMenu.classList.add('flex');
+      gameArrow.classList.add('rotate-180');
+      gameBtn.setAttribute('aria-expanded', 'true');
+    } else {
+      gameMenu.classList.add('hidden');
+      gameMenu.classList.remove('flex');
+      gameArrow.classList.remove('rotate-180');
+      gameBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('click', () => {
+    if (!gameMenu.classList.contains('hidden')) {
+      gameMenu.classList.add('hidden');
+      gameMenu.classList.remove('flex');
+      gameArrow.classList.remove('rotate-180');
+      gameBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  function selectGame(name, icon) {
+    document.getElementById('selected-game-label').textContent = name;
+    gameMenu.classList.add('hidden');
+    gameMenu.classList.remove('flex');
+    gameArrow.classList.remove('rotate-180');
+    gameBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  // Segmented Mode Switcher (Resumen Rápido vs Reglas Completas)
+  function switchRulesMode(mode) {
+    const summaryBtn = document.getElementById('tab-summary-btn');
+    const fullBtn = document.getElementById('tab-full-btn');
+    const summaryView = document.getElementById('view-summary');
+    const fullView = document.getElementById('view-full');
+
+    if (mode === 'summary') {
+      summaryBtn.className = 'flex items-center justify-center gap-space-xs py-space-sm rounded-lg bg-deep-navy text-sky-blue font-label-lg text-label-lg shadow-sm transition-all duration-150';
+      fullBtn.className = 'flex items-center justify-center gap-space-xs py-space-sm rounded-lg text-slate-neutral hover:text-ice-white font-label-lg text-label-lg transition-all duration-150';
+      summaryView.classList.remove('hidden');
+      summaryView.classList.add('flex');
+      fullView.classList.add('hidden');
+      fullView.classList.remove('flex');
+    } else {
+      fullBtn.className = 'flex items-center justify-center gap-space-xs py-space-sm rounded-lg bg-deep-navy text-sky-blue font-label-lg text-label-lg shadow-sm transition-all duration-150';
+      summaryBtn.className = 'flex items-center justify-center gap-space-xs py-space-sm rounded-lg text-slate-neutral hover:text-ice-white font-label-lg text-label-lg transition-all duration-150';
+      fullView.classList.remove('hidden');
+      fullView.classList.add('flex');
+      summaryView.classList.add('hidden');
+      summaryView.classList.remove('flex');
+    }
+  }
+
+  // Language Pill Switcher
+  function setLanguage(lang) {
+    const esBtn = document.getElementById('lang-es-btn');
+    const enBtn = document.getElementById('lang-en-btn');
+
+    if (lang === 'ES') {
+      esBtn.className = 'px-space-sm py-1 rounded-full font-label-md text-label-md bg-sky-blue text-surface-midnight font-bold transition-all shadow-sm';
+      enBtn.className = 'px-space-sm py-1 rounded-full font-label-md text-label-md text-slate-neutral hover:text-ice-white transition-all';
+    } else {
+      enBtn.className = 'px-space-sm py-1 rounded-full font-label-md text-label-md bg-sky-blue text-surface-midnight font-bold transition-all shadow-sm';
+      esBtn.className = 'px-space-sm py-1 rounded-full font-label-md text-label-md text-slate-neutral hover:text-ice-white transition-all';
+    }
+  }
+
+  // Accordion Expand/Collapse Function
+  function toggleAccordion(contentId, iconId) {
+    const content = document.getElementById(contentId);
+    const icon = document.getElementById(iconId);
+    const isHidden = content.classList.contains('hidden');
+
+    if (isHidden) {
+      content.classList.remove('hidden');
+      icon.classList.add('rotate-180');
+    } else {
+      content.classList.add('hidden');
+      icon.classList.remove('rotate-180');
+    }
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl border-t border-steel-blue/15 shadow-[0_-1px_12px_rgba(0,0,0,0.3)]" data-active-classes="text-sky-blue font-bold"><div class="flex justify-around items-stretch h-16 px-gutter-mobile"><a class="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 text-slate-neutral hover:text-ice-white transition-all duration-150" data-path="juegos" href="#"><span class="material-symbols-outlined text-[24px]">casino</span><span class="font-label-md text-label-md mt-0.5 tracking-wide">Juegos</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 text-slate-neutral hover:text-ice-white transition-all duration-150 relative" data-path="en-curso" href="#"><span class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">sports_esports</span><span class="absolute -top-1 -right-2 flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-blue opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-sky-blue"></span></span></span><span class="font-label-md text-label-md mt-0.5 tracking-wide">En Curso</span></a><a aria-current="page" class="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 transition-all duration-150 text-sky-blue font-bold" data-path="reglas" href="#"><span class="material-symbols-outlined text-[24px]">menu_book</span><span class="font-label-md text-label-md mt-0.5 tracking-wide">Reglas</span></a></div></nav></body></html>

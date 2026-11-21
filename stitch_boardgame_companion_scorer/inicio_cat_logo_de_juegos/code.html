@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "tertiary-container": "#a8cbfd",
+          "surface-midnight": "#0B1326",
+          "primary-fixed-dim": "#a1ccee",
+          "surface-container-high": "#292a28",
+          "secondary-container": "#084e6f",
+          "on-error-container": "#ffdad6",
+          "deep-navy": "#274C77",
+          "on-error": "#690005",
+          "secondary": "#97cdf3",
+          "on-secondary": "#00344c",
+          "tertiary": "#d7e6ff",
+          "on-secondary-fixed-variant": "#034c6c",
+          "inverse-primary": "#376381",
+          "surface-tier-2": "#1B2A4A",
+          "on-surface": "#e3e3df",
+          "tertiary-fixed": "#d3e4ff",
+          "primary-fixed": "#cae6ff",
+          "inverse-surface": "#e3e3df",
+          "on-primary-container": "#2c5876",
+          "error": "#ffb4ab",
+          "outline-variant": "#41474d",
+          "ice-white": "#E7ECEF",
+          "on-tertiary-fixed": "#001c38",
+          "surface-tier-1": "#131E38",
+          "sky-blue": "#A3CEF1",
+          "on-tertiary-fixed-variant": "#234873",
+          "on-background": "#e3e3df",
+          "on-primary-fixed": "#001e2f",
+          "error-container": "#93000a",
+          "surface-variant": "#333533",
+          "surface-container": "#1e201e",
+          "slate-neutral": "#8B8C89",
+          "primary-container": "#a3cef1",
+          "surface-tier-3": "#24375E",
+          "on-primary-fixed-variant": "#1c4b68",
+          "background": "#121412",
+          "surface-container-highest": "#333533",
+          "surface": "#121412",
+          "on-surface-variant": "#c1c7ce",
+          "surface-container-low": "#1a1c1a",
+          "secondary-fixed": "#c7e7ff",
+          "on-tertiary": "#02315b",
+          "surface-dim": "#121412",
+          "on-tertiary-container": "#325681",
+          "outline": "#8b9198",
+          "surface-container-lowest": "#0d0f0d",
+          "primary": "#A3CEF1",
+          "surface-tint": "#a1ccee",
+          "surface-bright": "#383a37",
+          "tertiary-fixed-dim": "#a6c9fb",
+          "on-secondary-fixed": "#001e2e",
+          "on-primary": "#00344e",
+          "inverse-on-surface": "#2f312f",
+          "steel-blue": "#6096BA",
+          "secondary-fixed-dim": "#97cdf3",
+          "on-secondary-container": "#89bfe4"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "margin-mobile": "1rem",
+          "space-sm": "0.5rem",
+          "space-md": "1rem",
+          "gutter": "1rem",
+          "space-xs": "0.25rem",
+          "gutter-mobile": "0.75rem",
+          "space-lg": "1.5rem",
+          "margin": "1.5rem",
+          "space-xl": "2rem"
+        },
+        "fontFamily": {
+          "headline-xl-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-xl": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-md": [
+            "Plus Jakarta Sans"
+          ],
+          "tabular-score-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "body-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "label-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "tabular-score": [
+            "Plus Jakarta Sans"
+          ],
+          "label-md": [
+            "Plus Jakarta Sans"
+          ],
+          "label-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "body-md": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "body-lg": [
+            "Plus Jakarta Sans"
+          ]
+        },
+        "fontSize": {
+          "headline-xl-mobile": [
+            "32px",
+            {
+              "lineHeight": "40px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "800"
+            }
+          ],
+          "headline-xl": [
+            "40px",
+            {
+              "lineHeight": "48px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "800"
+            }
+          ],
+          "headline-md": [
+            "22px",
+            {
+              "lineHeight": "28px",
+              "fontWeight": "700"
+            }
+          ],
+          "tabular-score-sm": [
+            "24px",
+            {
+              "lineHeight": "28px",
+              "fontWeight": "700"
+            }
+          ],
+          "body-sm": [
+            "12px",
+            {
+              "lineHeight": "16px",
+              "fontWeight": "400"
+            }
+          ],
+          "label-lg": [
+            "14px",
+            {
+              "lineHeight": "20px",
+              "letterSpacing": "0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "tabular-score": [
+            "36px",
+            {
+              "lineHeight": "40px",
+              "letterSpacing": "-0.03em",
+              "fontWeight": "800"
+            }
+          ],
+          "label-md": [
+            "12px",
+            {
+              "lineHeight": "16px",
+              "letterSpacing": "0.02em",
+              "fontWeight": "600"
+            }
+          ],
+          "label-sm": [
+            "10px",
+            {
+              "lineHeight": "12px",
+              "letterSpacing": "0.04em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-lg": [
+            "28px",
+            {
+              "lineHeight": "36px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-md": [
+            "14px",
+            {
+              "lineHeight": "20px",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-sm": [
+            "18px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "600"
+            }
+          ],
+          "body-lg": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      },
+    },
+  }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#121412;color:#e3e3df;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-surface font-body-md text-on-surface min-h-screen flex flex-col antialiased selection:bg-primary selection:text-on-primary"><header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.25)] border-b border-surface-container-high/50"><div class="h-16 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="Tabletop ScoreKeeper Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDkxfsBJ7i-Vssgi-TlOwPIub1P2x3Xb_mQG60V_bH41DbrxVtG6WLrg9WkppC1PWxOIecTDHLREMjaVSC_15-3wVQ0IunP-1wWn5im3jbTZCYKLCWoK-XKg0vLUjHvoHrQIP5zvieZk4Kiz_Ex4QTUwM3z19BChuxs81RqEPxZYMdhLV1pRSpos5JV6X5Mii9ykKE2S43c7P1_bPi7o1lFl7pgXbw5F2vJtiE76du-4A"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary leading-tight tracking-tight">Tabletop Companion</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Juegos</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Sesión en juego" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-secondary hover:bg-surface-variant/40 transition-colors" type="button"><span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-secondary-container"></span></span></button><button aria-label="Alternar modo oscuro o claro" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/40 transition-colors" onclick="document.documentElement.classList.toggle('dark')" type="button"><span class="material-symbols-outlined text-[22px]">routine</span></button><div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center ml-1"><span class="material-symbols-outlined text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface px-gutter"><div class="flex flex-col w-full pb-6 space-y-space-lg">
+<!-- BANNER EN VIVO: PARTIDA EN CURSO CON AMBIENT GLOW -->
+<section class="relative overflow-hidden rounded-xl bg-surface-container p-space-md shadow-[0_0_24px_-4px_rgba(163,206,241,0.25)] border border-primary/20">
+<!-- Luz ambiental sutil decorativa -->
+<div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-primary/15 blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col space-y-space-sm">
+<!-- Tag de Estado y Ronda -->
+<div class="flex items-center justify-between">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/30">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-bold">En curso • Ronda 4</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">
+          Meta: 66 pts límite
+        </span>
+</div>
+<!-- Título del Juego y Tiempo -->
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Take 6 (¡Toma 6!)</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-steel-blue">timer</span>
+<span>Mesa de amigos • 18 min transcurridos</span>
+</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">poker_chip</span>
+</div>
+</div>
+<!-- Fila de Jugadores y Puntajes Táctiles -->
+<div class="grid grid-cols-4 gap-space-xs pt-1">
+<!-- Jugador 1 (Líder actual) -->
+<div class="flex flex-col items-center bg-surface-container-high/80 rounded-lg p-2 relative overflow-hidden border border-primary/30">
+<div class="absolute top-1 right-1 text-primary">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">crown</span>
+</div>
+<div class="w-7 h-7 rounded-full bg-primary text-on-primary font-bold text-label-sm flex items-center justify-center shadow-sm">
+            C
+          </div>
+<span class="font-label-sm text-label-sm text-on-surface mt-1 truncate max-w-full">Carlos</span>
+<span class="font-tabular-score-sm text-tabular-score-sm text-primary">12</span>
+<span class="font-label-sm text-[9px] text-steel-blue font-bold">+2 bueyes</span>
+</div>
+<!-- Jugador 2 -->
+<div class="flex flex-col items-center bg-surface-container-high/40 rounded-lg p-2">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container font-bold text-label-sm flex items-center justify-center">
+            A
+          </div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1 truncate max-w-full">Ana</span>
+<span class="font-tabular-score-sm text-tabular-score-sm text-on-surface">24</span>
+<span class="font-label-sm text-[9px] text-on-surface-variant">+6 bueyes</span>
+</div>
+<!-- Jugador 3 -->
+<div class="flex flex-col items-center bg-surface-container-high/40 rounded-lg p-2">
+<div class="w-7 h-7 rounded-full bg-surface-variant text-on-surface font-bold text-label-sm flex items-center justify-center">
+            L
+          </div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1 truncate max-w-full">Leo</span>
+<span class="font-tabular-score-sm text-tabular-score-sm text-on-surface">38</span>
+<span class="font-label-sm text-[9px] text-error font-semibold">+10 bueyes</span>
+</div>
+<!-- Jugador 4 -->
+<div class="flex flex-col items-center bg-surface-container-high/40 rounded-lg p-2">
+<div class="w-7 h-7 rounded-full bg-surface-variant text-on-surface font-bold text-label-sm flex items-center justify-center">
+            S
+          </div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1 truncate max-w-full">Sofía</span>
+<span class="font-tabular-score-sm text-tabular-score-sm text-on-surface">51</span>
+<span class="font-label-sm text-[9px] text-error font-semibold">+14 bueyes</span>
+</div>
+</div>
+<!-- Botón de Alto Contraste Reanudar en Azul Cielo -->
+<button class="w-full min-h-[50px] mt-1 bg-primary text-on-primary hover:bg-sky-blue/90 rounded-xl font-headline-sm text-headline-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all font-bold" type="button">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<span>Reanudar Partida</span>
+</button>
+</div>
+</section>
+<!-- ENCABEZADO DE BIBLIOTECA -->
+<section class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-2">
+<div class="p-1.5 rounded-lg bg-surface-container-high text-primary">
+<span class="material-symbols-outlined text-[20px]">shelves</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Biblioteca de Juegos</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">2 Juegos listos para puntuar</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-steel-blue font-label-sm text-label-sm font-bold flex items-center gap-1 border border-outline-variant/30">
+<span class="material-symbols-outlined text-[14px]">offline_bolt</span>
+      Sin conexión
+    </span>
+</section>
+<!-- LISTA DE JUEGOS DISPONIBLES -->
+<div class="flex flex-col space-y-space-md">
+<!-- TARJETA 1: SKULL KING -->
+<article class="bg-surface-container rounded-xl overflow-hidden shadow-sm flex flex-col border border-surface-container-high/80">
+<!-- Media Header y Arte Pirate -->
+<div class="relative w-full h-36 bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover opacity-85" data-alt="Pirate board game aesthetic illustration, a dramatic golden skull wearing a pirate captain tricorn hat and ornate royal crown, weathered nautical parchment background, dark teal wooden ship deck shadows and warm glowing gold lantern light, modern flat tactical board game cover style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuD35NTBEVeAys2v0yr8tUZRYssYG9gFpNUi_Ji_mOvEJeIxBq5sESuh6sfIoYwMBhp9zKhEF8QP0OlTA7eT1j_0M7Kb-xXqSDfUAj88ojl-uB7agcvTb5F7dNHT2v_mA55pM5C7_Ul2TMA_mkytX_aykSXrGltdgng51y4a4fg_wQUIdm6niMItyR-EKHgezU4d19pjfT2ruXgr1WZ_rhK4XJNdzrEkxoS3oB4nj9"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-surface-container/40 to-transparent"></div>
+<!-- Badges Flotantes sobre la Imagen -->
+<div class="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[85%]">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md text-primary px-2.5 py-1 rounded-full font-label-sm text-label-sm font-bold flex items-center gap-1 border border-primary/20">
+<span class="material-symbols-outlined text-[12px]">swords</span>
+            Bazas y Apuestas
+          </span>
+<span class="bg-surface-container-lowest/90 backdrop-blur-md text-secondary px-2.5 py-1 rounded-full font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">groups</span>
+            2-8 Jugadores
+          </span>
+</div>
+<div class="absolute top-3 right-3">
+<span class="w-8 h-8 rounded-full bg-surface-container-lowest/90 backdrop-blur-md flex items-center justify-center text-primary shadow">
+<span class="material-symbols-outlined text-[18px]">sailing</span>
+</span>
+</div>
+<!-- Título superpuesto en borde inferior -->
+<div class="absolute bottom-2 left-3 right-3 flex items-baseline justify-between">
+<h4 class="font-headline-md text-headline-md text-on-surface drop-shadow-sm font-extrabold tracking-tight">Skull King</h4>
+<span class="font-label-sm text-label-sm text-primary font-bold bg-surface-container-lowest/80 px-2 py-0.5 rounded border border-primary/30">Reco: 4-6</span>
+</div>
+</div>
+<!-- Contenido de la Ficha -->
+<div class="p-space-md flex flex-col space-y-space-sm">
+<!-- Métricas Rápidas: Duración / Dificultad -->
+<div class="flex items-center gap-space-sm">
+<div class="flex items-center gap-1 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-steel-blue">schedule</span>
+<span>30-45 min</span>
+</div>
+<span class="text-surface-variant">•</span>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-primary">equalizer</span>
+<span>Dificultad: <strong class="text-on-surface">Media</strong></span>
+</div>
+</div>
+<!-- Descripción Táctica Breve -->
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">
+          ¡Yo-ho-ho! Predice exactamente cuántas bazas ganarás en cada ronda. Domina piratas, sirenas, el temible Skull King y arrebata botines arriesgados.
+        </p>
+<!-- Botones de Acción Táctil Optimizados para Pulgar -->
+<div class="pt-2 grid grid-cols-2 gap-space-sm">
+<button class="min-h-[48px] bg-primary text-on-primary hover:bg-sky-blue/90 rounded-lg font-label-lg text-label-lg font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.96] transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Nueva Partida</span>
+</button>
+<button class="min-h-[48px] bg-surface-container-high text-on-surface hover:bg-surface-variant rounded-lg font-label-lg text-label-lg font-bold flex items-center justify-center gap-1.5 active:bg-surface-variant transition-colors border border-outline-variant/40" type="button">
+<span class="material-symbols-outlined text-[20px] text-primary">menu_book</span>
+<span>Ver Reglas</span>
+</button>
+</div>
+</div>
+</article>
+<!-- TARJETA 2: TAKE 6 -->
+<article class="bg-surface-container rounded-xl overflow-hidden shadow-sm flex flex-col border border-surface-container-high/80">
+<!-- Media Header y Buey Emblemático -->
+<div class="relative w-full h-36 bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover opacity-85" data-alt="Stylized modern board game artwork featuring a stylized crimson red bull head with fierce sharp golden horns, a bold glowing number 66 in golden metallic typography, surrounded by cascading playing card suits on dark indigo and velvet slate table background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9Ew5LdkMmcq7wlpZjTOJ6mGF43de790X4vpJbgNAVIKk2aTm8Sjklicyrhm5P11pfB2PFoWy_fyEYm8BOREbW-bPGPPeA9ZU1lj0wJUK2c-Vzm0RFEx5ZQFA8yVkhJm3mmdR4b84PEPnMX8e8p-wRqmzIeeJQ4tsz1pN4pmZ_G2tl0HGK7OaVBuQGaREbgPzSBpeS4GzmcyvckALkrAdriLDw4IyF_XeDfb_O-Q9k"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-surface-container/40 to-transparent"></div>
+<!-- Badges Flotantes -->
+<div class="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[85%]">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md text-primary px-2.5 py-1 rounded-full font-label-sm text-label-sm font-bold flex items-center gap-1 border border-primary/20">
+<span class="material-symbols-outlined text-[12px]">style</span>
+            Cartas y Faroleo
+          </span>
+<span class="bg-surface-container-lowest/90 backdrop-blur-md text-secondary px-2.5 py-1 rounded-full font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">groups</span>
+            2-10 Jugadores
+          </span>
+</div>
+<div class="absolute top-3 right-3">
+<span class="w-8 h-8 rounded-full bg-surface-container-lowest/90 backdrop-blur-md flex items-center justify-center text-steel-blue shadow">
+<span class="material-symbols-outlined text-[18px]">pets</span>
+</span>
+</div>
+<!-- Título superpuesto -->
+<div class="absolute bottom-2 left-3 right-3 flex items-baseline justify-between">
+<div class="flex items-baseline gap-1.5">
+<h4 class="font-headline-md text-headline-md text-on-surface drop-shadow-sm font-extrabold tracking-tight">Take 6!</h4>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-normal">¡Toma 6! / 6 nimmt!</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-bold bg-surface-container-lowest/80 px-2 py-0.5 rounded border border-primary/30">Reco: 4-7</span>
+</div>
+</div>
+<!-- Contenido de la Ficha -->
+<div class="p-space-md flex flex-col space-y-space-sm">
+<!-- Métricas Rápidas -->
+<div class="flex items-center gap-space-sm">
+<div class="flex items-center gap-1 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-steel-blue">schedule</span>
+<span>20-30 min</span>
+</div>
+<span class="text-surface-variant">•</span>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-steel-blue">speed</span>
+<span>Dificultad: <strong class="text-on-surface">Fácil / Rápido</strong></span>
+</div>
+</div>
+<!-- Descripción Táctica Breve -->
+<p class="font-body-md text-body-md text-on-surface-variant">
+          ¡Evita recoger la sexta carta de cada fila y acumular cabezas de buey! Juego frenético de decisiones simultáneas y penalizaciones sorpresivas.
+        </p>
+<!-- Botones de Acción Táctil -->
+<div class="pt-2 grid grid-cols-2 gap-space-sm">
+<button class="min-h-[48px] bg-primary text-on-primary hover:bg-sky-blue/90 rounded-lg font-label-lg text-label-lg font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.96] transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Nueva Partida</span>
+</button>
+<button class="min-h-[48px] bg-surface-container-high text-on-surface hover:bg-surface-variant rounded-lg font-label-lg text-label-lg font-bold flex items-center justify-center gap-1.5 active:bg-surface-variant transition-colors border border-outline-variant/40" type="button">
+<span class="material-symbols-outlined text-[20px] text-primary">menu_book</span>
+<span>Ver Reglas</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+<!-- TARJETA SUGERENCIAS / PRÓXIMAMENTE -->
+<section class="bg-surface-container-low rounded-xl p-space-md flex flex-col space-y-space-sm border border-surface-container-high/60">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">explore</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">¿Falta tu juego de mesa favorito?</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Agregamos asistentes de cálculo por votación de la comunidad.</p>
+</div>
+</div>
+</div>
+<!-- Chips de Próximos Lanzamientos -->
+<div class="flex flex-wrap gap-1.5 pt-1">
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+        Catan (En desarrollo)
+      </span>
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-steel-blue"></span>
+        Carcassonne
+      </span>
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+        Virus!
+      </span>
+</div>
+<!-- Botón CTA para sugerir -->
+<button class="w-full min-h-[48px] mt-1 bg-surface-container-highest text-primary hover:bg-surface-bright rounded-lg font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all border border-outline-variant/30" type="button">
+<span class="material-symbols-outlined text-[20px]">add_task</span>
+<span>Votar o Proponer Juego</span>
+</button>
+</section>
+<!-- SELECTOR DE ILUMINACIÓN DE SALÓN / MODO LECTURA RÁPIDA -->
+<section class="flex items-center justify-between p-space-sm bg-surface-container-lowest/60 rounded-xl px-space-md border border-surface-container-high/40">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">nightlight</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-medium">Iluminación de Mesa</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Optimizado para partidas nocturnas</p>
+</div>
+</div>
+<div class="inline-flex bg-surface-container p-1 rounded-lg gap-1 border border-outline-variant/30">
+<button aria-label="Modo Sombra Nocturna" class="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md bg-primary text-on-primary transition-all font-label-sm" id="btn-mode-dark" onclick="document.documentElement.classList.add('dark'); this.classList.add('bg-primary', 'text-on-primary'); document.getElementById('btn-mode-light').classList.remove('bg-primary', 'text-on-primary'); document.getElementById('btn-mode-light').classList.add('text-on-surface-variant');" type="button">
+<span class="material-symbols-outlined text-[18px]">dark_mode</span>
+</button>
+<button aria-label="Modo Salón Brillante" class="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-on-surface-variant transition-all font-label-sm" id="btn-mode-light" onclick="document.documentElement.classList.remove('dark'); this.classList.add('bg-primary', 'text-on-primary'); document.getElementById('btn-mode-dark').classList.remove('bg-primary', 'text-on-primary'); document.getElementById('btn-mode-dark').classList.add('text-on-surface-variant');" type="button">
+<span class="material-symbols-outlined text-[18px]">light_mode</span>
+</button>
+</div>
+</section>
+</div>
+<script>
+  // Inicialización o sincronización táctil simple
+  document.addEventListener('DOMContentLoaded', () => {
+    const isDark = document.documentElement.classList.contains('dark');
+    const darkBtn = document.getElementById('btn-mode-dark');
+    const lightBtn = document.getElementById('btn-mode-light');
+    
+    if (!isDark && lightBtn && darkBtn) {
+      darkBtn.classList.remove('bg-primary', 'text-on-primary');
+      darkBtn.classList.add('text-on-surface-variant');
+      lightBtn.classList.add('bg-primary', 'text-on-primary');
+    }
+  });
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-1px_12px_rgba(0,0,0,0.3)] border-t border-surface-container-high/50" data-active-classes="text-primary font-bold"><div class="flex justify-around items-stretch h-16 px-gutter-mobile"><a aria-current="page" class="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 transition-all duration-150 text-primary font-bold" data-path="juegos" href="#"><span class="material-symbols-outlined text-[24px]">casino</span><span class="font-label-md text-label-md mt-0.5 tracking-wide">Juegos</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 text-on-surface-variant hover:text-on-surface transition-all duration-150 relative" data-path="en-curso" href="#"><span class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">sports_esports</span><span class="absolute -top-1 -right-2 flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary"></span></span></span><span class="font-label-md text-label-md mt-0.5 tracking-wide">En Curso</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 text-on-surface-variant hover:text-on-surface transition-all duration-150" data-path="reglas" href="#"><span class="material-symbols-outlined text-[24px]">menu_book</span><span class="font-label-md text-label-md mt-0.5 tracking-wide">Reglas</span></a></div></nav></body></html>

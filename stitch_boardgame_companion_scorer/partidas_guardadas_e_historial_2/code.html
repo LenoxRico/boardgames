@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-secondary-container": "#245f80",
+          "inverse-on-surface": "#f1f1ed",
+          "surface": "#F4F7F9",
+          "tertiary": "#273547",
+          "surface-dim": "#dadad7",
+          "surface-container-low": "#F8FAFC",
+          "secondary-container": "#e0f2fe",
+          "on-primary-container": "#ffffff",
+          "on-tertiary": "#ffffff",
+          "surface-tint": "#274C77",
+          "outline-variant": "#E2E8F0",
+          "secondary-fixed": "#c7e7ff",
+          "on-tertiary-fixed-variant": "#39485b",
+          "on-surface": "#0F172A",
+          "tertiary-fixed-dim": "#b9c8de",
+          "on-secondary-fixed-variant": "#034c6c",
+          "on-error-container": "#93000a",
+          "tertiary-fixed": "#d5e4fb",
+          "on-tertiary-container": "#adbcd3",
+          "on-surface-variant": "#475569",
+          "secondary": "#2A6485",
+          "surface-variant": "#E2E8F0",
+          "on-background": "#0F172A",
+          "background": "#F4F7F9",
+          "primary-fixed-dim": "#a6c9fb",
+          "inverse-surface": "#1e293b",
+          "on-tertiary-fixed": "#0d1c2d",
+          "on-primary-fixed-variant": "#234873",
+          "surface-container-high": "#EDF2F7",
+          "primary": "#274C77",
+          "on-primary": "#ffffff",
+          "on-error": "#ffffff",
+          "error": "#dc2626",
+          "on-secondary": "#ffffff",
+          "outline": "#94A3B8",
+          "primary-container": "#1E3A5F",
+          "surface-container": "#FFFFFF",
+          "surface-bright": "#FFFFFF",
+          "error-container": "#FEE2E2",
+          "surface-container-lowest": "#FFFFFF",
+          "surface-container-highest": "#E2E8F0",
+          "primary-fixed": "#d3e4ff",
+          "secondary-fixed-dim": "#97cdf3",
+          "inverse-primary": "#a6c9fb",
+          "on-primary-fixed": "#001c38",
+          "tertiary-container": "#3e4c5f",
+          "on-secondary-fixed": "#001e2e",
+          "ice-white": "#F4F7F9",
+          "steel-blue": "#6096BA",
+          "sky-blue": "#A3CEF1",
+          "deep-navy": "#274C77"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "gutter-sm": "0.75rem",
+          "gutter": "1rem",
+          "gutter-mobile": "0.75rem",
+          "margin-tablet": "1.5rem",
+          "margin": "1rem",
+          "space-xs": "0.25rem",
+          "space-sm": "0.5rem",
+          "space-md": "0.75rem",
+          "space-lg": "1rem",
+          "space-xl": "1.5rem"
+        },
+        "fontFamily": {
+          "headline-lg": ["Plus Jakarta Sans"],
+          "headline-md": ["Plus Jakarta Sans"],
+          "headline-sm": ["Plus Jakarta Sans"],
+          "body-lg": ["Plus Jakarta Sans"],
+          "body-md": ["Plus Jakarta Sans"],
+          "body-sm": ["Plus Jakarta Sans"],
+          "label-lg": ["Plus Jakarta Sans"],
+          "label-md": ["Plus Jakarta Sans"],
+          "label-sm": ["Plus Jakarta Sans"],
+          "tabular-score": ["Plus Jakarta Sans"],
+          "tabular-score-sm": ["Plus Jakarta Sans"]
+        },
+        "fontSize": {
+          "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+          "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+          "headline-sm": ["17px", { "lineHeight": "22px", "fontWeight": "700" }],
+          "tabular-score": ["36px", { "lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+          "tabular-score-sm": ["22px", { "lineHeight": "26px", "fontWeight": "700" }],
+          "label-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "700" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+          "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "800" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "500" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }]
+        }
+      }
+    }
+  };
+</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#F4F7F9;color:#0F172A;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}body{min-height:max(884px,100dvh);}</style>
+</head><body class="bg-surface font-body-md text-on-surface min-h-screen flex flex-col antialiased selection:bg-secondary-container selection:text-primary"><header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-xl pt-safe shadow-[0_1px_4px_rgba(0,0,0,0.06)] border-b border-slate-200/80"><div class="h-16 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="Tabletop ScoreKeeper Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDkxfsBJ7i-Vssgi-TlOwPIub1P2x3Xb_mQG60V_bH41DbrxVtG6WLrg9WkppC1PWxOIecTDHLREMjaVSC_15-3wVQ0IunP-1wWn5im3jbTZCYKLCWoK-XKg0vLUjHvoHrQIP5zvieZk4Kiz_Ex4QTUwM3z19BChuxs81RqEPxZYMdhLV1pRSpos5JV6X5Mii9ykKE2S43c7P1_bPi7o1lFl7pgXbw5F2vJtiE76du-4A"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary leading-tight tracking-tight">Tabletop Companion</span><span class="font-label-sm text-label-sm text-slate-500 uppercase tracking-wider">Juegos</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Sesión en juego" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-secondary hover:bg-slate-100 transition-colors" type="button"><span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span></span></button><button aria-label="Alternar modo oscuro o claro" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors" onclick="document.documentElement.classList.toggle('dark')" type="button"><span class="material-symbols-outlined text-[22px]">light_mode</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-1 shadow-sm"><span class="material-symbols-outlined text-white text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface px-gutter"><div class="flex flex-col w-full pb-8">
+<!-- Cabecera de Página & Quick Stats Overview -->
+<div class="flex flex-col gap-space-sm mb-space-md pt-3">
+<div class="flex items-center justify-between">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-slate-900 tracking-tight">Partidas &amp; Historial</h1>
+<p class="font-body-md text-body-md text-slate-600">Registros de mesa y partidas activas</p>
+</div>
+<button aria-label="Búsqueda rápida en historial" class="w-12 h-12 rounded-xl bg-white hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center text-primary shadow-sm border border-slate-200" type="button">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</button>
+</div>
+<!-- Mini stats rápidos en fila bento -->
+<div class="grid grid-cols-3 gap-space-xs mt-space-xs">
+<div class="bg-white rounded-xl p-space-sm flex flex-col justify-center items-start shadow-sm border border-slate-200">
+<div class="flex items-center gap-1 mb-0.5">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Activas</span>
+</div>
+<span class="font-tabular-score-sm text-tabular-score-sm text-slate-900">2</span>
+<span class="font-body-sm text-body-sm text-slate-500 truncate w-full">En Curso</span>
+</div>
+<div class="bg-white rounded-xl p-space-sm flex flex-col justify-center items-start shadow-sm border border-slate-200">
+<div class="flex items-center gap-1 mb-0.5">
+<span class="material-symbols-outlined text-[15px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">Registro</span>
+</div>
+<span class="font-tabular-score-sm text-tabular-score-sm text-slate-900">14</span>
+<span class="font-body-sm text-body-sm text-slate-500 truncate w-full">Completadas</span>
+</div>
+<div class="bg-white rounded-xl p-space-sm flex flex-col justify-center items-start shadow-sm border border-slate-200">
+<div class="flex items-center gap-1 mb-0.5">
+<span class="material-symbols-outlined text-[15px] text-amber-500" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Top Juego</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-primary truncate w-full">Skull King</span>
+<span class="font-body-sm text-body-sm text-slate-500 truncate w-full">9 partidas</span>
+</div>
+</div>
+</div>
+<!-- Segmented Switch Táctil (En Curso vs Historial Jugado) -->
+<div class="sticky top-16 z-30 py-space-xs bg-[#F4F7F9]/95 backdrop-blur-md -mx-gutter px-gutter mb-space-sm border-b border-slate-200/80">
+<div class="grid grid-cols-2 p-1 bg-slate-200/70 rounded-xl shadow-inner border border-slate-200">
+<button class="relative flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-label-lg text-label-lg transition-all duration-200 bg-white text-primary shadow-sm font-bold" id="tab-in-progress" onclick="switchMainTab('in-progress')" type="button">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+<span>En Curso</span>
+<span class="bg-secondary-container text-secondary text-[11px] px-2 py-0.5 rounded-full font-bold">2</span>
+</button>
+<button class="relative flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-label-lg text-label-lg transition-all duration-200 text-slate-600 hover:text-slate-900" id="tab-completed" onclick="switchMainTab('completed')" type="button">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span>Historial</span>
+<span class="bg-white/70 text-slate-600 text-[11px] px-2 py-0.5 rounded-full font-bold">14</span>
+</button>
+</div>
+<!-- Sub-filtros táctiles en chips horizontales con scroll sin barra -->
+<div class="flex items-center gap-space-xs mt-space-sm overflow-x-auto no-scrollbar pb-1">
+<button class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-white font-label-md text-label-md font-bold shadow-sm" type="button">
+<span>Todos</span>
+<span class="text-[10px] bg-white/25 px-1.5 rounded-full font-bold">16</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-label-md text-label-md border border-slate-200 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary" style="font-variation-settings: 'FILL' 1;">sailing</span>
+<span>Skull King</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-label-md text-label-md border border-slate-200 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">playing_cards</span>
+<span>¡Toma 6!</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-label-md text-label-md border border-slate-200 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">calendar_today</span>
+<span>Este mes</span>
+</button>
+<button aria-label="Más opciones de orden" class="flex-shrink-0 w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-600 hover:text-slate-900 border border-slate-200 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+</div>
+<!-- SECCIÓN 1: PARTIDAS EN CURSO -->
+<section class="flex flex-col gap-space-md transition-opacity duration-300" id="section-in-progress">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-slate-900">Mesas Activas</span>
+<span class="px-2 py-0.5 rounded-full bg-sky-100 text-primary font-label-sm text-label-sm font-bold tracking-wider border border-sky-200">LIVE 2</span>
+</div>
+<span class="font-body-sm text-body-sm text-slate-500">Pulsa para reanudar</span>
+</div>
+<!-- TARJETA EN CURSO 1: TAKE 6! -->
+<div class="relative bg-white rounded-2xl p-space-md shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md border border-slate-200">
+<!-- Focus suave en el borde superior en azul marino y celeste -->
+<div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-sky-400"></div>
+<!-- Top Card Header: Juego & Badge Estado -->
+<div class="flex items-start justify-between gap-space-xs mb-space-sm">
+<div class="flex items-center gap-space-xs min-w-0">
+<div class="w-11 h-11 rounded-xl bg-sky-50 flex-shrink-0 flex items-center justify-center text-primary border border-sky-100 shadow-sm">
+<span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">front_hand</span>
+</div>
+<div class="min-w-0">
+<h2 class="font-headline-md text-headline-md text-slate-900 tracking-tight truncate">Take 6! (¡Toma 6!)</h2>
+<p class="font-body-sm text-body-sm text-slate-500 flex items-center gap-1.5">
+<span>Mesa 1</span>
+<span>•</span>
+<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]">schedule</span> Hace 22 min</span>
+</p>
+</div>
+</div>
+<div class="flex flex-col items-end flex-shrink-0">
+<span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 font-label-sm text-label-sm flex items-center gap-1.5 font-bold border border-amber-200">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+            En Pausa
+          </span>
+<span class="font-label-sm text-label-sm text-slate-500 mt-1">Ronda 4 de 10</span>
+</div>
+</div>
+<!-- Barra de progreso táctica hacia el fin de partida (66 pts límite) -->
+<div class="mb-space-md bg-slate-50 p-space-sm rounded-xl border border-slate-200">
+<div class="flex justify-between items-center mb-1.5">
+<span class="font-label-sm text-label-sm text-slate-600 uppercase tracking-wider">Presión de Límite (66 pts)</span>
+<span class="font-label-sm text-label-sm text-red-700 bg-red-100 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 border border-red-200">
+<span class="material-symbols-outlined text-[13px]">warning</span> Sofía al 98%
+          </span>
+</div>
+<div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden flex">
+<div class="bg-primary h-full rounded-full" style="width: 21%" title="Carlos: 14"></div>
+<div class="bg-secondary h-full rounded-full ml-1" style="width: 45%" title="Ana: 30"></div>
+<div class="bg-slate-500 h-full rounded-full ml-1" style="width: 72%" title="Leo: 48"></div>
+<div class="bg-red-500 h-full rounded-full ml-1 animate-pulse" style="width: 98%" title="Sofía: 65"></div>
+</div>
+</div>
+<!-- Marcadores vivos tipo Meeple Grid -->
+<div class="grid grid-cols-4 gap-2 mb-space-md">
+<!-- Jugador 1 (Líder) -->
+<div class="bg-sky-50/70 rounded-xl p-2 flex flex-col items-center text-center relative border border-sky-200 shadow-sm">
+<span class="absolute -top-1.5 -right-1 text-[13px]">👑</span>
+<div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs mb-1 shadow-sm">
+            C
+          </div>
+<span class="font-label-sm text-label-sm text-slate-900 truncate w-full">Carlos</span>
+<span class="font-tabular-score-sm text-tabular-score-sm text-primary leading-tight mt-0.5">14</span>
+<span class="text-[9px] text-primary uppercase font-bold">1º Mejor</span>
+</div>
+<!-- Jugador 2 -->
+<div class="bg-slate-50 rounded-xl p-2 flex flex-col items-center text-center border border-slate-200 shadow-sm">
+<div class="w-8 h-8 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-bold text-xs mb-1">
+            A
+          </div>
+<span class="font-label-sm text-label-sm text-slate-900 truncate w-full">Ana</span>
+<span class="font-tabular-score-sm text-tabular-score-sm text-slate-800 leading-tight mt-0.5">30</span>
+<span class="text-[9px] text-slate-500 uppercase font-semibold">2º</span>
+</div>
+<!-- Jugador 3 -->
+<div class="bg-slate-50 rounded-xl p-2 flex flex-col items-center text-center border border-slate-200 shadow-sm">
+<div class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs mb-1">
+            L
+          </div>
+<span class="font-label-sm text-label-sm text-slate-900 truncate w-full">Leo</span>
+<span class="font-tabular-score-sm text-tabular-score-sm text-slate-800 leading-tight mt-0.5">48</span>
+<span class="text-[9px] text-slate-500 uppercase font-semibold">3º</span>
+</div>
+<!-- Jugador 4 (En Peligro) -->
+<div class="bg-red-50 rounded-xl p-2 flex flex-col items-center text-center relative border border-red-200 shadow-sm">
+<span class="absolute -top-1.5 -right-1 text-[12px]">⚠️</span>
+<div class="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-xs mb-1 border border-red-200">
+            S
+          </div>
+<span class="font-label-sm text-label-sm text-red-950 truncate w-full font-bold">Sofía</span>
+<span class="font-tabular-score-sm text-tabular-score-sm text-red-600 leading-tight mt-0.5">65</span>
+<span class="text-[9px] text-red-700 font-bold uppercase">Peligro</span>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="flex items-center gap-space-xs pt-space-xs">
+<button class="flex-1 min-h-[48px] px-4 rounded-xl bg-primary text-white font-headline-sm text-headline-sm flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all hover:bg-primary-container" type="button">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<span>Reanudar Marcador</span>
+</button>
+<button aria-label="Descartar partida" class="w-12 h-12 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 flex items-center justify-center transition-colors border border-slate-200" type="button">
+<span class="material-symbols-outlined text-[20px]">delete_sweep</span>
+</button>
+</div>
+</div>
+<!-- TARJETA EN CURSO 2: SKULL KING -->
+<div class="relative bg-white rounded-2xl p-space-md shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md border border-slate-200">
+<div class="flex items-start justify-between gap-space-xs mb-space-sm">
+<div class="flex items-center gap-space-xs min-w-0">
+<div class="w-11 h-11 rounded-xl bg-sky-50 flex-shrink-0 flex items-center justify-center text-secondary border border-sky-100 shadow-sm">
+<span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">skull</span>
+</div>
+<div class="min-w-0">
+<h2 class="font-headline-md text-headline-md text-slate-900 tracking-tight truncate">Skull King</h2>
+<p class="font-body-sm text-body-sm text-slate-500 flex items-center gap-1.5">
+<span>Noche de Juegos</span>
+<span>•</span>
+<span>Ayer 21:30</span>
+</p>
+</div>
+</div>
+<div class="flex flex-col items-end flex-shrink-0">
+<span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-800 font-label-sm text-label-sm font-bold border border-slate-200">
+            Expansión Activa
+          </span>
+<span class="font-label-sm text-label-sm text-slate-500 mt-1">Ronda 5 de 10</span>
+</div>
+</div>
+<!-- Resumen Posiciones Rápidas -->
+<div class="bg-slate-50 rounded-xl p-space-sm mb-space-md flex items-center justify-between border border-slate-200">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow-sm">
+            1º
+          </div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-slate-900 font-semibold">Carlos</span>
+<span class="font-body-sm text-body-sm text-primary font-bold">200 pts</span>
+</div>
+</div>
+<div class="h-6 w-[1px] bg-slate-300"></div>
+<div class="flex flex-col text-right">
+<span class="font-label-sm text-label-sm text-slate-600">Sofía (130) • Ana (130)</span>
+<span class="font-label-sm text-label-sm text-red-600 font-bold">Leo en 4º (20 pts)</span>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="flex items-center gap-space-xs">
+<button class="flex-1 min-h-[48px] px-4 rounded-xl bg-secondary hover:bg-primary text-white font-headline-sm text-headline-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm font-bold" type="button">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<span>Reanudar Ronda 5</span>
+</button>
+<button aria-label="Ajustar reglas de mesa" class="w-12 h-12 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors border border-slate-200" type="button">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+</div>
+</section>
+<!-- SECCIÓN 2: HISTORIAL JUGADO -->
+<section class="flex flex-col gap-space-md mt-space-md" id="section-completed">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-slate-900">Historial Completado</span>
+<span class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-label-sm text-label-sm font-bold border border-slate-300">14</span>
+</div>
+<button class="font-label-md text-label-md text-primary hover:underline flex items-center gap-0.5" type="button">
+<span>Filtrar</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+<!-- TARJETA PARTIDA TERMINADA 1: SKULL KING GRAN FINAL -->
+<div class="bg-white rounded-2xl p-space-md shadow-sm flex flex-col gap-space-sm relative overflow-hidden border border-slate-200">
+<!-- Metadatos de la sesión -->
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">sailing</span>
+<h3 class="font-headline-md text-headline-md text-slate-900">Skull King</h3>
+</div>
+<p class="font-body-sm text-body-sm text-slate-500 mt-0.5">
+            Viernes, 24 Oct • 10 Rondas • 42 min
+          </p>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-sky-50 text-primary font-label-sm text-label-sm font-bold flex items-center gap-1 border border-sky-200">
+<span class="material-symbols-outlined text-[14px]">military_tech</span> Fin Oficial
+        </span>
+</div>
+<!-- Podio visual destacado (Ganador & Farolillo) -->
+<div class="grid grid-cols-2 gap-space-xs">
+<!-- Ganador Badge -->
+<div class="bg-amber-50/60 rounded-xl p-space-sm flex flex-col justify-between border border-amber-200">
+<div class="flex items-center gap-1.5 mb-1 text-amber-800">
+<span class="text-[16px]">🏆</span>
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-amber-900">Ganador</span>
+</div>
+<div>
+<span class="font-headline-sm text-headline-sm text-slate-900 font-bold block truncate">Carlos</span>
+<span class="font-tabular-score-sm text-tabular-score-sm text-primary">280 <span class="text-xs font-normal text-slate-500">pts</span></span>
+</div>
+<div class="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold border border-amber-200 w-fit">
+<span>👑 Apuesta récord</span>
+</div>
+</div>
+<!-- Farolillo Rojo / Último Lugar -->
+<div class="bg-red-50/70 rounded-xl p-space-sm flex flex-col justify-between border border-red-200">
+<div class="flex items-center gap-1.5 mb-1 text-red-700">
+<span class="text-[16px]">⚓</span>
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider">Farolillo</span>
+</div>
+<div>
+<span class="font-headline-sm text-headline-sm text-slate-900 font-bold block truncate">Leo</span>
+<span class="font-tabular-score-sm text-tabular-score-sm text-red-600">40 <span class="text-xs font-normal text-slate-500">pts</span></span>
+</div>
+<div class="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-[10px] font-bold border border-red-200 w-fit">
+<span>⚡ 3 Ceros fallados</span>
+</div>
+</div>
+</div>
+<!-- Tabla resumida de participantes expandible -->
+<div class="bg-slate-50 rounded-xl p-space-sm mt-1 border border-slate-200">
+<div class="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase pb-1.5 mb-1 border-b border-slate-200">
+<span>Posición / Jugador</span>
+<span>Marcador Total</span>
+</div>
+<div class="flex flex-col gap-1.5 pt-1">
+<div class="flex items-center justify-between font-label-md text-label-md text-slate-900">
+<span class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold">1</span>
+<span class="font-semibold">Carlos</span>
+</span>
+<span class="font-tabular-score-sm text-[15px] text-primary font-bold">280 pts</span>
+</div>
+<div class="flex items-center justify-between font-label-md text-label-md text-slate-900">
+<span class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] font-bold">2</span>
+<span>Ana</span>
+</span>
+<span class="font-tabular-score-sm text-[15px] text-slate-800 font-semibold">210 pts</span>
+</div>
+<div class="flex items-center justify-between font-label-md text-label-md text-slate-900">
+<span class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] font-bold">3</span>
+<span>Sofía</span>
+</span>
+<span class="font-tabular-score-sm text-[15px] text-slate-800 font-semibold">180 pts</span>
+</div>
+<div class="flex items-center justify-between font-label-md text-label-md text-slate-700">
+<span class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-[10px] font-bold border border-red-200">4</span>
+<span>Leo</span>
+</span>
+<span class="font-tabular-score-sm text-[15px] text-red-600 font-bold">40 pts</span>
+</div>
+</div>
+</div>
+<!-- Action buttons -->
+<div class="grid grid-cols-2 gap-space-xs pt-1">
+<button class="min-h-[44px] px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-label-md text-label-md flex items-center justify-center gap-1.5 transition-colors border border-slate-200 font-bold" type="button">
+<span class="material-symbols-outlined text-[18px]">table_chart</span>
+<span>Ver Marcador</span>
+</button>
+<button class="min-h-[44px] px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-primary font-label-md text-label-md flex items-center justify-center gap-1.5 transition-colors border border-slate-200 font-bold" type="button">
+<span class="material-symbols-outlined text-[18px]">share</span>
+<span>Compartir</span>
+</button>
+</div>
+</div>
+<!-- TARJETA PARTIDA TERMINADA 2: TAKE 6! -->
+<div class="bg-white rounded-2xl p-space-md shadow-sm flex flex-col gap-space-sm relative border border-slate-200">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-steel-blue text-[20px]" style="font-variation-settings: 'FILL' 1;">front_hand</span>
+<h3 class="font-headline-md text-headline-md text-slate-900">Take 6! (¡Toma 6!)</h3>
+</div>
+<p class="font-body-sm text-body-sm text-slate-500 mt-0.5">
+            18 Oct • Fin por límite (66 pts) • 6 Rondas
+          </p>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-label-sm text-label-sm border border-slate-200 font-bold">
+          Casual
+        </span>
+</div>
+<!-- Badges de desenlace de Take 6 (Menos es mejor) -->
+<div class="bg-slate-50 rounded-xl p-space-sm flex flex-col gap-2 border border-slate-200">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[18px]">🏆</span>
+<div>
+<span class="font-label-md text-label-md text-slate-900 font-bold">Ganador: Ana</span>
+<p class="text-[11px] text-primary font-medium">18 cuernos (Menos puntos acumulados)</p>
+</div>
+</div>
+<span class="font-tabular-score-sm text-tabular-score-sm text-primary">18</span>
+</div>
+<div class="h-[1px] bg-slate-200"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[18px]">🐂</span>
+<div>
+<span class="font-label-md text-label-md text-slate-900 font-bold">Detonó fin: Sofía</span>
+<p class="text-[11px] text-red-600 font-medium">72 cuernos (Superó la barrera de 66)</p>
+</div>
+</div>
+<span class="font-tabular-score-sm text-tabular-score-sm text-red-600">72</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-body-sm text-body-sm text-slate-600">Podio: Ana (18), Carlos (32), Leo (44), Sofía (72)</span>
+<button class="min-h-[40px] px-3 rounded-lg bg-sky-50 text-primary hover:bg-sky-100 font-label-md text-label-md flex items-center gap-1 transition-colors border border-sky-200 font-bold" type="button">
+<span>Ver Hoja</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- TARJETA PARTIDA TERMINADA 3: RESUMEN COMPACTO -->
+<div class="bg-white rounded-xl p-space-sm flex items-center justify-between shadow-sm border border-slate-200">
+<div class="flex items-center gap-space-xs min-w-0">
+<div class="w-9 h-9 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">sailing</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-slate-900 truncate">Skull King (Rápida 8 rondas)</h4>
+<p class="font-body-sm text-body-sm text-slate-500 truncate">12 Oct • Ganadora: Sofía (190 pts)</p>
+</div>
+</div>
+<button aria-label="Abrir detalles de partida" class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 flex-shrink-0 border border-slate-200" type="button">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- BANNER DE REVANCHA RÁPIDA & ACCIÓN INFERIOR -->
+<div class="mt-space-lg mb-space-sm">
+<div class="bg-gradient-to-r from-primary to-[#1E3A5F] p-space-md rounded-2xl shadow-md flex flex-col gap-space-sm relative overflow-hidden border border-slate-300">
+<div class="flex items-center gap-space-xs">
+<div class="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[24px]">replay</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-white">¿Misma mesa, nuevo reto?</h4>
+<p class="font-body-sm text-body-sm text-sky-100">Lanza una partida rápida con Carlos, Ana, Leo y Sofía</p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs mt-1">
+<button class="flex-1 min-h-[48px] px-4 rounded-xl bg-white text-primary font-headline-sm text-headline-sm flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all hover:bg-slate-100 font-bold" type="button">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Revancha Rápida</span>
+</button>
+<button class="min-h-[48px] px-4 rounded-xl bg-white/15 hover:bg-white/25 text-white font-label-md text-label-md flex items-center justify-center gap-1 transition-colors border border-white/20 font-bold" title="Exportar partidas" type="button">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+<span>CSV</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pie de Utilidad y Gestión -->
+<div class="flex items-center justify-center gap-4 py-2 mt-2">
+<button class="font-label-sm text-label-sm text-slate-500 hover:text-slate-800 flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">file_upload</span>
+<span>Copia de seguridad</span>
+</button>
+<span class="text-slate-300 text-xs">•</span>
+<button class="font-label-sm text-label-sm text-red-600 hover:text-red-700 flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+<span>Limpiar historial antiguo</span>
+</button>
+</div>
+</div>
+<script>
+  function switchMainTab(tabName) {
+    const tabProgress = document.getElementById('tab-in-progress');
+    const tabCompleted = document.getElementById('tab-completed');
+    const sectionProgress = document.getElementById('section-in-progress');
+    const sectionCompleted = document.getElementById('section-completed');
+
+    if (tabName === 'in-progress') {
+      tabProgress.className = 'relative flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-label-lg text-label-lg transition-all duration-200 bg-white text-primary shadow-sm font-bold';
+      tabCompleted.className = 'relative flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-label-lg text-label-lg transition-all duration-200 text-slate-600 hover:text-slate-900';
+      sectionProgress.classList.remove('hidden');
+      sectionCompleted.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      tabCompleted.className = 'relative flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-label-lg text-label-lg transition-all duration-200 bg-white text-primary shadow-sm font-bold';
+      tabProgress.className = 'relative flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-label-lg text-label-lg transition-all duration-200 text-slate-600 hover:text-slate-900';
+      sectionCompleted.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  // Sincronizar estado visual de la barra de navegación del shell al montar
+  document.addEventListener('DOMContentLoaded', () => {
+    const navItems = document.querySelectorAll('nav a');
+    navItems.forEach(item => {
+      if (item.getAttribute('data-path') === 'en-curso') {
+        item.classList.add('text-primary', 'font-bold');
+        item.classList.remove('text-slate-500');
+      } else {
+        item.classList.remove('text-primary', 'font-bold');
+        item.classList.add('text-slate-500');
+      }
+    });
+  });
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-white/95 backdrop-blur-xl shadow-[0_-1px_6px_rgba(0,0,0,0.06)] border-t border-slate-200" data-active-classes="text-primary font-bold"><div class="flex justify-around items-stretch h-16 px-gutter-mobile"><a class="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 text-slate-500 hover:text-slate-800 transition-all duration-150 relative" data-path="juegos" href="#"><span class="material-symbols-outlined text-[24px]">casino</span><span class="font-label-md text-label-md mt-0.5 tracking-wide">Juegos</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 text-primary font-bold transition-all duration-150 relative" data-path="en-curso" href="#"><span class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">sports_esports</span><span class="absolute -top-1 -right-2 flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary"></span></span></span><span class="font-label-md text-label-md mt-0.5 tracking-wide">En Curso</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 text-slate-500 hover:text-slate-800 transition-all duration-150" data-path="reglas" href="#"><span class="material-symbols-outlined text-[24px]">menu_book</span><span class="font-label-md text-label-md mt-0.5 tracking-wide">Reglas</span></a></div></nav></body></html>
