@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="pelusaGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ec4899" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#8b5cf6" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.5"/>
+    </linearGradient>
+    <linearGradient id="windGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.1"/>
+      <stop offset="50%" stop-color="#8b5cf6" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#ec4899" stop-opacity="0.8"/>
+    </linearGradient>
+    <radialGradient id="bunnyGrad1" cx="40%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#f472b6" stop-opacity="0.9"/>
+      <stop offset="70%" stop-color="#db2777" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#9d174d" stop-opacity="0.4"/>
+    </radialGradient>
+    <radialGradient id="bunnyGrad2" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.9"/>
+      <stop offset="70%" stop-color="#7c3aed" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#5b21b6" stop-opacity="0.4"/>
+    </radialGradient>
+    <radialGradient id="bunnyGrad3" cx="45%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9"/>
+      <stop offset="70%" stop-color="#0284c7" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#0369a1" stop-opacity="0.4"/>
+    </radialGradient>
+  </defs>
+
+  <g id="wind-currents" fill="none" stroke="url(#windGrad)" stroke-linecap="round">
+    <!-- Corrientes de aire dinámicas -->
+    <path d="M 20,180 C 120,120 220,240 340,160 C 420,100 480,120 540,80" stroke-width="4" stroke-dasharray="8 6"/>
+    <path d="M 60,260 C 160,200 280,300 400,220 C 480,170 520,200 580,160" stroke-width="3"/>
+    <path d="M 120,380 C 220,320 320,420 440,340 C 510,290 550,330 590,300" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <path d="M 450,110 C 490,90 530,110 520,140 C 510,165 475,160 470,135 C 465,115 485,95 510,100" stroke-width="3"/>
+    <path d="M 380,240 C 410,220 440,235 435,255 C 430,270 405,270 400,250" stroke-width="2.5"/>
+  </g>
+
+  <!-- Pelusa Principal Grande (Rosa) -->
+  <g id="big-pelusa" transform="translate(360, 260)">
+    <!-- Pelillos / espigas de polvo -->
+    <g stroke="#f472b6" stroke-width="3.5" stroke-linecap="round">
+      <line x1="0" y1="-85" x2="0" y2="-105"/>
+      <line x1="45" y1="-75" x2="60" y2="-95"/>
+      <line x1="75" y1="-45" x2="98" y2="-58"/>
+      <line x1="88" y1="0" x2="112" y2="0"/>
+      <line x1="75" y1="45" x2="98" y2="58"/>
+      <line x1="45" y1="75" x2="60" y2="95"/>
+      <line x1="0" y1="85" x2="0" y2="108"/>
+      <line x1="-45" y1="75" x2="-62" y2="95"/>
+      <line x1="-75" y1="45" x2="-98" y2="58"/>
+      <line x1="-88" y1="0" x2="-112" y2="0"/>
+      <line x1="-75" y1="-45" x2="-98" y2="-58"/>
+      <line x1="-45" y1="-75" x2="-60" y2="-95"/>
+      <!-- Mechones extra -->
+      <line x1="25" y1="-80" x2="35" y2="-102"/>
+      <line x1="-25" y1="-80" x2="-35" y2="-102"/>
+      <line x1="82" y1="-22" x2="108" y2="-28"/>
+      <line x1="-82" y1="-22" x2="-108" y2="-28"/>
+    </g>
+    <!-- Cuerpo esponjoso -->
+    <path d="M 0,-85 C 35,-85 65,-60 78,-35 C 92,-8 90,30 75,60 C 58,85 28,88 0,85 C -28,88 -58,85 -75,60 C -90,30 -92,-8 -78,-35 C -65,-60 -35,-85 0,-85 Z" fill="url(#bunnyGrad1)"/>
+    <!-- Ojos grandes y simpáticos -->
+    <ellipse cx="-26" cy="-12" rx="19" ry="24" fill="#ffffff"/>
+    <ellipse cx="26" cy="-12" rx="19" ry="24" fill="#ffffff"/>
+    <circle cx="-21" cy="-8" r="10" fill="#1e1b4b"/>
+    <circle cx="31" cy="-8" r="10" fill="#1e1b4b"/>
+    <!-- Brillos en los ojos -->
+    <circle cx="-24" cy="-13" r="4" fill="#ffffff"/>
+    <circle cx="-17" cy="-5" r="2" fill="#ffffff"/>
+    <circle cx="28" cy="-13" r="4" fill="#ffffff"/>
+    <circle cx="35" cy="-5" r="2" fill="#ffffff"/>
+    <!-- Sonrisa pícara -->
+    <path d="M -15,22 Q 0,38 15,22" fill="none" stroke="#831843" stroke-width="4.5" stroke-linecap="round"/>
+    <!-- Mejillas sonrojadas -->
+    <ellipse cx="-48" cy="14" rx="10" ry="6" fill="#f43f5e" opacity="0.6"/>
+    <ellipse cx="48" cy="14" rx="10" ry="6" fill="#f43f5e" opacity="0.6"/>
+    <!-- Patitas de pelusa -->
+    <ellipse cx="-32" cy="85" rx="14" ry="9" fill="#db2777"/>
+    <ellipse cx="32" cy="85" rx="14" ry="9" fill="#db2777"/>
+  </g>
+
+  <!-- Pelusa Mediana (Púrpura / Morada) -->
+  <g id="mid-pelusa" transform="translate(180, 200)">
+    <g stroke="#c084fc" stroke-width="2.8" stroke-linecap="round">
+      <line x1="0" y1="-62" x2="0" y2="-78"/>
+      <line x1="32" y1="-52" x2="44" y2="-68"/>
+      <line x1="55" y1="-30" x2="72" y2="-40"/>
+      <line x1="62" y1="0" x2="80" y2="0"/>
+      <line x1="55" y1="30" x2="72" y2="40"/>
+      <line x1="32" y1="52" x2="44" y2="68"/>
+      <line x1="0" y1="62" x2="0" y2="78"/>
+      <line x1="-32" y1="52" x2="-44" y2="68"/>
+      <line x1="-55" y1="30" x2="-72" y2="40"/>
+      <line x1="-62" y1="0" x2="-80" y2="0"/>
+      <line x1="-55" y1="-30" x2="-72" y2="-40"/>
+      <line x1="-32" y1="-52" x2="-44" y2="-68"/>
+    </g>
+    <path d="M 0,-60 C 26,-60 48,-42 56,-24 C 65,-5 63,22 52,42 C 40,60 18,62 0,60 C -18,62 -40,60 -52,42 C -63,22 -65,-5 -56,-24 C -48,-42 -26,-60 0,-60 Z" fill="url(#bunnyGrad2)"/>
+    <!-- Ojos -->
+    <ellipse cx="-18" cy="-8" rx="14" ry="17" fill="#ffffff"/>
+    <ellipse cx="18" cy="-8" rx="14" ry="17" fill="#ffffff"/>
+    <circle cx="-14" cy="-5" r="7" fill="#1e1b4b"/>
+    <circle cx="22" cy="-5" r="7" fill="#1e1b4b"/>
+    <circle cx="-16" cy="-9" r="2.8" fill="#ffffff"/>
+    <circle cx="20" cy="-9" r="2.8" fill="#ffffff"/>
+    <!-- Boquita sorpresa -->
+    <ellipse cx="0" cy="18" rx="6" ry="8" fill="#3b0764"/>
+  </g>
+
+  <!-- Pelusa Pequeña (Azul / Cian) -->
+  <g id="small-pelusa" transform="translate(480, 440)">
+    <g stroke="#7dd3fc" stroke-width="2.2" stroke-linecap="round">
+      <line x1="0" y1="-44" x2="0" y2="-56"/>
+      <line x1="24" y1="-38" x2="34" y2="-50"/>
+      <line x1="40" y1="-20" x2="52" y2="-28"/>
+      <line x1="44" y1="0" x2="58" y2="0"/>
+      <line x1="40" y1="20" x2="52" y2="28"/>
+      <line x1="24" y1="38" x2="34" y2="50"/>
+      <line x1="0" y1="44" x2="0" y2="56"/>
+      <line x1="-24" y1="38" x2="-34" y2="50"/>
+      <line x1="-40" y1="20" x2="-52" y2="28"/>
+      <line x1="-44" y1="0" x2="-58" y2="0"/>
+      <line x1="-40" y1="-20" x2="-52" y2="-28"/>
+      <line x1="-24" y1="-38" x2="-34" y2="-50"/>
+    </g>
+    <path d="M 0,-42 C 18,-42 34,-30 40,-16 C 46,-3 44,15 37,29 C 28,42 12,43 0,42 C -12,43 -28,42 -37,29 C -44,15 -46,-3 -40,-16 C -34,-30 -18,-42 0,-42 Z" fill="url(#bunnyGrad3)"/>
+    <ellipse cx="-12" cy="-5" rx="10" ry="12" fill="#ffffff"/>
+    <ellipse cx="12" cy="-5" rx="10" ry="12" fill="#ffffff"/>
+    <circle cx="-10" cy="-3" r="5" fill="#082f49"/>
+    <circle cx="14" cy="-3" r="5" fill="#082f49"/>
+    <circle cx="-11" cy="-6" r="2" fill="#ffffff"/>
+    <circle cx="13" cy="-6" r="2" fill="#ffffff"/>
+    <path d="M -8,14 Q 0,22 8,14" fill="none" stroke="#082f49" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Cartas flotantes representativas de Pelusas -->
+  <!-- Carta 10 -->
+  <g transform="translate(110, 360) rotate(-16)">
+    <rect x="-35" y="-50" width="70" height="100" rx="10" fill="#1e1b4b" stroke="#ec4899" stroke-width="3" opacity="0.85"/>
+    <text x="0" y="14" font-family="system-ui, sans-serif" font-size="34" font-weight="900" fill="#f472b6" text-anchor="middle">10</text>
+  </g>
+
+  <!-- Carta 7 -->
+  <g transform="translate(240, 460) rotate(12)">
+    <rect x="-30" y="-45" width="60" height="90" rx="9" fill="#1e1b4b" stroke="#8b5cf6" stroke-width="2.8" opacity="0.85"/>
+    <text x="0" y="12" font-family="system-ui, sans-serif" font-size="30" font-weight="900" fill="#c084fc" text-anchor="middle">7</text>
+  </g>
+
+  <!-- Carta 3 -->
+  <g transform="translate(490, 160) rotate(18)">
+    <rect x="-28" y="-42" width="56" height="84" rx="8" fill="#1e1b4b" stroke="#06b6d4" stroke-width="2.5" opacity="0.85"/>
+    <text x="0" y="11" font-family="system-ui, sans-serif" font-size="28" font-weight="900" fill="#38bdf8" text-anchor="middle">3</text>
+  </g>
+
+  <!-- Motas de polvo y destellos de pelusa flotando -->
+  <g fill="#ec4899" opacity="0.75">
+    <circle cx="140" cy="110" r="4.5"/>
+    <circle cx="280" cy="100" r="3.5"/>
+    <circle cx="430" cy="60" r="5"/>
+    <circle cx="50" cy="220" r="4"/>
+    <circle cx="270" cy="330" r="3"/>
+    <circle cx="490" cy="360" r="4"/>
+    <circle cx="340" cy="490" r="5"/>
+    <circle cx="160" cy="510" r="3.5"/>
+  </g>
+  <g fill="#8b5cf6" opacity="0.7">
+    <circle cx="90" cy="150" r="3"/>
+    <circle cx="230" cy="80" r="4"/>
+    <circle cx="360" cy="140" r="3.5"/>
+    <circle cx="550" cy="220" r="4.5"/>
+    <circle cx="430" cy="480" r="3.5"/>
+    <circle cx="80" cy="460" r="4"/>
+  </g>
+  <g fill="#06b6d4" opacity="0.8">
+    <circle cx="180" cy="290" r="3.5"/>
+    <circle cx="310" cy="210" r="4"/>
+    <circle cx="460" cy="250" r="3"/>
+    <circle cx="530" cy="400" r="4"/>
+    <circle cx="570" cy="110" r="3.5"/>
+    <circle cx="220" cy="540" r="4.5"/>
+  </g>
+</svg>

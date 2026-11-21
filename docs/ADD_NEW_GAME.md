@@ -250,7 +250,148 @@ Diseña un componente standalone enfocado 100% en la interacción táctil en mes
   * `this.matchManager.commitRound(roundData)` al confirmar la ronda.
   * `this.matchManager.rollbackToRound(roundNumber)` para editar rondas anteriores.
   * `this.matchManager.finalizeMatch()` para concluir la sesión.
-- Modal de abandono de partida: si el usuario decide salir a mitad de partida, solicitar confirmación antes de redireccionar al catálogo sin guardar en el historial.
+
+- **Uniformidad Obligatoria: Botón 'Finalizar Partida' (Abandono en curso) y Modal de Confirmación**:
+  Todos los juegos deben tener exactamente la misma estructura visual, naming y comportamiento para permitir finalizar/abandonar una partida en curso:
+  1. **Botón en la barra inferior flotante (`.floating-actions-bar` / `.secondary-actions-row`)**:
+     - **Texto**: `Finalizar Partida` (nunca "Abandonar" ni "Salir").
+     - **Icono Material**: `exit_to_app`.
+     - **Clases CSS**: `btn-secondary-action btn-danger`.
+     - **Acción**: `(click)="askToAbandonMatch()"`.
+     ```html
+     <button
+       type="button"
+       class="btn-secondary-action btn-danger"
+       (click)="askToAbandonMatch()"
+     >
+       <span class="material-symbols-outlined">exit_to_app</span>
+       <span>Finalizar Partida</span>
+     </button>
+     ```
+  2. **Modal de Confirmación de Abandono (`showAbandonConfirmModal`)**:
+     - Si la partida está en curso, al presionar 'Finalizar Partida' **NUNCA** se sale de inmediato; **SIEMPRE** se solicita confirmación.
+     - Si confirma, la partida **no se registra en el historial** (`this.matchManager.abandonMatch()`) y se redirige a `/tabs/catalog`.
+     - Si cancela, se oculta el modal (`this.showAbandonConfirmModal.set(false)`) y el juego continúa.
+     ```html
+     @if (showAbandonConfirmModal()) {
+       <div class="modal-overlay" (click)="cancelAbandon()">
+         <div class="modal-dialog-card" (click)="$event.stopPropagation()">
+           <div class="modal-icon-badge danger-badge">
+             <span class="material-symbols-outlined">warning</span>
+           </div>
+           <h3 class="modal-title">¿Abandonar la partida?</h3>
+           <p class="modal-message">
+             Estás en medio de una partida de [Nombre del Juego]. Si confirmas, saldrás al catálogo de juegos y esta partida <strong>no se guardará en el historial</strong>.
+           </p>
+           <div class="modal-actions">
+             <button
+               type="button"
+               class="btn-modal-cancel"
+               (click)="cancelAbandon()"
+             >
+               Cancelar y Continuar Jugando
+             </button>
+             <button
+               type="button"
+               class="btn-modal-confirm-abandon"
+               (click)="confirmAbandon()"
+             >
+               <span class="material-symbols-outlined">delete_forever</span>
+               <span>Sí, Abandonar Partida</span>
+             </button>
+           </div>
+         </div>
+       </div>
+     }
+     ```
+  3. **Lógica estándar en TypeScript**:
+     ```typescript
+     showAbandonConfirmModal = signal(false);
+
+     askToAbandonMatch(): void {
+       this.showAbandonConfirmModal.set(true);
+     }
+
+     cancelAbandon(): void {
+       this.showAbandonConfirmModal.set(false);
+     }
+
+     async confirmAbandon(): Promise<void> {
+       this.showAbandonConfirmModal.set(false);
+       await this.matchManager.abandonMatch();
+       await this.router.navigate(['/tabs/catalog']);
+     }
+     ```
+  4. **Estilos SCSS del Modal**:
+     ```scss
+     .modal-overlay {
+       position: fixed;
+       inset: 0;
+       background: rgba(0, 0, 0, 0.75);
+       backdrop-filter: blur(8px);
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       padding: var(--space-md);
+       z-index: 1000;
+     }
+
+     .modal-dialog-card {
+       background: var(--color-surface-container);
+       border: 1px solid var(--color-border-strong);
+       border-radius: var(--radius-2xl);
+       padding: var(--space-xl);
+       max-width: 440px;
+       width: 100%;
+       text-align: center;
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       gap: var(--space-md);
+       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+     }
+
+     .modal-icon-badge {
+       width: 56px;
+       height: 56px;
+       border-radius: var(--radius-full);
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       background: rgba(239, 68, 68, 0.15);
+       color: #ef4444;
+       border: 1px solid rgba(239, 68, 68, 0.3);
+     }
+
+     .btn-modal-cancel {
+       width: 100%;
+       min-height: 44px;
+       border-radius: var(--radius-lg);
+       background: var(--color-surface-container-high);
+       border: 1px solid var(--color-border-default);
+       color: var(--color-text-primary);
+       font-weight: 700;
+       font-size: 14px;
+       cursor: pointer;
+     }
+
+     .btn-modal-confirm-abandon {
+       width: 100%;
+       min-height: 44px;
+       border-radius: var(--radius-lg);
+       background: #dc2626;
+       border: none;
+       color: #ffffff;
+       font-weight: 800;
+       font-size: 14px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       gap: 6px;
+       cursor: pointer;
+       box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+     }
+     ```
 
 ### Paso 6: Definir y Registrar el Juego con su Tema Visual
 1. En `<game-id>.definition.ts`, exporta la constante `MY_GAME_DEFINITION` incluyendo el bloque `theme`:
@@ -307,6 +448,7 @@ constructor() {
   this.register(SKULL_KING_DEFINITION);
   this.register(TAKE_6_DEFINITION);
   this.register(MINO_DICE_DEFINITION);
+  this.register(PELUSAS_DEFINITION);
   this.register(MY_GAME_DEFINITION); // <-- Registrar aquí
 }
 ```
@@ -319,9 +461,9 @@ Completa este formulario al solicitar o diseñar un nuevo juego:
 
 | Campo | Ejemplo | Obligatorio | Descripción |
 |---|---|---|---|
-| **ID / Slug** | `skull-king`, `take-6`, `mino-dice` | Sí | Minúsculas y guiones, único en el sistema. |
-| **Nombre Oficial** | `Skull King`, `¡Toma 6!`, `Mino Dice` | Sí | Nombre a mostrar en pantalla. |
-| **Emoji / Icono** | `👑`, `🐂`, `🎲` | Sí | Icono visible en catálogo y cabecera. |
+| **ID / Slug** | `skull-king`, `take-6`, `mino-dice`, `pelusas` | Sí | Minúsculas y guiones, único en el sistema. |
+| **Nombre Oficial** | `Skull King`, `¡Toma 6!`, `Mino Dice`, `Pelusas` | Sí | Nombre a mostrar en pantalla. |
+| **Emoji / Icono** | `👑`, `🐂`, `🎲`, `🧶` | Sí | Icono visible en catálogo y cabecera. |
 | **Rango de Jugadores** | Mínimo: 2, Máximo: 8 | Sí | Límites físicos de componentes del juego. |
 | **Condición de Victoria** | `highest_score` o `lowest_score` | Sí | Define ordenación de podio y medalla de oro. |
 | **Tiene Perdedor Destacado** | `true` o `false` | Sí | `true` si alguien detona el fin (ej. Take 6 al superar 66 pts). |
