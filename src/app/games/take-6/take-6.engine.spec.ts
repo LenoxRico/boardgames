@@ -87,4 +87,12 @@ describe('Take6Engine', () => {
     expect(roundsOpt).toBeDefined();
     expect(roundsOpt?.defaultValue).toBe(true);
   });
+
+  it('hides scoreLimit option when roundsMode is active and shows when deactivated', () => {
+    const scoreLimitOpt = TAKE_6_DEFINITION.configOptions.find((opt) => opt.key === 'scoreLimit');
+    expect(scoreLimitOpt).toBeDefined();
+    expect(scoreLimitOpt?.showIf).toBeDefined();
+    expect(scoreLimitOpt?.showIf?.({ roundsMode: true })).toBe(false);
+    expect(scoreLimitOpt?.showIf?.({ roundsMode: false })).toBe(true);
+  });
 });

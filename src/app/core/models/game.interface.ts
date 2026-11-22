@@ -35,6 +35,8 @@ export interface GameConfigOption<T = unknown> {
   min?: number;
   max?: number;
   options?: { label: string; value: T }[];
+  showIf?: (config: Record<string, any>) => boolean;
+  dependsOn?: { key: string; value: any };
 }
 
 export interface GameRuleSection {

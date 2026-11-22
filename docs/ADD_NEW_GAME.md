@@ -417,6 +417,14 @@ Diseña un componente standalone enfocado 100% en la interacción táctil en mes
   3. **Validación de Confirmación**:
      - El botón de confirmar ronda debe permanecer deshabilitado (`!canConfirmRound()`) hasta que todos los jugadores de la partida tengan sus bazas ganadas ingresadas.
 
+- **Diseño Estándar de Chips de Bonificación (`.bonus-chip`)**:
+  - Para botones de bonificaciones opcionales o capturas (ej. criaturas, cofres, sirenas), usar chips redondeados (`border-radius: var(--radius-full)`, `padding: 6px 12px`, `font-size: 12px`, `font-weight: 700`, `display: inline-flex`).
+  - El botón de limpiar bonificaciones (`.clear-chip`) debe usar **siempre** el icono de Material `<span class="material-symbols-outlined">restart_alt</span>` (con `font-size: 18px`, `color: var(--color-danger)` y `padding: 6px 8px`), **nunca texto plano como "Limpiar"**, para mantener un diseño visual compacto e idéntico en todos los juegos.
+
+- **Opciones de Configuración Condicionales (`showIf` / `dependsOn`)**:
+  - En `GameConfigOption`, cuando una opción de partida dependa de otra (ej. en Toma 6, el *Límite Crítico* es indiferente cuando el *Modo de Rondas Fijas* está activo), usar la propiedad `showIf: (config) => boolean` o `dependsOn: { key, value }`.
+  - La pantalla de configuración de partida (`new-match`) evaluará esta condición reactivamente para ocultar las opciones irrelevantes y mostrarlas únicamente cuando su modo correspondiente esté activo.
+
 ### Paso 6: Definir y Registrar el Juego con su Tema Visual
 1. En `<game-id>.definition.ts`, exporta la constante `MY_GAME_DEFINITION` incluyendo el bloque `theme`:
 

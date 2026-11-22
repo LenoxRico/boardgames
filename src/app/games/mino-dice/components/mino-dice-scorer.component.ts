@@ -377,6 +377,7 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
                       class="bonus-chip clear-chip"
                       [disabled]="viewingRound() < currentMatchRound()"
                       (click)="clearBonuses(player.id)"
+                      title="Limpiar bonificaciones"
                     >
                       <span class="material-symbols-outlined">restart_alt</span>
                     </button>
@@ -1004,6 +1005,10 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
     .bonus-chip.clear-chip {
       color: var(--color-danger);
       padding: 6px 8px;
+    }
+
+    .bonus-chip.clear-chip .material-symbols-outlined {
+      font-size: 18px;
     }
 
     /* Tabla Matriz */

@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { GameRegistryService } from '../../core/services/game-registry.service';
 import { StorageService } from '../../core/services/storage.service';
 import { MatchManagerService } from '../../core/services/match-manager.service';
-import { GameDefinition } from '../../core/models/game.interface';
+import { GameDefinition, GameConfigOption } from '../../core/models/game.interface';
 
 @Component({
   selector: 'app-new-match',
@@ -135,45 +135,47 @@ import { GameDefinition } from '../../core/models/game.interface';
 
             <div class="config-options-list">
               @for (opt of game.configOptions; track opt.key) {
-                <div class="config-item">
-                  <div class="config-text">
-                    <span class="config-label">{{ opt.label }}</span>
-                    @if (opt.description) {
-                      <span class="config-desc">{{ opt.description }}</span>
-                    }
-                  </div>
+                @if (isOptionVisible(opt)) {
+                  <div class="config-item">
+                    <div class="config-text">
+                      <span class="config-label">{{ opt.label }}</span>
+                      @if (opt.description) {
+                        <span class="config-desc">{{ opt.description }}</span>
+                      }
+                    </div>
 
-                  <div class="config-control">
-                    @if (opt.type === 'boolean') {
-                      <label class="switch">
-                        <input
-                          type="checkbox"
-                          [checked]="configValues()[opt.key]"
-                          (change)="setBooleanConfig(opt.key, $event)"
-                        />
-                        <span class="slider"></span>
-                      </label>
-                    } @else if (opt.type === 'number') {
-                      <div class="number-input-stepper">
-                        <button
-                          type="button"
-                          class="stepper-btn"
-                          (click)="adjustNumberConfig(opt.key, -1, opt.min)"
-                        >
-                          -
-                        </button>
-                        <span class="stepper-val tabular-nums">{{ configValues()[opt.key] }}</span>
-                        <button
-                          type="button"
-                          class="stepper-btn"
-                          (click)="adjustNumberConfig(opt.key, 1, opt.max)"
-                        >
-                          +
-                        </button>
-                      </div>
-                    }
+                    <div class="config-control">
+                      @if (opt.type === 'boolean') {
+                        <label class="switch">
+                          <input
+                            type="checkbox"
+                            [checked]="configValues()[opt.key]"
+                            (change)="setBooleanConfig(opt.key, $event)"
+                          />
+                          <span class="slider"></span>
+                        </label>
+                      } @else if (opt.type === 'number') {
+                        <div class="number-input-stepper">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            (click)="adjustNumberConfig(opt.key, -1, opt.min)"
+                          >
+                            -
+                          </button>
+                          <span class="stepper-val tabular-nums">{{ configValues()[opt.key] }}</span>
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            (click)="adjustNumberConfig(opt.key, 1, opt.max)"
+                          >
+                            +
+                          </button>
+                        </div>
+                      }
+                    </div>
                   </div>
-                </div>
+                }
               }
             </div>
           </div>
@@ -725,6 +727,16 @@ export class NewMatchComponent {
       }
       return { ...cfg, [key]: next };
     });
+  }
+
+  isOptionVisible(opt: GameConfigOption): boolean {
+    if (opt.showIf) {
+      return opt.showIf(this.configValues());
+    }
+    if (opt.dependsOn) {
+      return this.configValues()[opt.dependsOn.key] === opt.dependsOn.value;
+    }
+    return true;
   }
 
   async startMatch(): Promise<void> {

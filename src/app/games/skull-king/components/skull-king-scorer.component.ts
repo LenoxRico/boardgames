@@ -366,9 +366,11 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
                     <button
                       type="button"
                       class="bonus-chip clear-chip"
+                      [disabled]="viewingRound() < currentMatchRound()"
                       (click)="clearBonuses(player.id)"
+                      title="Limpiar bonificaciones"
                     >
-                      Limpiar
+                      <span class="material-symbols-outlined">restart_alt</span>
                     </button>
                   }
                 </div>
@@ -1229,16 +1231,23 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
     }
 
     .bonus-chip {
-      min-height: 36px;
-      padding: 4px 10px;
+      padding: 6px 12px;
       border-radius: var(--radius-full);
       background: var(--color-surface-container-high);
       border: 1px solid var(--color-border-subtle);
       color: var(--color-text-primary);
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bonus-chip:hover:not(:disabled) {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
     }
 
     .bonus-chip.active-bonus {
@@ -1248,9 +1257,12 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
     }
 
     .bonus-chip.clear-chip {
-      background: transparent;
-      border-color: var(--color-text-muted);
-      color: var(--color-text-muted);
+      color: var(--color-danger);
+      padding: 6px 8px;
+    }
+
+    .bonus-chip.clear-chip .material-symbols-outlined {
+      font-size: 18px;
     }
 
     /* Matriz de Historial */

@@ -40,6 +40,7 @@ export const TAKE_6_DEFINITION: GameDefinition<Take6Config, Take6RoundInput> = {
       min: 20,
       max: 200,
       description: 'Aplica en modo clásico: la partida termina cuando alguien alcanza o supera este límite.',
+      showIf: (config) => !config['roundsMode'],
     },
   ],
   rules: TAKE_6_RULES,
