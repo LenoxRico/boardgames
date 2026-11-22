@@ -371,7 +371,7 @@ import { PELUSAS_RULES } from '../pelusas.rules';
             <span class="material-symbols-outlined">table_chart</span>
             Historial de Pelusas por Ronda
           </h3>
-          <span class="matrix-hint">Puntos Ronda (Total Acumulado)</span>
+          <span class="matrix-hint">Puntos por ronda</span>
         </div>
 
         <div class="matrix-scroll-wrapper">
@@ -399,31 +399,71 @@ import { PELUSAS_RULES } from '../pelusas.rules';
                   @for (p of match().players; track p.id) {
                     @let isBust = r.lostToWind[p.id];
                     @let pts = r.roundPoints[p.id] ?? 0;
-                    @let cum = r.cumulativeScores[p.id] ?? 0;
                     <td class="col-score text-center" [class.score-bust]="isBust">
                       @if (isBust) {
                         <span class="round-pts text-danger font-bold">💨 0</span>
                       } @else {
                         <span class="round-pts font-bold">+{{ pts }}</span>
                       }
-                      <span class="cum-pts tabular-nums">({{ cum }})</span>
                     </td>
                   }
                 </tr>
               }
-            </tbody>
-            <tfoot>
-              <tr class="totals-row">
-                <td class="font-bold">Total</td>
-                @for (p of match().players; track p.id) {
-                  @let rank = getPlayerRank(p.id);
-                  <td class="col-score text-center font-bold" [class.text-gold]="rank === 1">
-                    <span class="final-total tabular-nums">{{ getPlayerTotalScore(p.id) }} pts</span>
+
+              @if (roundRows().length === 0) {
+                <tr>
+                  <td [attr.colspan]="match().players.length + 1" class="text-center py-4 text-muted">
+                    Aún no hay rondas confirmadas.
                   </td>
-                }
-              </tr>
-            </tfoot>
+                </tr>
+              }
+            </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- 4. Tarjeta de Puntaje Actual (Separado y Actualizado Ronda tras Ronda Confirmada) -->
+      <div
+        class="current-scores-card"
+        [style.background-image]="gameTheme()?.gradient"
+      >
+        @if (gameTheme()?.bgImageUrl; as bg) {
+          <div
+            class="card-thematic-art"
+            [style.background-image]="'url(' + bg + ')'"
+          ></div>
+        }
+        <div class="current-scores-header">
+          <div class="scores-title-group">
+            <span class="material-symbols-outlined">leaderboard</span>
+            <h3 class="section-title">Puntaje Actual</h3>
+          </div>
+          <span class="scores-round-tag">
+            {{ match().rounds.length > 0 ? 'Tras Ronda ' + match().rounds.length + ' Confirmada' : 'Inicio de Partida' }}
+          </span>
+        </div>
+
+        <div class="current-scores-grid">
+          @for (p of rankedPlayers(); track p.id) {
+            <div class="current-player-row" [class.is-leader]="p.rank === 1">
+              <div class="player-left">
+                <div class="chip-avatar" [class.leader-avatar]="p.rank === 1">
+                  {{ p.name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="chip-names">
+                  <span class="chip-player-name">{{ p.name }}</span>
+                  <span class="chip-rank-label">
+                    {{ p.rank === 1 ? '👑 1º Puesto' : p.rank + 'º Puesto' }}
+                  </span>
+                </div>
+              </div>
+              <div class="player-right">
+                <span class="chip-total-score tabular-nums font-bold" [class.leader-score]="p.rank === 1">
+                  {{ p.score }} pts
+                </span>
+              </div>
+            </div>
+          }
         </div>
       </div>
 
@@ -608,7 +648,8 @@ import { PELUSAS_RULES } from '../pelusas.rules';
     .match-header-card,
     .player-card,
     .matrix-card,
-    .final-results-card {
+    .final-results-card,
+    .current-scores-card {
       position: relative;
       overflow: hidden;
       background: var(--color-surface-container);
@@ -621,7 +662,8 @@ import { PELUSAS_RULES } from '../pelusas.rules';
     .match-header-card > *,
     .player-card > *,
     .matrix-card > *,
-    .final-results-card > * {
+    .final-results-card > *,
+    .current-scores-card > * {
       position: relative;
       z-index: 1;
     }
@@ -1279,6 +1321,101 @@ import { PELUSAS_RULES } from '../pelusas.rules';
       color: #fbbf24;
     }
 
+    /* Tarjeta de Puntaje Actual */
+    .current-scores-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-md);
+    }
+
+    .scores-title-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .scores-round-tag {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      background: var(--color-surface-container-high);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border-subtle);
+      font-weight: 600;
+    }
+
+    .current-scores-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .current-player-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--color-surface-container-high);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border-subtle);
+      transition: background 0.15s ease;
+    }
+
+    .current-player-row.is-leader {
+      border-color: rgba(251, 191, 36, 0.4);
+      background: rgba(251, 191, 36, 0.08);
+    }
+
+    .player-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .chip-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface-container-highest);
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .chip-avatar.leader-avatar {
+      background: #fbbf24;
+      color: #000000;
+    }
+
+    .chip-names {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chip-player-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .chip-rank-label {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+
+    .chip-total-score {
+      font-size: 16px;
+      color: var(--color-text-primary);
+    }
+
+    .chip-total-score.leader-score {
+      color: #fbbf24;
+    }
+
     /* Floating Bar */
     .floating-actions-bar {
       position: fixed;
@@ -1721,6 +1858,18 @@ export class PelusasScorerComponent {
         lostToWind,
       };
     });
+  });
+
+  rankedPlayers = computed(() => {
+    const scores = this.match().cumulativeScores || {};
+    return [...this.match().players]
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        score: scores[p.id] ?? 0,
+        rank: this.getPlayerRank(p.id),
+      }))
+      .sort((a, b) => a.rank - b.rank);
   });
 
   constructor() {

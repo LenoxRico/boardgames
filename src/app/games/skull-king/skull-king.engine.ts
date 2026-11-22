@@ -7,7 +7,7 @@ export interface SkullKingConfig {
 
 export interface SkullKingRoundInput {
   bid: number;
-  tricks: number;
+  tricks?: number;
   bonusPoints?: number;
 }
 

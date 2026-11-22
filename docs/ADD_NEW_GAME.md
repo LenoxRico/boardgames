@@ -35,7 +35,8 @@ Los gradientes y el arte alusivo de cada juego **se renderizan dentro de TODAS l
   1. `.match-header-card` (cabecera con steppers y repartidor).
   2. Cada `.player-card` (tarjeta de interacción y captura de datos por jugador).
   3. `.matrix-card` (tabla histórica ronda por ronda).
-  4. `.final-results-card` (podio de victoria y resultados).
+  4. `.current-scores-card` (tarjeta de puntaje actual y posiciones en vivo).
+  5. `.final-results-card` (podio de victoria y resultados).
 - Las vistas de página (`.catalog-page`, `.new-match-page`, `.rules-page`, `.match-live-page`) mantienen su layout limpio con paddings estándar (`padding: var(--space-md); max-width: 900px; margin: 0 auto;`).
 - Ninguna vista debe definir backdrops o capas globales sueltas a nivel de viewport o wrapper.
 
@@ -392,6 +393,29 @@ Diseña un componente standalone enfocado 100% en la interacción táctil en mes
        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
      }
      ```
+
+- **Separación de Puntaje Actual y Tabla de Historial de Rondas**:
+  Para mantener una jerarquía visual limpia y no saturar la lectura en la mesa de juego:
+  1. **Tabla de Historial (`.matrix-card`)**:
+     - Muestra exclusivamente los puntos sumados o restados en cada ronda confirmada (`+X` o `-Y`).
+     - **No** debe incluir acumulados entre paréntesis `(accum)` dentro de las celdas de la tabla.
+     - **No** debe incluir filas proyectadas en vivo no confirmadas en la tabla histórica.
+     - Si aún no hay rondas confirmadas, muestra un mensaje descriptivo: *"Aún no hay rondas confirmadas."*
+  2. **Tarjeta de Puntaje Actual (`.current-scores-card`)**:
+     - Se ubica **obligatoriamente debajo** de la tarjeta de rondas (`.matrix-card`).
+     - Lleva el tema y marca de agua del juego (`[style.background-image]="gameTheme()?.gradient"` y `.card-thematic-art`).
+     - Presenta la lista de jugadores ordenados en vivo por su clasificación (`rankedPlayers()`), con avatar, nombre, puesto destacado (`👑 1º Puesto`, etc.) y puntaje total acumulado confirmado (ej. `450 pts` o `12 cuernos`).
+     - Se actualiza de forma reactiva ronda tras ronda confirmada.
+
+- **Regla para Juegos de Bazas (Trick-Taking) y Apuestas (ej. Skull King, Mino Dice)**:
+  1. **Inicialización de Bazas Ganadas**:
+     - Las bazas ganadas se definen como opcionales en la interfaz (`tricks?: number`) e inician en el borrador como `undefined` (mostrando `'-'` en el stepper o selector).
+     - Al presionar `+` sobre un valor no definido se inicializa en `1`; al presionar `-` se inicializa en `0`.
+  2. **Ocultar Pronóstico Prematuro**:
+     - Mientras el valor de bazas esté indefinido, la previsualización del puntaje de la ronda **no debe calcularse** para evitar mostrar puntuaciones apresuradas de jugadas no verificadas. Debe mostrarse como pendiente (`.forecast-pending` con `'-'` y etiqueta *"Pendiente"*).
+     - El puntaje y estado (*Exacto*, *Fallada*, etc.) se calcula y muestra **únicamente** cuando el usuario establece un valor numérico (`0` o más).
+  3. **Validación de Confirmación**:
+     - El botón de confirmar ronda debe permanecer deshabilitado (`!canConfirmRound()`) hasta que todos los jugadores de la partida tengan sus bazas ganadas ingresadas.
 
 ### Paso 6: Definir y Registrar el Juego con su Tema Visual
 1. En `<game-id>.definition.ts`, exporta la constante `MY_GAME_DEFINITION` incluyendo el bloque `theme`:

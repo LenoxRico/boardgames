@@ -7,7 +7,7 @@ export interface MinoDiceConfig {
 
 export interface MinoDiceRoundInput {
   bid: number;
-  tricks: number;
+  tricks?: number;
   bonusPoints?: number;
 }
 

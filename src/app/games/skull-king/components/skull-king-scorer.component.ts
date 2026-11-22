@@ -227,7 +227,7 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
       <!-- 2. Tarjetas de Registro por Jugador -->
       <div class="players-list">
         @for (player of match().players; track player.id) {
-          @let pData = draftInputs()[player.id] || { bid: 0, tricks: 0, bonusPoints: 0 };
+          @let pData = draftInputs()[player.id] || { bid: 0, tricks: undefined, bonusPoints: 0 };
           @let forecast = getPlayerForecast(player.id);
           @let currentRank = getPlayerRank(player.id);
 
@@ -265,14 +265,21 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
               </div>
 
               <!-- Pronóstico dinámico de ronda -->
-              <div class="forecast-badge" [class.success]="forecast.bidMade" [class.danger]="!forecast.bidMade">
-                <span class="forecast-pts">
-                  {{ forecast.roundScore >= 0 ? '+' : '' }}{{ forecast.roundScore }} pts
-                </span>
-                <span class="forecast-status">
-                  {{ forecast.bidMade ? 'Acertada' : 'Fallada' }}
-                </span>
-              </div>
+              @if (forecast.isDefined) {
+                <div class="forecast-badge" [class.success]="forecast.bidMade" [class.danger]="!forecast.bidMade">
+                  <span class="forecast-pts">
+                    {{ forecast.roundScore >= 0 ? '+' : '' }}{{ forecast.roundScore }} pts
+                  </span>
+                  <span class="forecast-status">
+                    {{ forecast.bidMade ? 'Acertada' : 'Fallada' }}
+                  </span>
+                </div>
+              } @else {
+                <div class="forecast-badge forecast-pending">
+                  <span class="forecast-pts">-</span>
+                  <span class="forecast-status">Pendiente</span>
+                </div>
+              }
             </div>
 
             <!-- Fila de Apuesta (Bid) -->
@@ -299,14 +306,14 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
             <div class="selector-group">
               <div class="selector-header">
                 <span class="selector-title">🏆 BAZAS CONSEGUIDAS</span>
-                <span class="selector-current">Ganadas: {{ pData.tricks }}</span>
+                <span class="selector-current">Ganadas: {{ pData.tricks !== undefined && pData.tricks !== null ? pData.tricks : '-' }}</span>
               </div>
               <div class="buttons-grid">
                 @for (val of possibleTricksArray(); track val) {
                   <button
                     type="button"
                     class="number-btn"
-                    [class.selected-trick]="pData.tricks === val"
+                    [class.selected-trick]="pData.tricks !== undefined && pData.tricks === val"
                     (click)="setPlayerTricks(player.id, val)"
                   >
                     {{ val }}
@@ -387,7 +394,7 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
             <span class="material-symbols-outlined">table_chart</span>
             Historial de Puntos por Ronda
           </h3>
-          <span class="matrix-hint">Puntos de Ronda (Acumulado)</span>
+          <span class="matrix-hint">Puntos por ronda</span>
         </div>
 
         <div class="matrix-scroll-wrapper">
@@ -409,41 +416,70 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
                   <td class="col-round font-semibold">Ronda {{ round.roundNumber }}</td>
                   @for (p of match().players; track p.id) {
                     @let pts = round.roundPoints[p.id] ?? 0;
-                    @let accum = round.cumulativeScores[p.id] ?? 0;
                     @let rank = getPlayerRank(p.id);
                     <td class="col-player text-center tabular-nums" [class.cell-leader]="rank === 1">
                       <span class="cell-pts font-bold" [class.text-success]="pts > 0" [class.text-danger]="pts < 0">
                         {{ pts >= 0 ? '+' : '' }}{{ pts }}
                       </span>
-                      <span class="cell-accum">({{ accum }})</span>
                     </td>
                   }
                 </tr>
               }
 
-              <!-- Fila Proyectada en Vivo de la Ronda Activa -->
-              @if (match().status === 'in_progress') {
-                <tr class="round-row live-projected-row">
-                  <td class="col-round font-bold flex-live-cell">
-                    <span class="live-dot animate-pulse"></span>
-                    R{{ currentMatchRound() }} (Activa)
+              @if (match().rounds.length === 0) {
+                <tr>
+                  <td [attr.colspan]="match().players.length + 1" class="text-center py-4 text-muted">
+                    Aún no hay rondas confirmadas.
                   </td>
-                  @for (p of match().players; track p.id) {
-                    @let forecast = getPlayerForecast(p.id);
-                    @let prev = getPlayerPrevScore(p.id);
-                    @let projTotal = prev + forecast.roundScore;
-
-                    <td class="col-player text-center tabular-nums">
-                      <span class="cell-pts font-bold" [class.text-success]="forecast.roundScore > 0" [class.text-danger]="forecast.roundScore < 0">
-                        {{ forecast.roundScore >= 0 ? '+' : '' }}{{ forecast.roundScore }}
-                      </span>
-                      <span class="cell-accum">({{ projTotal }})</span>
-                    </td>
-                  }
                 </tr>
               }
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- 4. Tarjeta de Puntaje Actual (Separado y Actualizado Ronda tras Ronda Confirmada) -->
+      <div
+        class="current-scores-card"
+        [style.background-image]="gameTheme()?.gradient"
+      >
+        @if (gameTheme()?.bgImageUrl; as bg) {
+          <div
+            class="card-thematic-art"
+            [style.background-image]="'url(' + bg + ')'"
+          ></div>
+        }
+        <div class="current-scores-header">
+          <div class="scores-title-group">
+            <span class="material-symbols-outlined">leaderboard</span>
+            <h3 class="section-title">Puntaje Actual</h3>
+          </div>
+          <span class="scores-round-tag">
+            {{ match().rounds.length > 0 ? 'Tras Ronda ' + match().rounds.length + ' Confirmada' : 'Inicio de Partida' }}
+          </span>
+        </div>
+
+        <div class="current-scores-grid">
+          @for (p of rankedPlayers(); track p.id) {
+            <div class="current-player-row" [class.is-leader]="p.rank === 1">
+              <div class="player-left">
+                <div class="chip-avatar" [class.leader-avatar]="p.rank === 1">
+                  {{ p.name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="chip-names">
+                  <span class="chip-player-name">{{ p.name }}</span>
+                  <span class="chip-rank-label">
+                    {{ p.rank === 1 ? '👑 1º Puesto' : p.rank + 'º Puesto' }}
+                  </span>
+                </div>
+              </div>
+              <div class="player-right">
+                <span class="chip-total-score tabular-nums font-bold" [class.leader-score]="p.rank === 1">
+                  {{ p.score }} pts
+                </span>
+              </div>
+            </div>
+          }
         </div>
       </div>
 
@@ -462,7 +498,7 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
             <button
               type="button"
               class="btn-primary-action btn-final-round"
-              [disabled]="match().status === 'completed'"
+              [disabled]="!canConfirmRound() || match().status === 'completed'"
               (click)="confirmCurrentRound()"
             >
               <span class="material-symbols-outlined">emoji_events</span>
@@ -472,7 +508,7 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
             <button
               type="button"
               class="btn-primary-action"
-              [disabled]="match().status === 'completed'"
+              [disabled]="!canConfirmRound() || match().status === 'completed'"
               (click)="confirmCurrentRound()"
             >
               <span>Confirmar Ronda {{ viewingRound() }} y Avanzar</span>
@@ -1090,6 +1126,12 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
       color: var(--color-danger);
     }
 
+    .forecast-badge.forecast-pending {
+      background: var(--color-surface-container-high);
+      border: 1px dashed var(--color-border-subtle);
+      color: var(--color-text-secondary);
+    }
+
     .forecast-pts {
       font-size: 14px;
       font-weight: 800;
@@ -1318,6 +1360,116 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
       height: 6px;
       border-radius: 50%;
       background: var(--color-primary);
+    }
+
+    /* Tarjeta de Puntaje Actual */
+    .current-scores-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-md);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .current-scores-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .current-scores-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-md);
+    }
+
+    .scores-title-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .scores-round-tag {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      background: var(--color-surface-container-high);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border-subtle);
+      font-weight: 600;
+    }
+
+    .current-scores-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .current-player-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--color-surface-container-high);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border-subtle);
+      transition: background 0.15s ease;
+    }
+
+    .current-player-row.is-leader {
+      border-color: rgba(251, 191, 36, 0.4);
+      background: rgba(251, 191, 36, 0.08);
+    }
+
+    .player-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .chip-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface-container-highest);
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .chip-avatar.leader-avatar {
+      background: #fbbf24;
+      color: #000000;
+    }
+
+    .chip-names {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chip-player-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .chip-rank-label {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+
+    .chip-total-score {
+      font-size: 16px;
+      color: var(--color-text-primary);
+    }
+
+    .chip-total-score.leader-score {
+      color: #fbbf24;
     }
 
     .badge {
@@ -1623,6 +1775,25 @@ export class SkullKingScorerComponent {
     }));
   });
 
+  canConfirmRound = computed(() => {
+    const inputs = this.draftInputs();
+    return this.match().players.every(
+      (p) => inputs[p.id]?.tricks !== undefined && inputs[p.id]?.tricks !== null
+    );
+  });
+
+  rankedPlayers = computed(() => {
+    const scores = this.match().cumulativeScores || {};
+    return [...this.match().players]
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        score: scores[p.id] ?? 0,
+        rank: this.getPlayerRank(p.id),
+      }))
+      .sort((a, b) => a.rank - b.rank);
+  });
+
   constructor() {
     effect(() => {
       const match = this.match();
@@ -1633,14 +1804,14 @@ export class SkullKingScorerComponent {
         this.showFinalResultsModal.set(true);
       }
 
-      // Initialize inputs from existing draft or create default 0
+      // Initialize inputs from existing draft or leave tricks undefined
       const initial: Record<string, SkullKingRoundInput> = {};
       const draft = match.currentDraftRoundData || {};
 
       match.players.forEach((p) => {
         initial[p.id] = {
           bid: draft[p.id]?.bid ?? 0,
-          tricks: draft[p.id]?.tricks ?? 0,
+          tricks: draft[p.id]?.tricks,
           bonusPoints: draft[p.id]?.bonusPoints ?? 0,
         };
       });
@@ -1664,7 +1835,7 @@ export class SkullKingScorerComponent {
       this.match().players.forEach((p) => {
         inputs[p.id] = {
           bid: draft[p.id]?.bid ?? 0,
-          tricks: draft[p.id]?.tricks ?? 0,
+          tricks: draft[p.id]?.tricks,
           bonusPoints: draft[p.id]?.bonusPoints ?? 0,
         };
       });
@@ -1674,7 +1845,7 @@ export class SkullKingScorerComponent {
 
   setPlayerBid(playerId: string, bid: number): void {
     this.draftInputs.update((prev) => {
-      const current = prev[playerId] || { bid: 0, tricks: 0, bonusPoints: 0 };
+      const current = prev[playerId] || { bid: 0, tricks: undefined, bonusPoints: 0 };
       const updated = { ...prev, [playerId]: { ...current, bid } };
       this.matchManager.saveDraftRoundData(updated);
       return updated;
@@ -1683,7 +1854,7 @@ export class SkullKingScorerComponent {
 
   setPlayerTricks(playerId: string, tricks: number): void {
     this.draftInputs.update((prev) => {
-      const current = prev[playerId] || { bid: 0, tricks: 0, bonusPoints: 0 };
+      const current = prev[playerId] || { bid: 0, tricks: undefined, bonusPoints: 0 };
       const updated = { ...prev, [playerId]: { ...current, tricks } };
       this.matchManager.saveDraftRoundData(updated);
       return updated;
@@ -1692,7 +1863,7 @@ export class SkullKingScorerComponent {
 
   toggleBonus(playerId: string, points: number): void {
     this.draftInputs.update((prev) => {
-      const current = prev[playerId] || { bid: 0, tricks: 0, bonusPoints: 0 };
+      const current = prev[playerId] || { bid: 0, tricks: undefined, bonusPoints: 0 };
       const currentBonus = current.bonusPoints || 0;
       const updatedBonus = currentBonus + points;
       const updated = { ...prev, [playerId]: { ...current, bonusPoints: updatedBonus } };
@@ -1703,7 +1874,7 @@ export class SkullKingScorerComponent {
 
   clearBonuses(playerId: string): void {
     this.draftInputs.update((prev) => {
-      const current = prev[playerId] || { bid: 0, tricks: 0, bonusPoints: 0 };
+      const current = prev[playerId] || { bid: 0, tricks: undefined, bonusPoints: 0 };
       const updated = { ...prev, [playerId]: { ...current, bonusPoints: 0 } };
       this.matchManager.saveDraftRoundData(updated);
       return updated;
@@ -1734,8 +1905,15 @@ export class SkullKingScorerComponent {
     return idx >= 0 ? idx + 1 : 1;
   }
 
-  getPlayerForecast(playerId: string): { roundScore: number; bidMade: boolean } {
-    const input = this.draftInputs()[playerId] || { bid: 0, tricks: 0, bonusPoints: 0 };
+  getPlayerForecast(playerId: string): { roundScore: number; bidMade: boolean; isDefined: boolean } {
+    const input = this.draftInputs()[playerId];
+    if (!input || input.tricks === undefined || input.tricks === null) {
+      return {
+        roundScore: 0,
+        bidMade: false,
+        isDefined: false,
+      };
+    }
     const roundIdx = this.viewingRound() - 1;
     const res = this.engine.calculateRound(
       roundIdx,
@@ -1747,6 +1925,7 @@ export class SkullKingScorerComponent {
     return {
       roundScore: item?.roundScore ?? 0,
       bidMade: item?.bidMade ?? false,
+      isDefined: true,
     };
   }
 

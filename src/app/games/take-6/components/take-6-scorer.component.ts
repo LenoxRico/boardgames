@@ -471,7 +471,7 @@ import { TAKE_6_RULES } from '../take-6.rules';
             <span class="material-symbols-outlined">table_chart</span>
             Historial de Puntos por Ronda
           </h3>
-          <span class="matrix-hint">Puntos de Ronda (Acumulado)</span>
+          <span class="matrix-hint">Puntos por ronda</span>
         </div>
 
         <div class="matrix-scroll-wrapper">
@@ -493,43 +493,68 @@ import { TAKE_6_RULES } from '../take-6.rules';
                   <td class="col-round font-semibold">Ronda {{ round.roundNumber }}</td>
                   @for (p of match().players; track p.id) {
                     @let pts = round.roundPoints[p.id] ?? 0;
-                    @let accum = round.cumulativeScores[p.id] ?? 0;
                     @let rank = getPlayerRank(p.id);
                     <td class="col-player text-center tabular-nums" [class.cell-leader]="rank === 1">
                       <span class="cell-pts font-bold">+{{ pts }}</span>
-                      <span class="cell-accum">({{ accum }})</span>
                     </td>
                   }
                 </tr>
               }
 
-              <!-- Fila Proyectada en Vivo (Ronda Actual) -->
-              @if (match().status === 'in_progress') {
-                <tr class="round-row live-projected-row">
-                  <td class="col-round font-bold flex-live-cell">
-                    <span class="live-dot animate-pulse"></span>
-                    R{{ currentMatchRound() }} (Activa)
+              @if (match().rounds.length === 0) {
+                <tr>
+                  <td [attr.colspan]="match().players.length + 1" class="text-center py-4 text-muted">
+                    Aún no hay rondas confirmadas.
                   </td>
-                  @for (p of match().players; track p.id) {
-                    @let pData = draftInputs()[p.id] || { bullheads: 0 };
-                    @let prev = getPlayerPrevScore(p.id);
-                    @let projected = prev + (pData.bullheads || 0);
-                    @let isNearLimit = !isRoundsMode() && projected >= scoreLimit() * 0.85;
-                    @let isExceeded = !isRoundsMode() && projected >= scoreLimit();
-
-                    <td
-                      class="col-player text-center tabular-nums"
-                      [class.cell-danger]="isNearLimit"
-                      [class.cell-dead]="isExceeded"
-                    >
-                      <span class="cell-pts font-bold">+{{ pData.bullheads }}</span>
-                      <span class="cell-accum">({{ projected }})</span>
-                    </td>
-                  }
                 </tr>
               }
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- 3. Tarjeta de Puntaje Actual (Separado y Actualizado Ronda tras Ronda Confirmada) -->
+      <div
+        class="current-scores-card"
+        [style.background-image]="gameTheme()?.gradient"
+      >
+        @if (gameTheme()?.bgImageUrl; as bg) {
+          <div
+            class="card-thematic-art"
+            [style.background-image]="'url(' + bg + ')'"
+          ></div>
+        }
+        <div class="current-scores-header">
+          <div class="scores-title-group">
+            <span class="material-symbols-outlined">leaderboard</span>
+            <h3 class="section-title">Puntaje Actual</h3>
+          </div>
+          <span class="scores-round-tag">
+            {{ match().rounds.length > 0 ? 'Tras Ronda ' + match().rounds.length + ' Confirmada' : 'Inicio de Partida' }}
+          </span>
+        </div>
+
+        <div class="current-scores-grid">
+          @for (p of rankedPlayers(); track p.id) {
+            <div class="current-player-row" [class.is-leader]="p.rank === 1">
+              <div class="player-left">
+                <div class="chip-avatar" [class.leader-avatar]="p.rank === 1">
+                  {{ p.name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="chip-names">
+                  <span class="chip-player-name">{{ p.name }}</span>
+                  <span class="chip-rank-label">
+                    {{ p.rank === 1 ? '👑 1º (Líder)' : p.rank + 'º Puesto' }}
+                  </span>
+                </div>
+              </div>
+              <div class="player-right">
+                <span class="chip-total-score tabular-nums font-bold" [class.leader-score]="p.rank === 1">
+                  {{ p.score }} cuernos
+                </span>
+              </div>
+            </div>
+          }
         </div>
       </div>
 
@@ -623,7 +648,8 @@ import { TAKE_6_RULES } from '../take-6.rules';
 
     .match-header-card,
     .players-list,
-    .matrix-card {
+    .matrix-card,
+    .current-scores-card {
       position: relative;
       z-index: 1;
     }
@@ -1620,6 +1646,116 @@ import { TAKE_6_RULES } from '../take-6.rules';
       background: var(--color-primary);
     }
 
+    /* Tarjeta de Puntaje Actual */
+    .current-scores-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-md);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .current-scores-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .current-scores-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-md);
+    }
+
+    .scores-title-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .scores-round-tag {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      background: var(--color-surface-container-high);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border-subtle);
+      font-weight: 600;
+    }
+
+    .current-scores-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .current-player-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--color-surface-container-high);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border-subtle);
+      transition: background 0.15s ease;
+    }
+
+    .current-player-row.is-leader {
+      border-color: rgba(251, 191, 36, 0.4);
+      background: rgba(251, 191, 36, 0.08);
+    }
+
+    .player-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .chip-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface-container-highest);
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .chip-avatar.leader-avatar {
+      background: #fbbf24;
+      color: #000000;
+    }
+
+    .chip-names {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chip-player-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .chip-rank-label {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+
+    .chip-total-score {
+      font-size: 16px;
+      color: var(--color-text-primary);
+    }
+
+    .chip-total-score.leader-score {
+      color: #fbbf24;
+    }
+
     .cell-danger {
       background: rgba(248, 113, 113, 0.15);
       color: var(--color-danger);
@@ -1858,6 +1994,18 @@ export class Take6ScorerComponent {
       isWinner: ev.winnerIds?.includes(entry.playerId),
       isLoser: ev.loserIds?.includes(entry.playerId),
     }));
+  });
+
+  rankedPlayers = computed(() => {
+    const scores = this.match().cumulativeScores || {};
+    return [...this.match().players]
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        score: scores[p.id] ?? 0,
+        rank: this.getPlayerRank(p.id),
+      }))
+      .sort((a, b) => a.rank - b.rank);
   });
 
   constructor() {
