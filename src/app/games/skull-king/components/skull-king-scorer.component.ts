@@ -327,7 +327,9 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
               <div class="bonus-section">
                 <div class="bonus-header">
                   <span class="selector-title">💎 BONIFICACIONES RECIENTES</span>
-                  <span class="bonus-val tabular-nums">+{{ pData.bonusPoints || 0 }} pts</span>
+                  @if ((pData.bonusPoints || 0) > 0) {
+                    <span class="bonus-val tabular-nums">+{{ pData.bonusPoints }} pts</span>
+                  }
                 </div>
                 <div class="bonus-chips-row">
                   <button
@@ -339,7 +341,7 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
                     title="Skull King vence a Piratas (+30 pts c/u)"
                   >
                     <span>
-                      💀 +30 Rey vs Piratas
+                      💀 Rey vs Piratas +30
                       @if ((pData.bonusCounts?.skullKing || 0) > 1) {
                         ({{ pData.bonusCounts?.skullKing }}x)
                       }
@@ -353,7 +355,7 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
                     (click)="toggleSkullKingBonus(player.id, 'mermaid')"
                     title="Sirena vence a Skull King (+40 pts, máx 1)"
                   >
-                    <span>🧜 +40 Sirena vs Rey</span>
+                    <span>🧜 Sirena vs Rey +40</span>
                   </button>
                   <button
                     type="button"
@@ -364,7 +366,7 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
                     title="Capturar Botín (+20 pts c/u)"
                   >
                     <span>
-                      🪙 +20 Botín/Cofre
+                      🪙 Botín/Cofre +20
                       @if ((pData.bonusCounts?.loot || 0) > 1) {
                         ({{ pData.bonusCounts?.loot }}x)
                       }
@@ -379,7 +381,7 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
                     title="Capturar Carta 14 (+10 pts c/u)"
                   >
                     <span>
-                      🃏 +10 Carta 14
+                      🃏 Carta 14 +10
                       @if ((pData.bonusCounts?.card14 || 0) > 1) {
                         ({{ pData.bonusCounts?.card14 }}x)
                       }
@@ -1243,7 +1245,7 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
     }
 
     .bonus-val {
-      color: var(--color-steel-blue);
+      color: var(--color-primary);
       font-weight: 800;
     }
 

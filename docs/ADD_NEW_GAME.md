@@ -419,6 +419,8 @@ Diseña un componente standalone enfocado 100% en la interacción táctil en mes
 
 - **Diseño Estándar de Chips de Bonificación (`.bonus-chip`)**:
   - Para botones de bonificaciones opcionales o capturas (ej. criaturas, cofres, sirenas), usar chips redondeados (`border-radius: var(--radius-full)`, `padding: 6px 12px`, `font-size: 12px`, `font-weight: 700`, `display: inline-flex`).
+  - **Estructura uniforme del label de bonificación**: `[Emoji/Icono] [Descripción de la jugada] +[Puntos] [@if (count > 1) { (Nx) }]` (ej. `💀 Rey vs Piratas +30`, `🐂>🦅 +30`). Los puntos adicionales (`+X`) se ubican **siempre al final del label**, seguidos del multiplicador si aplica (ej. `💀 Rey vs Piratas +30 (2x)` o `🐂>🦅 +30 (2x)`), manteniendo la convención semántica uniforme *"Acción/Evento -> Puntos obtenidos"*.
+  - **Cabecera de Bonificaciones (`.bonus-header`)**: Debe incluir el título de la sección (`.selector-title`) y mostrar el total acumulado en vivo (`.bonus-val`) únicamente cuando sea mayor a cero (`@if ((pData.bonusPoints || 0) > 0)`).
   - El botón de limpiar bonificaciones (`.clear-chip`) debe usar **siempre** el icono de Material `<span class="material-symbols-outlined">restart_alt</span>` (con `font-size: 18px`, `color: var(--color-danger)` y `padding: 6px 8px`), **nunca texto plano como "Limpiar"**, para mantener un diseño visual compacto e idéntico en todos los juegos.
 
 - **Opciones de Configuración Condicionales (`showIf` / `dependsOn`)**:

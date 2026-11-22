@@ -342,13 +342,13 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
             <!-- Sección de Bonificaciones de Criaturas Mitológicas -->
             @if (match().config.enableBonuses) {
               <div class="bonus-section">
-                <div class="bonus-title-row">
-                  <span class="bonus-title">
+                <div class="bonus-header">
+                  <span class="selector-title">
                     <span class="material-symbols-outlined small-icon">stars</span>
-                    Criaturas Vencidas (Solo con Apuesta Acertada)
+                    CRIATURAS VENCIDAS (SOLO CON APUESTA ACERTADA)
                   </span>
-                  @if (pData.bonusPoints && pData.bonusPoints > 0) {
-                    <span class="bonus-total-pill tabular-nums">+{{ pData.bonusPoints }} pts</span>
+                  @if ((pData.bonusPoints || 0) > 0) {
+                    <span class="bonus-val tabular-nums">+{{ pData.bonusPoints }} pts</span>
                   }
                 </div>
 
@@ -378,7 +378,7 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
                   >
                     <span>🧜‍♀️>🐂 +50</span>
                   </button>
-                  @if (pData.bonusPoints && pData.bonusPoints > 0) {
+                  @if ((pData.bonusPoints || 0) > 0) {
                     <button
                       type="button"
                       class="bonus-chip clear-chip"
@@ -963,7 +963,7 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
       border: 1px solid var(--color-border-subtle);
     }
 
-    .bonus-title-row {
+    .bonus-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -972,13 +972,23 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
       color: var(--color-text-secondary);
     }
 
-    .bonus-title {
+    .selector-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       display: flex;
       align-items: center;
       gap: 4px;
     }
 
-    .bonus-total-pill {
+    .small-icon {
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .bonus-val {
       color: var(--color-primary);
       font-weight: 800;
     }
