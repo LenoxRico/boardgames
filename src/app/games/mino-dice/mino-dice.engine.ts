@@ -5,10 +5,16 @@ export interface MinoDiceConfig {
   enableBonuses: boolean;
 }
 
+export interface MinoDiceBonusCounts {
+  griffin?: number;
+  siren?: number;
+}
+
 export interface MinoDiceRoundInput {
   bid: number;
   tricks?: number;
   bonusPoints?: number;
+  bonusCounts?: MinoDiceBonusCounts;
 }
 
 export interface MinoDiceRoundResult {

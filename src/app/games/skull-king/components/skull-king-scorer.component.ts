@@ -333,34 +333,57 @@ import { SKULL_KING_RULES } from '../skull-king.rules';
                   <button
                     type="button"
                     class="bonus-chip"
-                    [class.active-bonus]="(pData.bonusPoints || 0) >= 30"
-                    (click)="toggleBonus(player.id, 30)"
+                    [class.active-bonus]="(pData.bonusCounts?.skullKing || 0) > 0"
+                    [disabled]="viewingRound() < currentMatchRound()"
+                    (click)="addSkullKingBonus(player.id, 'skullKing')"
+                    title="Skull King vence a Piratas (+30 pts c/u)"
                   >
-                    <span>💀 +30 Rey vs Piratas</span>
+                    <span>
+                      💀 +30 Rey vs Piratas
+                      @if ((pData.bonusCounts?.skullKing || 0) > 1) {
+                        ({{ pData.bonusCounts?.skullKing }}x)
+                      }
+                    </span>
                   </button>
                   <button
                     type="button"
                     class="bonus-chip"
-                    [class.active-bonus]="(pData.bonusPoints || 0) >= 40"
-                    (click)="toggleBonus(player.id, 40)"
+                    [class.active-bonus]="(pData.bonusCounts?.mermaid || 0) > 0"
+                    [disabled]="viewingRound() < currentMatchRound()"
+                    (click)="toggleSkullKingBonus(player.id, 'mermaid')"
+                    title="Sirena vence a Skull King (+40 pts, máx 1)"
                   >
                     <span>🧜 +40 Sirena vs Rey</span>
                   </button>
                   <button
                     type="button"
                     class="bonus-chip"
-                    [class.active-bonus]="(pData.bonusPoints || 0) >= 20"
-                    (click)="toggleBonus(player.id, 20)"
+                    [class.active-bonus]="(pData.bonusCounts?.loot || 0) > 0"
+                    [disabled]="viewingRound() < currentMatchRound()"
+                    (click)="addSkullKingBonus(player.id, 'loot')"
+                    title="Capturar Botín (+20 pts c/u)"
                   >
-                    <span>🪙 +20 Botín/Cofre</span>
+                    <span>
+                      🪙 +20 Botín/Cofre
+                      @if ((pData.bonusCounts?.loot || 0) > 1) {
+                        ({{ pData.bonusCounts?.loot }}x)
+                      }
+                    </span>
                   </button>
                   <button
                     type="button"
                     class="bonus-chip"
-                    [class.active-bonus]="(pData.bonusPoints || 0) >= 10"
-                    (click)="toggleBonus(player.id, 10)"
+                    [class.active-bonus]="(pData.bonusCounts?.card14 || 0) > 0"
+                    [disabled]="viewingRound() < currentMatchRound()"
+                    (click)="addSkullKingBonus(player.id, 'card14')"
+                    title="Capturar Carta 14 (+10 pts c/u)"
                   >
-                    <span>🃏 +10 Carta 14</span>
+                    <span>
+                      🃏 +10 Carta 14
+                      @if ((pData.bonusCounts?.card14 || 0) > 1) {
+                        ({{ pData.bonusCounts?.card14 }}x)
+                      }
+                    </span>
                   </button>
                   @if ((pData.bonusPoints || 0) > 0) {
                     <button
@@ -1825,6 +1848,12 @@ export class SkullKingScorerComponent {
           bid: draft[p.id]?.bid ?? 0,
           tricks: draft[p.id]?.tricks,
           bonusPoints: draft[p.id]?.bonusPoints ?? 0,
+          bonusCounts: draft[p.id]?.bonusCounts || {
+            skullKing: 0,
+            mermaid: 0,
+            loot: 0,
+            card14: 0,
+          },
         };
       });
       this.draftInputs.set(initial);
@@ -1849,6 +1878,12 @@ export class SkullKingScorerComponent {
           bid: draft[p.id]?.bid ?? 0,
           tricks: draft[p.id]?.tricks,
           bonusPoints: draft[p.id]?.bonusPoints ?? 0,
+          bonusCounts: draft[p.id]?.bonusCounts || {
+            skullKing: 0,
+            mermaid: 0,
+            loot: 0,
+            card14: 0,
+          },
         };
       });
       this.draftInputs.set(inputs);
@@ -1873,12 +1908,39 @@ export class SkullKingScorerComponent {
     });
   }
 
-  toggleBonus(playerId: string, points: number): void {
+  toggleSkullKingBonus(playerId: string, type: 'mermaid'): void {
     this.draftInputs.update((prev) => {
       const current = prev[playerId] || { bid: 0, tricks: undefined, bonusPoints: 0 };
-      const currentBonus = current.bonusPoints || 0;
-      const updatedBonus = currentBonus + points;
-      const updated = { ...prev, [playerId]: { ...current, bonusPoints: updatedBonus } };
+      const counts = { ...(current.bonusCounts || { skullKing: 0, mermaid: 0, loot: 0, card14: 0 }) };
+      counts.mermaid = (counts.mermaid || 0) > 0 ? 0 : 1;
+      const bonusPoints =
+        (counts.skullKing || 0) * 30 +
+        (counts.mermaid || 0) * 40 +
+        (counts.loot || 0) * 20 +
+        (counts.card14 || 0) * 10;
+      const updated = {
+        ...prev,
+        [playerId]: { ...current, bonusPoints, bonusCounts: counts },
+      };
+      this.matchManager.saveDraftRoundData(updated);
+      return updated;
+    });
+  }
+
+  addSkullKingBonus(playerId: string, type: 'skullKing' | 'loot' | 'card14'): void {
+    this.draftInputs.update((prev) => {
+      const current = prev[playerId] || { bid: 0, tricks: undefined, bonusPoints: 0 };
+      const counts = { ...(current.bonusCounts || { skullKing: 0, mermaid: 0, loot: 0, card14: 0 }) };
+      counts[type] = (counts[type] || 0) + 1;
+      const bonusPoints =
+        (counts.skullKing || 0) * 30 +
+        (counts.mermaid || 0) * 40 +
+        (counts.loot || 0) * 20 +
+        (counts.card14 || 0) * 10;
+      const updated = {
+        ...prev,
+        [playerId]: { ...current, bonusPoints, bonusCounts: counts },
+      };
       this.matchManager.saveDraftRoundData(updated);
       return updated;
     });
@@ -1887,7 +1949,14 @@ export class SkullKingScorerComponent {
   clearBonuses(playerId: string): void {
     this.draftInputs.update((prev) => {
       const current = prev[playerId] || { bid: 0, tricks: undefined, bonusPoints: 0 };
-      const updated = { ...prev, [playerId]: { ...current, bonusPoints: 0 } };
+      const updated = {
+        ...prev,
+        [playerId]: {
+          ...current,
+          bonusPoints: 0,
+          bonusCounts: { skullKing: 0, mermaid: 0, loot: 0, card14: 0 },
+        },
+      };
       this.matchManager.saveDraftRoundData(updated);
       return updated;
     });

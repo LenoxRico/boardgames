@@ -356,18 +356,25 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
                   <button
                     type="button"
                     class="bonus-chip"
+                    [class.active-bonus]="(pData.bonusCounts?.griffin || 0) > 0"
                     [disabled]="viewingRound() < currentMatchRound()"
-                    (click)="addBonus(player.id, 30)"
-                    title="Minotauro vence a Grifo (+30 pts)"
+                    (click)="addGriffinBonus(player.id)"
+                    title="Minotauro vence a Grifo (+30 pts c/u)"
                   >
-                    <span>🐂>🦅 +30</span>
+                    <span>
+                      🐂>🦅 +30
+                      @if ((pData.bonusCounts?.griffin || 0) > 1) {
+                        ({{ pData.bonusCounts?.griffin }}x)
+                      }
+                    </span>
                   </button>
                   <button
                     type="button"
                     class="bonus-chip"
+                    [class.active-bonus]="(pData.bonusCounts?.siren || 0) > 0"
                     [disabled]="viewingRound() < currentMatchRound()"
-                    (click)="addBonus(player.id, 50)"
-                    title="Sirena vence a Minotauro (+50 pts)"
+                    (click)="toggleSirenBonus(player.id)"
+                    title="Sirena vence a Minotauro (+50 pts, máx 1)"
                   >
                     <span>🧜‍♀️>🐂 +50</span>
                   </button>
@@ -998,6 +1005,12 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
     }
 
     .bonus-chip:hover:not(:disabled) {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    .bonus-chip.active-bonus {
+      background: rgba(163, 206, 241, 0.25);
       border-color: var(--color-primary);
       color: var(--color-primary);
     }
@@ -1698,6 +1711,7 @@ export class MinoDiceScorerComponent {
           bid: draft[p.id]?.bid ?? 0,
           tricks: draft[p.id]?.tricks ?? undefined,
           bonusPoints: draft[p.id]?.bonusPoints ?? 0,
+          bonusCounts: draft[p.id]?.bonusCounts || { griffin: 0, siren: 0 },
         };
       });
       this.draftInputs.set(initial);
@@ -1724,6 +1738,7 @@ export class MinoDiceScorerComponent {
             bid: draft[p.id]?.bid ?? 0,
             tricks: draft[p.id]?.tricks ?? undefined,
             bonusPoints: draft[p.id]?.bonusPoints ?? 0,
+            bonusCounts: draft[p.id]?.bonusCounts || { griffin: 0, siren: 0 },
           };
         });
         this.draftInputs.set(restored);
@@ -1761,12 +1776,31 @@ export class MinoDiceScorerComponent {
     });
   }
 
-  addBonus(playerId: string, points: number): void {
+  addGriffinBonus(playerId: string): void {
     this.draftInputs.update((prev) => {
       const current = prev[playerId] || { bid: 0, bonusPoints: 0 };
+      const counts = { ...(current.bonusCounts || { griffin: 0, siren: 0 }) };
+      counts.griffin = (counts.griffin || 0) + 1;
+      const totalBonus = (counts.griffin || 0) * 30 + (counts.siren || 0) * 50;
       const updated = {
         ...prev,
-        [playerId]: { ...current, bonusPoints: (current.bonusPoints || 0) + points },
+        [playerId]: { ...current, bonusPoints: totalBonus, bonusCounts: counts },
+      };
+      this.matchManager.saveDraftRoundData(updated);
+      return updated;
+    });
+  }
+
+  toggleSirenBonus(playerId: string): void {
+    this.draftInputs.update((prev) => {
+      const current = prev[playerId] || { bid: 0, bonusPoints: 0 };
+      const counts = { ...(current.bonusCounts || { griffin: 0, siren: 0 }) };
+      // En Mino Dice solo existe 1 Minotauro: la Sirena solo puede derrotarlo como máx 1 vez (0 o 1)
+      counts.siren = (counts.siren || 0) > 0 ? 0 : 1;
+      const totalBonus = (counts.griffin || 0) * 30 + (counts.siren || 0) * 50;
+      const updated = {
+        ...prev,
+        [playerId]: { ...current, bonusPoints: totalBonus, bonusCounts: counts },
       };
       this.matchManager.saveDraftRoundData(updated);
       return updated;
@@ -1776,7 +1810,14 @@ export class MinoDiceScorerComponent {
   clearBonuses(playerId: string): void {
     this.draftInputs.update((prev) => {
       const current = prev[playerId] || { bid: 0, bonusPoints: 0 };
-      const updated = { ...prev, [playerId]: { ...current, bonusPoints: 0 } };
+      const updated = {
+        ...prev,
+        [playerId]: {
+          ...current,
+          bonusPoints: 0,
+          bonusCounts: { griffin: 0, siren: 0 },
+        },
+      };
       this.matchManager.saveDraftRoundData(updated);
       return updated;
     });

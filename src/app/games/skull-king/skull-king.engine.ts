@@ -5,10 +5,18 @@ export interface SkullKingConfig {
   recentRules: boolean;
 }
 
+export interface SkullKingBonusCounts {
+  skullKing?: number;
+  mermaid?: number;
+  loot?: number;
+  card14?: number;
+}
+
 export interface SkullKingRoundInput {
   bid: number;
   tricks?: number;
   bonusPoints?: number;
+  bonusCounts?: SkullKingBonusCounts;
 }
 
 export interface SkullKingRoundResult {
