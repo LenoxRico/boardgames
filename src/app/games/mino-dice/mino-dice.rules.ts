@@ -30,8 +30,8 @@ export const MINO_DICE_RULES: GameRules = {
           id: 'mino-sum-bonuses',
           title: 'Bonificaciones de Criaturas',
           icon: 'military_tech',
-          content: 'Durante las bazas puedes conseguir bonificaciones especiales, pero SOLO se suman si acertaste tu apuesta exacta:\n• Minotauro vence Grifo: +30 puntos por cada Grifo vencido en esa baza.\n• Sirena vence Minotauro: +50 puntos si la Sirena derrota al Minotauro.',
-          highlights: ['Minotauro vs Grifo: +30 pts', 'Sirena vs Minotauro: +50 pts', '¡Condición obligatoria: acertar la apuesta!'],
+          content: 'Durante las bazas puedes conseguir bonificaciones especiales, pero SOLO se suman si acertaste tu apuesta exacta:\n• Minotauro vence Grifo: +30 puntos por cada Grifo vencido en esa baza (solo existen 3 Grifos en juego, máx +90 pts).\n• Sirena vence Minotauro: +50 puntos si la Sirena derrota al Minotauro (solo existe 1 Minotauro, máx 1 vez).',
+          highlights: ['Minotauro vs Grifo: +30 pts (máx 3x)', 'Sirena vs Minotauro: +50 pts (máx 1x)', '¡Condición obligatoria: acertar la apuesta!'],
         },
       ],
       full: [

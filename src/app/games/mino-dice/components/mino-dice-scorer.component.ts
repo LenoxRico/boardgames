@@ -357,9 +357,9 @@ import { MINO_DICE_RULES } from '../mino-dice.rules';
                     type="button"
                     class="bonus-chip"
                     [class.active-bonus]="(pData.bonusCounts?.griffin || 0) > 0"
-                    [disabled]="viewingRound() < currentMatchRound()"
+                    [disabled]="(pData.bonusCounts?.griffin || 0) >= 3 || viewingRound() < currentMatchRound()"
                     (click)="addGriffinBonus(player.id)"
-                    title="Minotauro vence a Grifo (+30 pts c/u)"
+                    title="Minotauro vence a Grifo (+30 pts c/u, máx 3)"
                   >
                     <span>
                       🐂>🦅 +30
@@ -1780,7 +1780,10 @@ export class MinoDiceScorerComponent {
     this.draftInputs.update((prev) => {
       const current = prev[playerId] || { bid: 0, bonusPoints: 0 };
       const counts = { ...(current.bonusCounts || { griffin: 0, siren: 0 }) };
-      counts.griffin = (counts.griffin || 0) + 1;
+      // En Mino Dice solo existen 3 Grifos en juego: máx 3 veces (+90 pts)
+      const currentGriffin = counts.griffin || 0;
+      if (currentGriffin >= 3) return prev;
+      counts.griffin = Math.min(3, currentGriffin + 1);
       const totalBonus = (counts.griffin || 0) * 30 + (counts.siren || 0) * 50;
       const updated = {
         ...prev,
