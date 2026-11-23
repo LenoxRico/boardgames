@@ -646,18 +646,18 @@ import { SAMOA_RULES } from '../samoa.rules';
                             <span>{{ guessed?.name || 'Sin seleccionar' }}</span>
                           </span>
                         </div>
-                        <div class="masks-row-compact">
+                        <div class="rival-masks-grid">
                           @for (mask of masks; track mask.id) {
                             <button
                               type="button"
-                              class="mask-mini-btn"
-                              [class.selected-mini]="tempGuesses()[rival.id] === mask.id"
+                              class="rival-mask-btn"
+                              [class.selected-rival-mask]="tempGuesses()[rival.id] === mask.id"
                               [style.--mask-color]="mask.color"
                               (click)="selectRivalGuess(rival.id, mask.id)"
                               [title]="mask.name"
                             >
-                              <img [src]="mask.imageUrl" [alt]="mask.name" class="mask-img-mini" />
-                              <span class="mask-label-mini">{{ mask.name }}</span>
+                              <img [src]="mask.imageUrl" [alt]="mask.name" class="rival-mask-img" />
+                              <span class="rival-mask-label">{{ mask.name }}</span>
                             </button>
                           }
                         </div>
@@ -786,7 +786,9 @@ import { SAMOA_RULES } from '../samoa.rules';
       display: flex;
       flex-direction: column;
       gap: var(--space-md);
-      padding-bottom: 120px;
+      padding: 0 var(--space-xs) 120px;
+      box-sizing: border-box;
+      width: 100%;
       max-width: 900px;
       margin: 0 auto;
     }
@@ -981,14 +983,19 @@ import { SAMOA_RULES } from '../samoa.rules';
     /* 2. Grid de Jugadores */
     .players-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
       gap: var(--space-md);
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .player-card {
       display: flex;
       flex-direction: column;
       gap: var(--space-md);
+      width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
     }
 
     .player-card.card-leader {
@@ -999,6 +1006,8 @@ import { SAMOA_RULES } from '../samoa.rules';
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: var(--space-xs);
+      flex-wrap: wrap;
     }
 
     .player-profile {
@@ -1691,8 +1700,16 @@ import { SAMOA_RULES } from '../samoa.rules';
       display: flex;
       flex-direction: column;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: var(--space-lg);
+      box-sizing: border-box;
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (max-width: 480px) {
+      .wizard-dialog-card {
+        padding: var(--space-md) var(--space-xs);
+      }
     }
 
     .wizard-step-title {
@@ -1887,24 +1904,43 @@ import { SAMOA_RULES } from '../samoa.rules';
       color: var(--color-text-muted);
     }
 
+    /* Selección de máscaras en 2 filas: 3 en la 1ª fila y 2 en la 2ª fila */
     .masks-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+      grid-template-columns: repeat(6, 1fr);
       gap: 8px;
       margin-top: 4px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .mask-choice-btn:nth-child(1),
+    .mask-choice-btn:nth-child(2),
+    .mask-choice-btn:nth-child(3) {
+      grid-column: span 2;
+    }
+
+    .mask-choice-btn:nth-child(4),
+    .mask-choice-btn:nth-child(5) {
+      grid-column: span 3;
     }
 
     .mask-choice-btn {
-      padding: 12px 8px;
+      padding: 10px 4px;
       border-radius: var(--radius-xl);
       background: var(--color-surface-container-high);
       border: 2px solid var(--color-border-subtle);
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       cursor: pointer;
       transition: all 0.15s ease;
+      box-sizing: border-box;
+      min-height: 84px;
+      width: 100%;
+      overflow: hidden;
     }
 
     .mask-choice-btn:hover {
@@ -1919,8 +1955,8 @@ import { SAMOA_RULES } from '../samoa.rules';
     }
 
     .mask-img {
-      width: 48px;
-      height: 58px;
+      width: 44px;
+      height: 52px;
       object-fit: contain;
       filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
       transition: transform 0.15s ease;
@@ -1928,13 +1964,6 @@ import { SAMOA_RULES } from '../samoa.rules';
 
     .mask-choice-btn:hover .mask-img {
       transform: scale(1.08);
-    }
-
-    .mask-img-mini {
-      width: 22px;
-      height: 26px;
-      object-fit: contain;
-      filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
     }
 
     .mask-img-micro {
@@ -1949,29 +1978,41 @@ import { SAMOA_RULES } from '../samoa.rules';
       font-size: 12px;
       font-weight: 800;
       color: var(--color-text-primary);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
 
     .rivals-vote-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
       margin-top: 4px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .rival-vote-card {
-      padding: 10px 12px;
+      padding: 12px;
       border-radius: var(--radius-lg);
       background: var(--color-surface-container-high);
       border: 1px solid var(--color-border-subtle);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
     }
 
     .rival-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .rival-name {
@@ -1988,41 +2029,77 @@ import { SAMOA_RULES } from '../samoa.rules';
       font-weight: 700;
     }
 
-    .masks-row-compact {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
+    /* Grid de rivales: 3 en la 1ª fila y 2 en la 2ª fila con tamaño incrementado */
+    .rival-masks-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
-    .mask-mini-btn {
-      flex: 1;
-      min-width: 60px;
-      padding: 6px 4px;
-      border-radius: var(--radius-md);
+    .rival-mask-btn:nth-child(1),
+    .rival-mask-btn:nth-child(2),
+    .rival-mask-btn:nth-child(3) {
+      grid-column: span 2;
+    }
+
+    .rival-mask-btn:nth-child(4),
+    .rival-mask-btn:nth-child(5) {
+      grid-column: span 3;
+    }
+
+    .rival-mask-btn {
+      padding: 8px 4px;
+      border-radius: var(--radius-lg);
       background: var(--color-surface-container);
-      border: 1.5px solid var(--color-border-subtle);
+      border: 2px solid var(--color-border-subtle);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 4px;
       cursor: pointer;
-      transition: all 0.12s ease;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+      overflow: hidden;
+      min-height: 76px;
+      width: 100%;
     }
 
-    .mask-mini-btn:hover {
+    .rival-mask-btn:hover {
       border-color: var(--mask-color);
+      transform: translateY(-2px);
     }
 
-    .mask-mini-btn.selected-mini {
+    .rival-mask-btn.selected-rival-mask {
       border-color: var(--mask-color);
       background: rgba(13, 148, 136, 0.15);
-      box-shadow: 0 0 0 1px var(--mask-color);
+      box-shadow: 0 0 0 2px var(--mask-color);
     }
 
-    .mask-label-mini {
+    .rival-mask-img {
+      width: 40px;
+      height: 48px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      transition: transform 0.15s ease;
+    }
+
+    .rival-mask-btn:hover .rival-mask-img {
+      transform: scale(1.08);
+    }
+
+    .rival-mask-label {
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--color-text-primary);
+      text-align: center;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
 
     .voting-actions {
@@ -2072,6 +2149,9 @@ import { SAMOA_RULES } from '../samoa.rules';
       display: flex;
       flex-direction: column;
       gap: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
     }
 
     .reveal-player-card.unanimous-card {
@@ -2083,12 +2163,16 @@ import { SAMOA_RULES } from '../samoa.rules';
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .reveal-identity {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0;
     }
 
     .reveal-avatar {
@@ -2102,17 +2186,20 @@ import { SAMOA_RULES } from '../samoa.rules';
       justify-content: center;
       font-weight: 800;
       font-size: 13px;
+      flex-shrink: 0;
     }
 
     .reveal-info-col {
       display: flex;
       flex-direction: column;
+      min-width: 0;
     }
 
     .reveal-name {
       font-size: 14px;
       font-weight: 800;
       color: var(--color-text-primary);
+      word-break: break-word;
     }
 
     .real-mask-badge {
