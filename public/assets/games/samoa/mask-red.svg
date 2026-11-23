@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" width="100%" height="100%">
+  <defs>
+    <!-- Gradiente de Madera Guerrera Roja -->
+    <linearGradient id="redWood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="45%" stop-color="#dc2626"/>
+      <stop offset="80%" stop-color="#991b1b"/>
+      <stop offset="100%" stop-color="#450a0a"/>
+    </linearGradient>
+
+    <!-- Gradientes de Plumas Rojas -->
+    <linearGradient id="featherRedMain" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fca5a5"/>
+      <stop offset="30%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#991b1b"/>
+    </linearGradient>
+    <linearGradient id="featherRedSide" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185"/>
+      <stop offset="60%" stop-color="#dc2626"/>
+      <stop offset="100%" stop-color="#7f1d1d"/>
+    </linearGradient>
+
+    <!-- Sombra suave inferior -->
+    <filter id="shadowRed" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadowRed)">
+    <!-- Corona de Plumas Rojas Superiores -->
+    <!-- Pluma izquierda exterior -->
+    <path d="M 28,38 C 14,26 8,12 12,4 C 22,12 28,24 32,38 Z" fill="url(#featherRedSide)"/>
+    <path d="M 12,4 Q 22,22 30,38" stroke="#fee2e2" stroke-width="1" stroke-linecap="round"/>
+
+    <!-- Pluma izquierda interior -->
+    <path d="M 36,34 C 28,18 26,6 32,1 C 38,10 40,22 42,34 Z" fill="url(#featherRedMain)"/>
+    <path d="M 32,1 Q 37,18 39,34" stroke="#fee2e2" stroke-width="1.2" stroke-linecap="round"/>
+
+    <!-- Pluma central erguida (Gran Pluma Guerrera) -->
+    <path d="M 50,30 C 44,14 46,2 50,0 C 54,2 56,14 50,30 Z" fill="url(#featherRedMain)"/>
+    <path d="M 50,0 L 50,30" stroke="#fef08a" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Pluma derecha interior -->
+    <path d="M 64,34 C 72,18 74,6 68,1 C 62,10 60,22 58,34 Z" fill="url(#featherRedMain)"/>
+    <path d="M 68,1 Q 63,18 61,34" stroke="#fee2e2" stroke-width="1.2" stroke-linecap="round"/>
+
+    <!-- Pluma derecha exterior -->
+    <path d="M 72,38 C 86,26 92,12 88,4 C 78,12 72,24 68,38 Z" fill="url(#featherRedSide)"/>
+    <path d="M 88,4 Q 78,22 70,38" stroke="#fee2e2" stroke-width="1" stroke-linecap="round"/>
+
+    <!-- Cuerpo de la Máscara Tallada Tiki (Forma Guerrera Angulosa) -->
+    <path d="M 20,32 C 16,56 18,84 26,108 C 40,116 60,116 74,108 C 82,84 84,56 80,32 C 60,28 40,28 20,32 Z"
+          fill="url(#redWood)" stroke="#fca5a5" stroke-width="2" stroke-linejoin="round"/>
+
+    <!-- Vinchas y Cintas de la Frente de la Máscara -->
+    <path d="M 23,40 Q 50,34 77,40" stroke="#fee2e2" stroke-width="2.5" fill="none"/>
+    <path d="M 25,46 Q 50,40 75,46" stroke="#fbbf24" stroke-width="1.5" fill="none"/>
+
+    <!-- Grabado Frontal: Triángulo Sagrado de Fuego -->
+    <polygon points="50,42 43,51 57,51" fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/>
+    <circle cx="50" cy="48" r="1.5" fill="#ffffff"/>
+
+    <!-- Ojos Inclinados e Intimidados (Guerrero Rojo) -->
+    <!-- Cuenca Izquierda -->
+    <path d="M 27,62 Q 40,54 46,65 Q 38,71 27,62 Z" fill="#1c0707" stroke="#fca5a5" stroke-width="1.8"/>
+    <!-- Brillo del ojo izquierdo -->
+    <circle cx="38" cy="63" r="3.5" fill="#ef4444"/>
+    <circle cx="39" cy="62" r="1.5" fill="#ffffff"/>
+
+    <!-- Cuenca Derecha -->
+    <path d="M 73,62 Q 60,54 54,65 Q 62,71 73,62 Z" fill="#1c0707" stroke="#fca5a5" stroke-width="1.8"/>
+    <!-- Brillo del ojo derecho -->
+    <circle cx="62" cy="63" r="3.5" fill="#ef4444"/>
+    <circle cx="61" cy="62" r="1.5" fill="#ffffff"/>
+
+    <!-- Nariz Tallada Angular -->
+    <polygon points="50,56 45,78 55,78" fill="#7f1d1d" stroke="#f87171" stroke-width="1.5"/>
+    <line x1="47" y1="78" x2="47" y2="80" stroke="#fee2e2" stroke-width="1.5"/>
+    <line x1="53" y1="78" x2="53" y2="80" stroke="#fee2e2" stroke-width="1.5"/>
+
+    <!-- Pintura de Guerra en las Mejillas -->
+    <line x1="24" y1="72" x2="36" y2="76" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+    <line x1="25" y1="78" x2="35" y2="82" stroke="#fee2e2" stroke-width="1.8" stroke-linecap="round"/>
+
+    <line x1="76" y1="72" x2="64" y2="76" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+    <line x1="75" y1="78" x2="65" y2="82" stroke="#fee2e2" stroke-width="1.8" stroke-linecap="round"/>
+
+    <!-- Boca Feroz con Dientes de Madera Afilados -->
+    <path d="M 33,87 Q 50,85 67,87 Q 66,101 50,102 Q 34,101 33,87 Z" fill="#180505" stroke="#fca5a5" stroke-width="2"/>
+    <!-- Dientes superiores e inferiores afilados -->
+    <polygon points="37,87 41,94 45,87" fill="#ffffff"/>
+    <polygon points="46,87 50,95 54,87" fill="#ffffff"/>
+    <polygon points="55,87 59,94 63,87" fill="#ffffff"/>
+    <polygon points="42,101 45,96 48,101" fill="#ffffff"/>
+    <polygon points="52,101 55,96 58,101" fill="#ffffff"/>
+
+    <!-- Mentón con Rayas Sagradas -->
+    <line x1="44" y1="106" x2="44" y2="111" stroke="#fbbf24" stroke-width="1.5"/>
+    <line x1="50" y1="106" x2="50" y2="113" stroke="#fee2e2" stroke-width="2"/>
+    <line x1="56" y1="106" x2="56" y2="111" stroke="#fbbf24" stroke-width="1.5"/>
+  </g>
+</svg>

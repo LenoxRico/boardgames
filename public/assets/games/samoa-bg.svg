@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- Gradiente Tropical de Samoa (Laguna y Arrecife) -->
+    <radialGradient id="samoaLagoon" cx="65%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#0d9488" stop-opacity="0.3"/>
+      <stop offset="45%" stop-color="#0f766e" stop-opacity="0.18"/>
+      <stop offset="85%" stop-color="#134e4a" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#0b1326" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Resplandor Dorado de Sol Polinesio -->
+    <radialGradient id="sunGlow" cx="60%" cy="30%" r="45%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.28"/>
+      <stop offset="50%" stop-color="#d97706" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#0b1326" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Gradiente para la Máscara Ceremonial de Madera -->
+    <linearGradient id="tikiWood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#b45309" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#78350f" stop-opacity="0.25"/>
+    </linearGradient>
+
+    <!-- Gradientes de Plumas Exóticas -->
+    <linearGradient id="featherTeal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#0f766e" stop-opacity="0.3"/>
+    </linearGradient>
+
+    <linearGradient id="featherCoral" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#e11d48" stop-opacity="0.35"/>
+    </linearGradient>
+
+    <linearGradient id="featherGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#d97706" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Atmósfera de la Laguna y la Playa -->
+  <rect width="600" height="600" fill="url(#samoaLagoon)"/>
+  <circle cx="420" cy="220" r="220" fill="url(#sunGlow)"/>
+
+  <!-- Patrones Tribales Polinesios Circulares -->
+  <g opacity="0.16" stroke="#14b8a6" stroke-width="2" fill="none">
+    <circle cx="410" cy="240" r="210" stroke-dasharray="14,8"/>
+    <circle cx="410" cy="240" r="170"/>
+    <circle cx="410" cy="240" r="130" stroke-dasharray="8,6"/>
+    <!-- Olas del Pacífico -->
+    <path d="M 200,450 Q 250,420 300,450 T 400,450 T 500,450 T 600,450" stroke-width="3"/>
+    <path d="M 230,480 Q 280,450 330,480 T 430,480 T 530,480 T 630,480" stroke-width="2"/>
+    <path d="M 260,510 Q 310,480 360,510 T 460,510 T 560,510 T 660,510" stroke-width="1.5"/>
+  </g>
+
+  <!-- Corona de Plumas de Colores en la Corona de la Máscara -->
+  <g opacity="0.45" stroke="#fef08a" stroke-width="1.5">
+    <!-- Pluma Central (Dorada) -->
+    <path d="M 410,140 C 400,90 405,40 410,20 C 415,40 420,90 410,140 Z" fill="url(#featherGold)"/>
+    <path d="M 410,25 L 410,135" stroke="#f59e0b" stroke-width="2"/>
+
+    <!-- Pluma Izquierda 1 (Turquesa) -->
+    <path d="M 390,145 C 365,100 350,55 340,35 C 360,60 385,105 390,145 Z" fill="url(#featherTeal)"/>
+    <path d="M 345,40 Q 370,95 390,145" stroke="#0d9488" stroke-width="1.5"/>
+
+    <!-- Pluma Derecha 1 (Coral) -->
+    <path d="M 430,145 C 455,100 470,55 480,35 C 460,60 435,105 430,145 Z" fill="url(#featherCoral)"/>
+    <path d="M 475,40 Q 450,95 430,145" stroke="#e11d48" stroke-width="1.5"/>
+
+    <!-- Pluma Izquierda Exterior (Rosa Coral) -->
+    <path d="M 370,160 C 330,125 300,90 280,75 C 310,105 345,135 370,160 Z" fill="url(#featherCoral)"/>
+
+    <!-- Pluma Derecha Exterior (Turquesa) -->
+    <path d="M 450,160 C 490,125 520,90 540,75 C 510,105 475,135 450,160 Z" fill="url(#featherTeal)"/>
+  </g>
+
+  <!-- Máscara Ceremonial Tiki (Talla de Madera de Samoa) -->
+  <g transform="translate(410, 290)" opacity="0.45">
+    <!-- Contorno de la Máscara de Madera -->
+    <path d="M -80,-140 C -95,-80 -90,40 -70,140 C -30,165 30,165 70,140 C 90,40 95,-80 80,-140 C 50,-155 -50,-155 -80,-140 Z"
+          fill="url(#tikiWood)" stroke="#f59e0b" stroke-width="3"/>
+
+    <!-- Tocado Superior / Grabados de la Frente -->
+    <g stroke="#fde047" stroke-width="2" fill="none">
+      <path d="M -60,-125 L 0,-145 L 60,-125"/>
+      <path d="M -50,-110 L 0,-130 L 50,-110"/>
+      <circle cx="-30" cy="-115" r="4" fill="#fbbf24"/>
+      <circle cx="0" cy="-122" r="5" fill="#f59e0b"/>
+      <circle cx="30" cy="-115" r="4" fill="#fbbf24"/>
+    </g>
+
+    <!-- Ojos de Tiki (Místicos y Geométricos) -->
+    <g fill="#0f172a" stroke="#2dd4bf" stroke-width="2.5">
+      <!-- Ojo Izquierdo -->
+      <path d="M -65,-75 Q -35,-95 -10,-75 Q -35,-55 -65,-75 Z"/>
+      <circle cx="-37" cy="-75" r="7" fill="#2dd4bf"/>
+      <circle cx="-37" cy="-75" r="3" fill="#ffffff"/>
+
+      <!-- Ojo Derecho -->
+      <path d="M 10,-75 Q 35,-95 65,-75 Q 35,-55 10,-75 Z"/>
+      <circle cx="37" cy="-75" r="7" fill="#2dd4bf"/>
+      <circle cx="37" cy="-75" r="3" fill="#ffffff"/>
+    </g>
+
+    <!-- Nariz Tallada -->
+    <path d="M -15,-65 L -10,0 L -25,10 L 0,18 L 25,10 L 10,0 L 15,-65 Z"
+          fill="#b45309" stroke="#f59e0b" stroke-width="2"/>
+
+    <!-- Boca Ceremonial Tatuada (Tiki Smile / Dientes Tallados) -->
+    <path d="M -55,45 Q 0,35 55,45 Q 45,95 0,100 Q -45,95 -55,45 Z"
+          fill="#1e1b4b" stroke="#f59e0b" stroke-width="2.5"/>
+
+    <!-- Dientes de la Máscara -->
+    <g stroke="#ffffff" stroke-width="2" fill="#ffffff" opacity="0.85">
+      <rect x="-35" y="47" width="10" height="18" rx="2"/>
+      <rect x="-18" y="48" width="10" height="20" rx="2"/>
+      <rect x="-1" y="48" width="10" height="20" rx="2"/>
+      <rect x="16" y="48" width="10" height="20" rx="2"/>
+      <rect x="33" y="47" width="10" height="18" rx="2"/>
+
+      <rect x="-28" y="74" width="9" height="16" rx="2"/>
+      <rect x="-11" y="75" width="9" height="17" rx="2"/>
+      <rect x="6" y="75" width="9" height="17" rx="2"/>
+      <rect x="23" y="74" width="9" height="16" rx="2"/>
+    </g>
+
+    <!-- Tatuajes Faciales Tribales (Mejillas y Mentón) -->
+    <g stroke="#0d9488" stroke-width="2" fill="none">
+      <path d="M -65,-25 Q -45,-35 -40,-10 T -50,15"/>
+      <path d="M 65,-25 Q 45,-35 40,-10 T 50,15"/>
+      <!-- Mentón -->
+      <path d="M -30,120 L 0,135 L 30,120"/>
+      <path d="M -20,130 L 0,142 L 20,130"/>
+    </g>
+  </g>
+</svg>

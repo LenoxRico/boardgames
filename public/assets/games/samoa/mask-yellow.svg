@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" width="100%" height="100%">
+  <defs>
+    <!-- Gradiente de Madera Solar Amarilla y Dorada -->
+    <linearGradient id="yellowWood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="35%" stop-color="#eab308"/>
+      <stop offset="75%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#713f12"/>
+    </linearGradient>
+
+    <!-- Gradientes de Plumas Doradas y Amarillas -->
+    <linearGradient id="featherYellowMain" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef9c3"/>
+      <stop offset="35%" stop-color="#facc15"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="featherYellowSide" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="60%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#854d0e"/>
+    </linearGradient>
+
+    <!-- Sombra suave inferior -->
+    <filter id="shadowYellow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadowYellow)">
+    <!-- Corona de Plumas Solares Resplandecientes -->
+    <!-- Pluma izquierda exterior -->
+    <path d="M 28,38 C 14,26 8,12 12,3 C 22,11 28,23 32,38 Z" fill="url(#featherYellowSide)"/>
+    <path d="M 12,3 Q 22,21 30,38" stroke="#fef08a" stroke-width="1" stroke-linecap="round"/>
+
+    <!-- Pluma izquierda interior -->
+    <path d="M 36,34 C 28,17 26,5 32,0 C 38,9 40,21 42,34 Z" fill="url(#featherYellowMain)"/>
+    <path d="M 32,0 Q 37,17 39,34" stroke="#fef08a" stroke-width="1.2" stroke-linecap="round"/>
+
+    <!-- Pluma central erguida (Gran Rayo de Sol) -->
+    <path d="M 50,30 C 44,13 46,1 50,-2 C 54,1 56,13 50,30 Z" fill="url(#featherYellowMain)"/>
+    <path d="M 50,-2 L 50,30" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Pluma derecha interior -->
+    <path d="M 64,34 C 72,17 74,5 68,0 C 62,9 60,21 58,34 Z" fill="url(#featherYellowMain)"/>
+    <path d="M 68,0 Q 63,17 61,34" stroke="#fef08a" stroke-width="1.2" stroke-linecap="round"/>
+
+    <!-- Pluma derecha exterior -->
+    <path d="M 72,38 C 86,26 92,12 88,3 C 78,11 72,23 68,38 Z" fill="url(#featherYellowSide)"/>
+    <path d="M 88,3 Q 78,21 70,38" stroke="#fef08a" stroke-width="1" stroke-linecap="round"/>
+
+    <!-- Cuerpo de la Máscara Tallada Tiki (Forma Solar y Expresiva) -->
+    <path d="M 20,32 C 16,56 18,84 28,108 C 42,117 58,117 72,108 C 82,84 84,56 80,32 C 60,27 40,27 20,32 Z"
+          fill="url(#yellowWood)" stroke="#fef08a" stroke-width="2" stroke-linejoin="round"/>
+
+    <!-- Vinchas de la Frente con Diseños Solares Geométricos -->
+    <path d="M 23,41 Q 50,35 77,41" stroke="#fef9c3" stroke-width="2" fill="none"/>
+    <path d="M 25,47 Q 50,42 75,47" stroke="#ca8a04" stroke-width="1.5" fill="none"/>
+
+    <!-- Tatuaje Central: Sol Radiante de Polinesia -->
+    <circle cx="50" cy="49" r="4.5" fill="#fef9c3" stroke="#b45309" stroke-width="1"/>
+    <circle cx="50" cy="49" r="2" fill="#ca8a04"/>
+
+    <!-- Ojos Alegres y Luminosos (Crescent Sonriente Dorado) -->
+    <!-- Ojo Izquierdo -->
+    <path d="M 26,62 Q 37,53 47,62 Q 37,68 26,62 Z" fill="#291400" stroke="#fef08a" stroke-width="2"/>
+    <circle cx="37" cy="62" r="3.5" fill="#eab308"/>
+    <circle cx="38" cy="61" r="1.5" fill="#ffffff"/>
+
+    <!-- Ojo Derecho -->
+    <path d="M 74,62 Q 63,53 53,62 Q 63,68 74,62 Z" fill="#291400" stroke="#fef08a" stroke-width="2"/>
+    <circle cx="63" cy="62" r="3.5" fill="#eab308"/>
+    <circle cx="62" cy="61" r="1.5" fill="#ffffff"/>
+
+    <!-- Nariz Tallada Tradicional de Madera -->
+    <polygon points="50,56 44,76 56,76" fill="#a16207" stroke="#fef08a" stroke-width="1.5"/>
+
+    <!-- Rayos de Sol en las Mejillas -->
+    <line x1="24" y1="73" x2="35" y2="76" stroke="#fef9c3" stroke-width="2" stroke-linecap="round"/>
+    <line x1="25" y1="79" x2="34" y2="83" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+
+    <line x1="76" y1="73" x2="65" y2="76" stroke="#fef9c3" stroke-width="2" stroke-linecap="round"/>
+    <line x1="75" y1="79" x2="66" y2="83" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+
+    <!-- Gran Sonrisa Tiki Solar (Dientes Amplios y Alegres) -->
+    <path d="M 31,86 Q 50,91 69,86 Q 66,104 50,105 Q 34,104 31,86 Z" fill="#291400" stroke="#fef08a" stroke-width="2"/>
+    <!-- Dientes de Madera Blanca Radiante -->
+    <rect x="35" y="88" width="5" height="7" rx="1" fill="#fefce8" stroke="#ca8a04" stroke-width="0.8"/>
+    <rect x="41" y="89" width="5" height="8" rx="1" fill="#fefce8" stroke="#ca8a04" stroke-width="0.8"/>
+    <rect x="47" y="90" width="6" height="8" rx="1" fill="#fefce8" stroke="#ca8a04" stroke-width="0.8"/>
+    <rect x="54" y="89" width="5" height="8" rx="1" fill="#fefce8" stroke="#ca8a04" stroke-width="0.8"/>
+    <rect x="60" y="88" width="5" height="7" rx="1" fill="#fefce8" stroke="#ca8a04" stroke-width="0.8"/>
+
+    <!-- Grabados del Mentón Solar -->
+    <circle cx="43" cy="111" r="2" fill="#ca8a04"/>
+    <circle cx="50" cy="112" r="2.5" fill="#fef9c3"/>
+    <circle cx="57" cy="111" r="2" fill="#ca8a04"/>
+  </g>
+</svg>

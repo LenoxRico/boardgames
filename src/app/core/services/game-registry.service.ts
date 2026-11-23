@@ -4,6 +4,7 @@ import { SKULL_KING_DEFINITION } from '../../games/skull-king/skull-king.definit
 import { TAKE_6_DEFINITION } from '../../games/take-6/take-6.definition';
 import { MINO_DICE_DEFINITION } from '../../games/mino-dice/mino-dice.definition';
 import { PELUSAS_DEFINITION } from '../../games/pelusas/pelusas.definition';
+import { SAMOA_DEFINITION } from '../../games/samoa/samoa.definition';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +20,7 @@ export class GameRegistryService {
     this.register(TAKE_6_DEFINITION);
     this.register(MINO_DICE_DEFINITION);
     this.register(PELUSAS_DEFINITION);
+    this.register(SAMOA_DEFINITION);
   }
 
   register(definition: GameDefinition): void {

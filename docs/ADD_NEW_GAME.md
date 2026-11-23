@@ -254,20 +254,37 @@ Diseña un componente standalone enfocado 100% en la interacción táctil en mes
 
 - **Uniformidad Obligatoria: Botón 'Finalizar Partida' (Abandono en curso) y Modal de Confirmación**:
   Todos los juegos deben tener exactamente la misma estructura visual, naming y comportamiento para permitir finalizar/abandonar una partida en curso:
-  1. **Botón en la barra inferior flotante (`.floating-actions-bar` / `.secondary-actions-row`)**:
+  1. **Disposición Vertical en la Barra Inferior Flotante (`.floating-actions-bar`)**:
+     - La barra flotante organiza **siempre** los botones de forma vertical (`display: flex; flex-direction: column; gap: var(--space-xs);`).
+     - El botón principal de acción (`Confirmar Ronda` o `Finalizar y Ver Podio`) va **arriba** ocupando el 100% del ancho (`width: 100%; min-height: 48px;`).
+     - El botón secundario de abandono (`Finalizar Partida`) va **debajo** dentro de `.secondary-actions-row` (`width: 100%; display: flex; gap: var(--space-xs);`). **Nunca deben colocarse uno al lado del otro**, garantizando la misma ergonomía táctil en todos los juegos.
      - **Texto**: `Finalizar Partida` (nunca "Abandonar" ni "Salir").
      - **Icono Material**: `exit_to_app`.
      - **Clases CSS**: `btn-secondary-action btn-danger`.
      - **Acción**: `(click)="askToAbandonMatch()"`.
      ```html
-     <button
-       type="button"
-       class="btn-secondary-action btn-danger"
-       (click)="askToAbandonMatch()"
-     >
-       <span class="material-symbols-outlined">exit_to_app</span>
-       <span>Finalizar Partida</span>
-     </button>
+     <div class="floating-actions-bar">
+       <button
+         type="button"
+         class="btn-primary-action"
+         [disabled]="!canConfirmRound()"
+         (click)="confirmCurrentRound()"
+       >
+         <span class="material-symbols-outlined">check_circle</span>
+         <span>Confirmar Ronda {{ viewingRound() }}</span>
+       </button>
+
+       <div class="secondary-actions-row">
+         <button
+           type="button"
+           class="btn-secondary-action btn-danger"
+           (click)="askToAbandonMatch()"
+         >
+           <span class="material-symbols-outlined">exit_to_app</span>
+           <span>Finalizar Partida</span>
+         </button>
+       </div>
+     </div>
      ```
   2. **Modal de Confirmación de Abandono (`showAbandonConfirmModal`)**:
      - Si la partida está en curso, al presionar 'Finalizar Partida' **NUNCA** se sale de inmediato; **SIEMPRE** se solicita confirmación.
