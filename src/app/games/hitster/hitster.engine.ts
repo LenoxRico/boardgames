@@ -259,6 +259,8 @@ export const HITSTER_CORE_CARDS: Record<string, Record<string, string>> = {
     '10': '5jUA1njy3h6ynHLvPdEVHt',
     '00020': '4aTCNddtjztjuK2EOgz7ZZ',
     '20': '4aTCNddtjztjuK2EOgz7ZZ',
+    '00066': '6epn3r7S14KUqlReYr77hA',
+    '66': '6epn3r7S14KUqlReYr77hA',
     '00100': '62AuGbAkt8Ox2IrFFb8GKV',
     '100': '62AuGbAkt8Ox2IrFFb8GKV',
     '00200': '57yz5oqMytzbwdewSG28L9',
@@ -327,19 +329,39 @@ export function parseSpotifyTrackUrl(
     };
   }
 
-  // Caso 3: URL oficial de cartas físicas de Hitster (ej. https://hitstergame.com/us/00268 o http://www.hitstergame.com/es/1)
-  const hitsterUrlMatch = clean.match(
-    /(?:https?:\/\/)?(?:www\.)?hitstergame\.com\/(?:([a-zA-Z]{2})\/)?([a-zA-Z0-9_\-]+)/i
-  );
-  if (hitsterUrlMatch) {
-    const country = (hitsterUrlMatch[1] || defaultCountry || 'us').toLowerCase();
-    const cardIdRaw = hitsterUrlMatch[2];
+  // Caso 3: URL oficial de cartas físicas de Hitster (ej. www.hitstergame.com/us/aaaa0023/00066 o hitstergame.com/us/00268)
+  const isHitsterDomain = /(?:https?:\/\/)?(?:www\.)?hitstergame\.com/i.test(clean);
+  if (isHitsterDomain) {
+    const pathOnly = clean.replace(/^(?:https?:\/\/)?(?:www\.)?hitstergame\.com\/?/i, '');
+    const segments = pathOnly.split(/[?#]/)[0].split('/').filter(Boolean);
+
+    let country = defaultCountry ? defaultCountry.toLowerCase() : 'us';
+    let sku: string | undefined;
+    let cardIdRaw = '';
+
+    if (segments.length >= 3) {
+      country = segments[0].toLowerCase();
+      sku = segments[1].toLowerCase();
+      cardIdRaw = segments[2];
+    } else if (segments.length === 2) {
+      if (segments[0].length === 2 && isNaN(Number(segments[0]))) {
+        country = segments[0].toLowerCase();
+        cardIdRaw = segments[1];
+      } else {
+        sku = segments[0].toLowerCase();
+        cardIdRaw = segments[1];
+      }
+    } else if (segments.length === 1) {
+      cardIdRaw = segments[0];
+    }
+
     const isDigits = /^[0-9]+$/.test(cardIdRaw);
     const normId = isDigits ? String(parseInt(cardIdRaw, 10)) : cardIdRaw;
     const paddedId = isDigits ? cardIdRaw.padStart(5, '0') : cardIdRaw;
 
     const dbToSearch = cardsDb || HITSTER_CORE_CARDS;
     const foundTrackId =
+      (sku ? dbToSearch?.[sku]?.[paddedId] || dbToSearch?.[sku]?.[normId] : undefined) ||
       dbToSearch?.[country]?.[paddedId] ||
       dbToSearch?.[country]?.[normId] ||
       dbToSearch?.['global']?.[paddedId] ||
@@ -362,8 +384,8 @@ export function parseSpotifyTrackUrl(
     }
 
     return {
-      url: `https://hitstergame.com/${country}/${cardIdRaw}`,
-      cardId: paddedId,
+      url: `https://hitstergame.com/${country}/${sku ? sku + '/' : ''}${cardIdRaw}`,
+      cardId: paddedId || cardIdRaw,
       country,
       isHitsterCard: true,
     };

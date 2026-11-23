@@ -54,6 +54,16 @@ describe('HitsterEngine', () => {
       expect(parsed.trackId).toBe('0VjIjW4GlULA7k21f1Jglc');
     });
 
+    it('parsea y resuelve URLs oficiales con formato SKU (www.hitstergame.com/us/aaaa0023/00066)', () => {
+      const raw = 'www.hitstergame.com/us/aaaa0023/00066';
+      const parsed = parseSpotifyTrackUrl(raw);
+      expect(parsed.isHitsterCard).toBe(true);
+      expect(parsed.country).toBe('us');
+      expect(parsed.cardId).toBe('00066');
+      expect(parsed.trackId).toBe('6epn3r7S14KUqlReYr77hA');
+      expect(parsed.url).toBe('https://open.spotify.com/track/6epn3r7S14KUqlReYr77hA');
+    });
+
     it('parsea y resuelve URLs oficiales de cartas Hitster (hitstergame.com/us/{id})', () => {
       const raw = 'https://hitstergame.com/us/00268';
       const parsed = parseSpotifyTrackUrl(raw);

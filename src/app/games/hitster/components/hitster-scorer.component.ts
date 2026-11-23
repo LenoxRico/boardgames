@@ -4275,6 +4275,49 @@ export class HitsterScorerComponent implements OnDestroy {
   }
 
   /**
+   * Decodificador de alta precisión optimizado para las cartas físicas de Hitster:
+   * 1. Las cartas de Hitster presentan códigos QR invertidos (blancos sobre fondo negro)
+   *    con surcos concéntricos de colores neon estilo vinilo alrededor.
+   * 2. Recorta y analiza la zona central (65%, 50%, 80%) con 'invertFirst'.
+   * 3. Fallback al encuadre completo con 'attemptBoth'.
+   */
+  private decodeQrFromContext(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number
+  ): string | null {
+    if (width <= 0 || height <= 0) return null;
+
+    // A. Recortes centrales (ROI) concéntricos para aislar el QR de los aros de vinilo
+    const cropFactors = [0.65, 0.50, 0.80];
+    for (const factor of cropFactors) {
+      const cw = Math.floor(width * factor);
+      const ch = Math.floor(height * factor);
+      const sx = Math.floor((width - cw) / 2);
+      const sy = Math.floor((height - ch) / 2);
+
+      const centerData = ctx.getImageData(sx, sy, cw, ch);
+      const res = jsQR(centerData.data, cw, ch, {
+        inversionAttempts: 'invertFirst',
+      });
+      if (res && res.data && res.data.trim()) {
+        return res.data.trim();
+      }
+    }
+
+    // B. Fotograma completo con soporte de inversión
+    const fullData = ctx.getImageData(0, 0, width, height);
+    const resFull = jsQR(fullData.data, width, height, {
+      inversionAttempts: 'attemptBoth',
+    });
+    if (resFull && resFull.data && resFull.data.trim()) {
+      return resFull.data.trim();
+    }
+
+    return null;
+  }
+
+  /**
    * Bucle de escaneo continuo con jsQR leyendo cada fotograma sobre un canvas oculto.
    * Funciona instantáneamente en Safari de iPhone, Android y Desktop sin banderas experimentales.
    */
@@ -4286,7 +4329,7 @@ export class HitsterScorerComponent implements OnDestroy {
       if (!this.isScanning) return;
 
       // Limitar a ~6 análisis por segundo para máxima fluidez y bajo consumo de batería
-      if (time - lastScanTime >= 160) {
+      if (time - lastScanTime >= 150) {
         lastScanTime = time;
         const video = this.videoRef?.nativeElement;
 
@@ -4302,22 +4345,17 @@ export class HitsterScorerComponent implements OnDestroy {
 
           if (ctx) {
             ctx.drawImage(video, 0, 0, this.scanCanvas.width, this.scanCanvas.height);
-            const imageData = ctx.getImageData(
-              0,
-              0,
+            const decoded = this.decodeQrFromContext(
+              ctx,
               this.scanCanvas.width,
               this.scanCanvas.height
             );
 
-            const code = jsQR(imageData.data, imageData.width, imageData.height, {
-              inversionAttempts: 'dontInvert',
-            });
-
-            if (code && code.data && code.data.trim().length > 0) {
+            if (decoded) {
               this.isScanning = false;
               this.stopCameraScanner();
               this.triggerScanFeedback();
-              this.handleScannedRawText(code.data.trim());
+              this.handleScannedRawText(decoded);
               return;
             }
           }
@@ -4364,16 +4402,17 @@ export class HitsterScorerComponent implements OnDestroy {
       img.onload = () => {
         this.scanCanvas.width = img.width;
         this.scanCanvas.height = img.height;
-        const ctx = this.scanCanvas.getContext('2d');
+        const ctx = this.scanCanvas.getContext('2d', { willReadFrequently: true });
         if (ctx) {
           ctx.drawImage(img, 0, 0);
-          const imageData = ctx.getImageData(0, 0, img.width, img.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height);
-          if (code && code.data) {
+          const decoded = this.decodeQrFromContext(ctx, img.width, img.height);
+          if (decoded) {
             this.triggerScanFeedback();
-            this.handleScannedRawText(code.data);
+            this.handleScannedRawText(decoded);
           } else {
-            alert('No se detectó ningún código QR en la imagen. Intenta con una foto más nítida.');
+            alert(
+              'No se detectó el código QR en la imagen. Asegúrate de encuadrar el código QR central dentro del visor o que la foto tenga buena luz.'
+            );
           }
         }
       };
