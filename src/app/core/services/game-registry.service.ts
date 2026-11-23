@@ -5,6 +5,7 @@ import { TAKE_6_DEFINITION } from '../../games/take-6/take-6.definition';
 import { MINO_DICE_DEFINITION } from '../../games/mino-dice/mino-dice.definition';
 import { PELUSAS_DEFINITION } from '../../games/pelusas/pelusas.definition';
 import { SAMOA_DEFINITION } from '../../games/samoa/samoa.definition';
+import { HITSTER_DEFINITION } from '../../games/hitster/hitster.definition';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,7 @@ export class GameRegistryService {
     this.register(MINO_DICE_DEFINITION);
     this.register(PELUSAS_DEFINITION);
     this.register(SAMOA_DEFINITION);
+    this.register(HITSTER_DEFINITION);
   }
 
   register(definition: GameDefinition): void {

@@ -1,0 +1,3384 @@
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  effect,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { MatchRecord } from '../../../core/models/match.interface';
+import { MatchManagerService } from '../../../core/services/match-manager.service';
+import { GameRegistryService } from '../../../core/services/game-registry.service';
+import {
+  HitsterConfig,
+  HitsterRoundInput,
+  HitsterEngine,
+  parseSpotifyTrackUrl,
+  SpotifyTrackInfo,
+  HITSTER_DEMO_TRACKS,
+  HitsterDemoTrack,
+} from '../hitster.engine';
+import { HITSTER_RULES } from '../hitster.rules';
+
+interface RevealedTrackDetails {
+  title: string;
+  artist: string;
+  year?: number | string;
+  albumArt?: string;
+}
+
+@Component({
+  selector: 'app-hitster-scorer',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="scorer-container">
+      <!-- 1. Cabecera Contextual de Partida -->
+      <div
+        class="match-header-card"
+        [style.background-image]="gameTheme()?.gradient"
+      >
+        @if (gameTheme()?.bgImageUrl; as bg) {
+          <div
+            class="card-thematic-art"
+            [style.background-image]="'url(' + bg + ')'"
+          ></div>
+        }
+        <div class="header-top">
+          <div class="game-info">
+            <div class="game-title-row">
+              <span class="game-icon">🎵</span>
+              <h2 class="game-name">Hitster</h2>
+              <span class="badge badge-table">
+                Ronda {{ viewingRound() }}
+              </span>
+              <span class="badge badge-mode">
+                {{ modeLabel() }}
+              </span>
+            </div>
+            <p class="dealer-text">
+              <span>100 años de éxitos • Objetivo: {{ targetCards() }} canciones</span>
+              <span class="dot-separator">•</span>
+              <span class="dealer-badge">Turno DJ: {{ currentDjPlayer()?.name }} 🎧</span>
+            </p>
+          </div>
+          <div class="header-actions">
+            <button
+              type="button"
+              class="icon-action-btn"
+              (click)="toggleRulesModal()"
+              title="Consultar Reglas Rápidas"
+              aria-label="Reglas rápidas"
+            >
+              <span class="material-symbols-outlined">help_center</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Botón Hero para abrir el Escáner DJ / Reproductor -->
+        <div class="dj-launcher-box">
+          <button
+            type="button"
+            class="btn-dj-hero"
+            (click)="openDjScannerModal()"
+          >
+            <div class="dj-btn-content">
+              <span class="material-symbols-outlined dj-btn-icon">album</span>
+              <div class="dj-btn-text">
+                <span class="dj-btn-title">🎧 Abrir Escáner DJ / Reproductor</span>
+                <span class="dj-btn-desc">Escanea la carta QR con la cámara o prueba canciones demo</span>
+              </div>
+            </div>
+            <span class="dj-badge-pulse">¡EN VIVO!</span>
+          </button>
+        </div>
+
+        <!-- Selector Rápido de Rondas -->
+        <div class="rounds-stepper-bar">
+          <button
+            type="button"
+            class="stepper-nav-btn"
+            [disabled]="viewingRound() <= 1"
+            (click)="setViewingRound(viewingRound() - 1)"
+            aria-label="Ronda anterior"
+          >
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+
+          <div class="rounds-scroll-track">
+            @for (r of roundNumbers(); track r) {
+              <button
+                type="button"
+                class="round-chip-btn"
+                [class.active-round]="r === viewingRound()"
+                [class.confirmed-round]="r < currentMatchRound()"
+                (click)="setViewingRound(r)"
+              >
+                R{{ r }}
+              </button>
+            }
+          </div>
+
+          <button
+            type="button"
+            class="stepper-nav-btn"
+            [disabled]="viewingRound() >= currentMatchRound()"
+            (click)="setViewingRound(viewingRound() + 1)"
+            aria-label="Ronda siguiente"
+          >
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Tarjetas de Interacción por Jugador (Líneas de Tiempo) -->
+      <div class="players-grid">
+        @for (player of match().players; track player.id; let idx = $index) {
+          @let pDraft = getDraftForPlayer(player.id);
+          @let stats = getCumulativeStatsForPlayer(player.id);
+          @let isDj = player.id === currentDjPlayer()?.id;
+
+          <div
+            class="player-card"
+            [class.active-turn-card]="isDj"
+            [style.background-image]="gameTheme()?.gradient"
+          >
+            @if (gameTheme()?.bgImageUrl; as bg) {
+              <div
+                class="card-thematic-art"
+                [style.background-image]="'url(' + bg + ')'"
+              ></div>
+            }
+
+            <!-- Cabecera del Jugador -->
+            <div class="player-card-header">
+              <div class="player-profile">
+                <div class="player-avatar" [style.background-color]="getPlayerAvatarColor(idx)">
+                  {{ player.name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="player-meta">
+                  <div class="player-name-row">
+                    <span class="player-name">{{ player.name }}</span>
+                    @if (currentRankings()[player.id] === 1) {
+                      <span class="badge-leader">👑 Líder</span>
+                    }
+                    @if (isDj) {
+                      <span class="badge-dj">🎧 Turno DJ</span>
+                    }
+                  </div>
+                  <span class="player-rank-sub">
+                    Puesto {{ currentRankings()[player.id] || idx + 1 }}º • {{ stats.totalCards }} / {{ targetCards() }} canciones
+                  </span>
+                </div>
+              </div>
+
+              <!-- Indicador de Fichas Hitster en Mano -->
+              <div class="tokens-pill-display" title="Fichas Hitster en mano">
+                <span class="token-coin">🪙</span>
+                <span class="token-count">{{ stats.totalTokens }}</span>
+                <span class="token-label">Fichas</span>
+              </div>
+            </div>
+
+            <!-- Barra de Progreso de la Línea de Tiempo (0 a 10 cartas) -->
+            <div class="timeline-visual-box">
+              <div class="timeline-meta-row">
+                <span class="timeline-title">Línea de Tiempo Cronológica</span>
+                <span class="timeline-fraction">{{ stats.totalCards }} de {{ targetCards() }}</span>
+              </div>
+              <div class="timeline-progress-track">
+                <div
+                  class="timeline-progress-fill"
+                  [style.width.%]="Math.min(100, (stats.totalCards / targetCards()) * 100)"
+                ></div>
+              </div>
+              <!-- Puntos/Hitos de cartas -->
+              <div class="timeline-dots-row">
+                @for (slot of cardSlots(); track slot) {
+                  <div
+                    class="timeline-slot-dot"
+                    [class.filled]="slot <= stats.totalCards"
+                    [title]="'Canción ' + slot"
+                  >
+                    @if (slot <= stats.totalCards) {
+                      <span class="slot-check">✓</span>
+                    } @else {
+                      <span class="slot-num">{{ slot }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Controles de la Ronda Actual (Cartas Ganadas y Fichas Gastadas/Ganadas) -->
+            <div class="card-inputs-section">
+              <div class="input-row-metric">
+                <div class="metric-label-group">
+                  <span class="material-symbols-outlined metric-icon">music_video</span>
+                  <div class="metric-text-col">
+                    <span class="metric-label">Canciones Añadidas en R{{ viewingRound() }}</span>
+                    <span class="metric-desc">Colocadas con éxito o robadas</span>
+                  </div>
+                </div>
+
+                <div class="stepper-controls">
+                  <button
+                    type="button"
+                    class="btn-step"
+                    [disabled]="(pDraft.cardsWon ?? 0) <= 0"
+                    (click)="adjustCardsWon(player.id, -1)"
+                    aria-label="Restar carta"
+                  >
+                    <span class="material-symbols-outlined">remove</span>
+                  </button>
+                  <span class="stepper-value tabular-nums">{{ pDraft.cardsWon ?? 0 }}</span>
+                  <button
+                    type="button"
+                    class="btn-step"
+                    (click)="adjustCardsWon(player.id, 1)"
+                    aria-label="Sumar carta"
+                  >
+                    <span class="material-symbols-outlined">add</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Ajuste de Fichas Hitster en esta Ronda -->
+              <div class="input-row-metric">
+                <div class="metric-label-group">
+                  <span class="material-symbols-outlined metric-icon">generating_tokens</span>
+                  <div class="metric-text-col">
+                    <span class="metric-label">Variación de Fichas R{{ viewingRound() }}</span>
+                    <span class="metric-desc">Gastadas (-) o Ganadas (+)</span>
+                  </div>
+                </div>
+
+                <div class="stepper-controls">
+                  <button
+                    type="button"
+                    class="btn-step btn-token-minus"
+                    (click)="adjustTokensDelta(player.id, -1)"
+                    aria-label="Gastar ficha"
+                  >
+                    <span class="material-symbols-outlined">remove</span>
+                  </button>
+                  <span class="stepper-value tabular-nums" [class.positive-val]="(pDraft.tokensDelta ?? 0) > 0" [class.negative-val]="(pDraft.tokensDelta ?? 0) < 0">
+                    {{ (pDraft.tokensDelta ?? 0) > 0 ? '+' : '' }}{{ pDraft.tokensDelta ?? 0 }}
+                  </span>
+                  <button
+                    type="button"
+                    class="btn-step btn-token-plus"
+                    (click)="adjustTokensDelta(player.id, 1)"
+                    aria-label="Ganar ficha"
+                  >
+                    <span class="material-symbols-outlined">add</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Botones de Acción Rápida con Fichas -->
+              <div class="quick-token-actions-row">
+                <button
+                  type="button"
+                  class="btn-quick-token"
+                  (click)="quickChallengeAction(player.id)"
+                  title="Gastar 1 ficha para desafiar o robar carta"
+                >
+                  <span class="material-symbols-outlined">swords</span>
+                  <span>Desafiar (-1 🪙)</span>
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-quick-token"
+                  (click)="quickSkipAction(player.id)"
+                  title="Gastar 1 ficha para pasar de canción"
+                >
+                  <span class="material-symbols-outlined">skip_next</span>
+                  <span>Pasar (-1 🪙)</span>
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-quick-token btn-buy-card"
+                  (click)="quickBuyCardAction(player.id)"
+                  title="Gastar 3 fichas para comprar carta directamente (+1 carta, -3 fichas)"
+                >
+                  <span class="material-symbols-outlined">shopping_cart</span>
+                  <span>Comprar (+1 🎵, -3 🪙)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- 3. Tabla Matriz Histórica de Rondas Confirmadas -->
+      <div
+        class="matrix-card"
+        [style.background-image]="gameTheme()?.gradient"
+      >
+        @if (gameTheme()?.bgImageUrl; as bg) {
+          <div
+            class="card-thematic-art"
+            [style.background-image]="'url(' + bg + ')'"
+          ></div>
+        }
+        <div class="matrix-header">
+          <div class="matrix-title-group">
+            <span class="material-symbols-outlined matrix-icon">history</span>
+            <h3 class="matrix-title">Historial de Rondas Confirmadas</h3>
+          </div>
+          <span class="matrix-subtitle">Canciones y fichas registradas por ronda</span>
+        </div>
+
+        @if (roundRows().length === 0) {
+          <div class="empty-matrix-state">
+            <span class="material-symbols-outlined empty-matrix-icon">album</span>
+            <p>Aún no se han confirmado rondas. ¡Abre el escáner DJ para reproducir tu primer éxito musical!</p>
+          </div>
+        } @else {
+          <div class="matrix-table-wrapper">
+            <table class="matrix-table">
+              <thead>
+                <tr>
+                  <th class="th-round">Ronda</th>
+                  @for (p of match().players; track p.id) {
+                    <th class="th-player">{{ p.name }}</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of roundRows(); track row.roundNumber) {
+                  <tr>
+                    <td class="td-round">
+                      <button
+                        type="button"
+                        class="btn-link-round"
+                        (click)="setViewingRound(row.roundNumber)"
+                        [title]="'Ver ronda ' + row.roundNumber"
+                      >
+                        R{{ row.roundNumber }}
+                      </button>
+                    </td>
+                    @for (p of match().players; track p.id) {
+                      @let pData = row.inputs[p.id];
+                      <td class="td-player-data">
+                        <div class="matrix-cell-content">
+                          <span class="matrix-cards-val">+{{ pData?.cardsWon ?? 0 }} 🎵</span>
+                          @if ((pData?.tokensDelta ?? 0) !== 0) {
+                            <span class="matrix-tokens-val" [class.pos]="(pData?.tokensDelta ?? 0) > 0" [class.neg]="(pData?.tokensDelta ?? 0) < 0">
+                              {{ (pData?.tokensDelta ?? 0) > 0 ? '+' : '' }}{{ pData?.tokensDelta ?? 0 }} 🪙
+                            </span>
+                          }
+                        </div>
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      <!-- 4. Tarjeta de Puntuaciones y Clasificación en Vivo -->
+      <div
+        class="current-scores-card"
+        [style.background-image]="gameTheme()?.gradient"
+      >
+        @if (gameTheme()?.bgImageUrl; as bg) {
+          <div
+            class="card-thematic-art"
+            [style.background-image]="'url(' + bg + ')'"
+          ></div>
+        }
+        <div class="scores-card-header">
+          <div class="scores-title-group">
+            <span class="material-symbols-outlined scores-icon">leaderboard</span>
+            <h3 class="scores-title">Posiciones en Vivo</h3>
+          </div>
+          <span class="scores-subtitle">Objetivo: {{ targetCards() }} canciones (desempate por fichas)</span>
+        </div>
+
+        <div class="ranked-list">
+          @for (ranked of rankedPlayers(); track ranked.id; let idx = $index) {
+            <div class="ranked-item" [class.rank-leader]="ranked.rank === 1">
+              <div class="item-left">
+                <span class="rank-badge">{{ ranked.rank }}º</span>
+                <div class="ranked-name-col">
+                  <span class="ranked-name">{{ ranked.name }}</span>
+                  <span class="ranked-tokens-sub">
+                    🪙 {{ ranked.totalTokens }} fichas Hitster en mano
+                  </span>
+                </div>
+              </div>
+              <div class="item-right">
+                <span class="ranked-score tabular-nums">{{ ranked.totalCards }} / {{ targetCards() }}</span>
+                <span class="score-unit-label">canciones</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- 5. Barra Inferior Flotante de Acciones (Disposición Estrictamente Vertical) -->
+      <div class="floating-actions-bar">
+        @if (isEditingPastRound()) {
+          <div class="editing-past-notice">
+            <span class="material-symbols-outlined">edit_note</span>
+            <span>Editando Ronda Histórica {{ viewingRound() }}</span>
+          </div>
+          <button
+            type="button"
+            class="btn-primary-action btn-save-past"
+            (click)="commitPastRound()"
+          >
+            <span class="material-symbols-outlined">save</span>
+            <span>Volver a Ronda {{ viewingRound() }} para reescribir</span>
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="btn-primary-action"
+            [disabled]="!canConfirmRound()"
+            (click)="confirmCurrentRound()"
+          >
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>Confirmar Ronda {{ viewingRound() }}</span>
+          </button>
+        }
+
+        <!-- Fila Secundaria: Botón de Abandono (Finalizar Partida) -->
+        <div class="secondary-actions-row">
+          <button
+            type="button"
+            class="btn-secondary-action btn-danger"
+            (click)="askToAbandonMatch()"
+          >
+            <span class="material-symbols-outlined">exit_to_app</span>
+            <span>Finalizar Partida</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- MODAL 1: Escáner DJ / Reproductor sin Spoilers -->
+      @if (showDjModal()) {
+        <div class="modal-overlay" (click)="closeDjModal()">
+          <div class="dj-modal-dialog" (click)="$event.stopPropagation()">
+            <!-- Cabecera del DJ -->
+            <div class="dj-modal-header">
+              <div class="dj-modal-title-group">
+                <span class="material-symbols-outlined dj-header-icon">headphones</span>
+                <div class="dj-title-text">
+                  <h3>Modo DJ Hitster</h3>
+                  <p>Escucha la música sin revelar el título, artista ni año</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="btn-close-modal"
+                (click)="closeDjModal()"
+                aria-label="Cerrar modal"
+              >
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div class="dj-modal-body">
+              <!-- Selector de Jugador Activo de este Turno -->
+              <div class="dj-turn-selector">
+                <span class="turn-label">🎧 ¿Quién está jugando este turno?</span>
+                <div class="turn-players-chips">
+                  @for (p of match().players; track p.id) {
+                    <button
+                      type="button"
+                      class="turn-player-chip"
+                      [class.active-chip]="p.id === activeGuesserPlayerId()"
+                      (click)="setActiveGuesserPlayer(p.id)"
+                    >
+                      {{ p.name }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Sección de Selección / Entrada de Canción -->
+              @if (!activeTrack()) {
+                <div class="dj-source-section">
+                  <!-- Pestañas de modo de escaneo -->
+                  <div class="source-tabs">
+                    <button
+                      type="button"
+                      class="source-tab"
+                      [class.active]="scannerInputMode() === 'camera'"
+                      (click)="setScannerInputMode('camera')"
+                    >
+                      <span class="material-symbols-outlined">qr_code_scanner</span>
+                      <span>Cámara QR</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="source-tab"
+                      [class.active]="scannerInputMode() === 'manual'"
+                      (click)="setScannerInputMode('manual')"
+                    >
+                      <span class="material-symbols-outlined">link</span>
+                      <span>Enlace / ID</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="source-tab"
+                      [class.active]="scannerInputMode() === 'demo'"
+                      (click)="setScannerInputMode('demo')"
+                    >
+                      <span class="material-symbols-outlined">library_music</span>
+                      <span>Canciones Demo</span>
+                    </button>
+                  </div>
+
+                  <!-- 1. Vista de Cámara QR -->
+                  @if (scannerInputMode() === 'camera') {
+                    <div class="camera-scanner-view">
+                      <div class="camera-viewport-box">
+                        <video #videoElement class="camera-video" playsinline autoplay muted></video>
+                        <div class="scanner-frame-overlay">
+                          <div class="scanner-corner tl"></div>
+                          <div class="scanner-corner tr"></div>
+                          <div class="scanner-corner bl"></div>
+                          <div class="scanner-corner br"></div>
+                          <div class="scanner-laser-line"></div>
+                        </div>
+                      </div>
+                      <p class="scanner-hint">
+                        Apunta la cámara al código QR de la carta física de Hitster.
+                      </p>
+                      @if (cameraError()) {
+                        <div class="camera-error-banner">
+                          <span class="material-symbols-outlined">videocam_off</span>
+                          <span>{{ cameraError() }}</span>
+                        </div>
+                      }
+                      <button
+                        type="button"
+                        class="btn-secondary-action"
+                        (click)="startCameraScanner()"
+                      >
+                        <span class="material-symbols-outlined">refresh</span>
+                        <span>Reiniciar Cámara</span>
+                      </button>
+                    </div>
+                  }
+
+                  <!-- 2. Entrada Manual de URL / ID -->
+                  @if (scannerInputMode() === 'manual') {
+                    <div class="manual-input-view">
+                      <label for="manualSpotifyInput" class="input-form-label">
+                        Pega la URL de Spotify o ID extraído del QR:
+                      </label>
+                      <div class="manual-input-row">
+                        <input
+                          id="manualSpotifyInput"
+                          type="text"
+                          class="form-control-input"
+                          placeholder="https://open.spotify.com/track/..."
+                          [(ngModel)]="manualSpotifyText"
+                          (keyup.enter)="loadManualTrack()"
+                        />
+                        <button
+                          type="button"
+                          class="btn-load-track"
+                          [disabled]="!manualSpotifyText.trim()"
+                          (click)="loadManualTrack()"
+                        >
+                          Cargar
+                        </button>
+                      </div>
+                      <p class="input-note">
+                        Ejemplo: https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT
+                      </p>
+                    </div>
+                  }
+
+                  <!-- 3. Canciones Demo por Décadas -->
+                  @if (scannerInputMode() === 'demo') {
+                    <div class="demo-tracks-view">
+                      <label class="input-form-label">
+                        Selecciona un éxito legendario para jugar sin cartas físicas:
+                      </label>
+                      <div class="demo-tracks-list">
+                        @for (demo of demoTracks; track demo.id) {
+                          <button
+                            type="button"
+                            class="demo-track-btn"
+                            (click)="loadDemoTrack(demo)"
+                          >
+                            <span class="demo-decade-badge">{{ demo.decade }}</span>
+                            <div class="demo-track-meta">
+                              <span class="demo-hint-title">Éxito de los {{ demo.decade }}</span>
+                              <span class="demo-hint-sub">Pista de audio lista para reproducir</span>
+                            </div>
+                            <span class="material-symbols-outlined demo-play-icon">play_circle</span>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <!-- SECCIÓN DE REPRODUCCIÓN SIN SPOILERS -->
+                <div class="dj-player-screen">
+                  <!-- Animación del Vinilo Neón y Temporizador -->
+                  <div class="player-visual-center">
+                    <div class="vinyl-record-disc" [class.spinning]="isPlaying()">
+                      <div class="vinyl-groove"></div>
+                      <div class="vinyl-center-sticker">
+                        <span class="material-symbols-outlined">music_note</span>
+                      </div>
+                    </div>
+
+                    <!-- Temporizador Regresivo de 30 Segundos -->
+                    <div class="countdown-timer-box">
+                      <div class="timer-display" [class.time-warning]="timerSecondsLeft() <= 5">
+                        <span class="timer-digits tabular-nums">{{ timerSecondsLeft() }}</span>
+                        <span class="timer-unit">seg</span>
+                      </div>
+                      <div class="timer-controls-row">
+                        @if (!isTimerRunning()) {
+                          <button
+                            type="button"
+                            class="btn-timer-action"
+                            (click)="startTimer()"
+                            title="Iniciar temporizador"
+                          >
+                            <span class="material-symbols-outlined">play_arrow</span>
+                          </button>
+                        } @else {
+                          <button
+                            type="button"
+                            class="btn-timer-action btn-pause"
+                            (click)="pauseTimer()"
+                            title="Pausar temporizador"
+                          >
+                            <span class="material-symbols-outlined">pause</span>
+                          </button>
+                        }
+                        <button
+                          type="button"
+                          class="btn-timer-action btn-reset"
+                          (click)="resetTimer()"
+                          title="Reiniciar a 30s"
+                        >
+                          <span class="material-symbols-outlined">restart_alt</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Reproductor Spotify Integrado (Iframe Seguro) -->
+                  @if (sanitizedEmbedUrl()) {
+                    <div class="spotify-embed-container">
+                      <iframe
+                        [src]="sanitizedEmbedUrl()"
+                        width="100%"
+                        height="152"
+                        frameBorder="0"
+                        allowfullscreen=""
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                        class="spotify-iframe"
+                      ></iframe>
+                    </div>
+                  }
+
+                  <!-- Enlace Directo para Abrir en la App de Spotify -->
+                  <div class="spotify-app-link-box">
+                    <a
+                      [href]="activeTrack()?.url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn-open-spotify"
+                    >
+                      <span class="spotify-logo-dot"></span>
+                      <span>Escuchar en Spotify App</span>
+                      <span class="material-symbols-outlined open-ext-icon">open_in_new</span>
+                    </a>
+                  </div>
+
+                  <!-- ESTADO 1: Oculto (El jugador está pensando dónde colocarla) -->
+                  @if (!isRevealed()) {
+                    <div class="hidden-spoiler-banner">
+                      <div class="spoiler-icon-badge">
+                        <span class="material-symbols-outlined">visibility_off</span>
+                      </div>
+                      <h4 class="spoiler-title">Información Oculta</h4>
+                      <p class="spoiler-desc">
+                        El jugador activo <strong>{{ activeGuesserName() }}</strong> debe colocar la carta en su línea de tiempo. Los rivales pueden desafiar con sus fichas Hitster antes de pulsar revelar.
+                      </p>
+
+                      <button
+                        type="button"
+                        class="btn-reveal-hero"
+                        (click)="revealTrackDetails()"
+                      >
+                        <span class="material-symbols-outlined">visibility</span>
+                        <span>Revelar Canción y Año</span>
+                      </button>
+                    </div>
+                  } @else {
+                    <!-- ESTADO 2: Revelado (Título, Artista, Año y Asignación de Resultados) -->
+                    <div class="revealed-details-card">
+                      <div class="revealed-year-badge">
+                        <span class="year-label">AÑO DE LANZAMIENTO</span>
+                        <span class="year-number">{{ revealedTrack()?.year || 'Año de Éxito' }}</span>
+                      </div>
+
+                      <div class="revealed-song-meta">
+                        <h3 class="revealed-title">{{ revealedTrack()?.title || 'Título de la canción' }}</h3>
+                        <h4 class="revealed-artist">{{ revealedTrack()?.artist || 'Artista' }}</h4>
+                      </div>
+
+                      <!-- Panel de Resolución Rápida del Turno -->
+                      <div class="smart-resolution-panel">
+                        <h4 class="panel-section-title">
+                          ¿Qué ocurrió en este turno con {{ activeGuesserName() }}?
+                        </h4>
+
+                        <!-- 1. Colocación en la Línea de Tiempo -->
+                        <div class="resolution-options">
+                          <button
+                            type="button"
+                            class="btn-resolve-success"
+                            (click)="awardSuccessToActivePlayer()"
+                          >
+                            <span class="material-symbols-outlined">check_circle</span>
+                            <span>✅ ¡Correcto! (+1 Carta para {{ activeGuesserName() }})</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            class="btn-resolve-fail"
+                            (click)="markActivePlayerFailed()"
+                          >
+                            <span class="material-symbols-outlined">cancel</span>
+                            <span>❌ Falló (Carta descartada al pozo)</span>
+                          </button>
+                        </div>
+
+                        <!-- 2. Desafío de Rivales con Ficha Hitster -->
+                        <div class="rival-challenge-section">
+                          <span class="sub-section-label">¿Algún rival desafió la colocación con su ficha?</span>
+                          <div class="rival-challenge-list">
+                            @for (rival of rivalPlayers(); track rival.id) {
+                              <div class="rival-challenge-row">
+                                <span class="rival-name">{{ rival.name }}:</span>
+                                <div class="challenge-actions-group">
+                                  <button
+                                    type="button"
+                                    class="btn-rival-action btn-rival-win"
+                                    (click)="awardStolenCardToRival(rival.id)"
+                                    title="Robó la carta con éxito (+1 carta para el rival)"
+                                  >
+                                    <span>🎯 Acertó (+1 🎵)</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    class="btn-rival-action btn-rival-lose"
+                                    (click)="penalizeRivalToken(rival.id)"
+                                    title="Desafío erróneo (pierde 1 ficha Hitster)"
+                                  >
+                                    <span>💥 Falló (-1 🪙)</span>
+                                  </button>
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        </div>
+
+                        <!-- 3. Bonificación por Artista y Título (Modos Pro / Expert) -->
+                        <div class="bonus-token-section">
+                          <button
+                            type="button"
+                            class="btn-bonus-token"
+                            (click)="awardBonusTokenToActivePlayer()"
+                          >
+                            <span class="material-symbols-outlined">star</span>
+                            <span>⭐ Supo Artista y Título (+1 Ficha 🪙 para {{ activeGuesserName() }})</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="revealed-footer-actions">
+                        <button
+                          type="button"
+                          class="btn-next-track"
+                          (click)="resetDjTrack()"
+                        >
+                          <span class="material-symbols-outlined">skip_next</span>
+                          <span>Escanear Siguiente Canción</span>
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-done-dj"
+                          (click)="closeDjModal()"
+                        >
+                          <span>Volver a la Mesa</span>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- MODAL 2: Reglas Rápidas de Hitster -->
+      @if (showRulesModal()) {
+        <div class="modal-overlay" (click)="toggleRulesModal()">
+          <div class="rules-modal-dialog" (click)="$event.stopPropagation()">
+            <div class="rules-modal-header">
+              <div class="rules-title-group">
+                <span class="material-symbols-outlined rules-icon">album</span>
+                <h3>Reglas Rápidas de Hitster</h3>
+              </div>
+              <button
+                type="button"
+                class="btn-close-modal"
+                (click)="toggleRulesModal()"
+                aria-label="Cerrar reglas"
+              >
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div class="rules-modal-body">
+              @for (rule of quickRules; track rule.id) {
+                <div class="rule-card-item">
+                  <div class="rule-title-row">
+                    <span class="material-symbols-outlined rule-item-icon">{{ rule.icon }}</span>
+                    <h4>{{ rule.title }}</h4>
+                  </div>
+                  <p class="rule-content">{{ rule.content }}</p>
+                </div>
+              }
+            </div>
+            <div class="rules-modal-footer">
+              <button type="button" class="btn-modal-cancel" (click)="toggleRulesModal()">
+                Entendido, ¡a jugar!
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- MODAL 3: Confirmación de Abandono (Regla Estricta de Diseño) -->
+      @if (showAbandonConfirmModal()) {
+        <div class="modal-overlay" (click)="cancelAbandon()">
+          <div class="modal-dialog-card" (click)="$event.stopPropagation()">
+            <div class="modal-icon-badge danger-badge">
+              <span class="material-symbols-outlined">warning</span>
+            </div>
+            <h3 class="modal-title">¿Finalizar la partida en curso?</h3>
+            <p class="modal-message">
+              Estás en medio de una partida de <strong>Hitster</strong>. Si confirmas, saldrás al catálogo de juegos y esta partida <strong>no se guardará en el historial</strong>.
+            </p>
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-modal-cancel"
+                (click)="cancelAbandon()"
+              >
+                Cancelar y Continuar Jugando
+              </button>
+              <button
+                type="button"
+                class="btn-modal-confirm-abandon"
+                (click)="confirmAbandon()"
+              >
+                <span class="material-symbols-outlined">delete_forever</span>
+                <span>Sí, Finalizar Partida</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  `,
+  styles: [`
+    .scorer-container {
+      padding: 0 var(--space-xs) 120px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Cards Estándar con Temática y Marca de Agua */
+    .match-header-card,
+    .player-card,
+    .matrix-card,
+    .current-scores-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-md);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    :host-context([data-theme="light"]) .match-header-card,
+    :host-context([data-theme="light"]) .player-card,
+    :host-context([data-theme="light"]) .matrix-card,
+    :host-context([data-theme="light"]) .current-scores-card {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      border-color: var(--color-border-subtle);
+      background: #ffffff;
+    }
+
+    .match-header-card > *,
+    .player-card > *,
+    .matrix-card > *,
+    .current-scores-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-thematic-art {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 220px;
+      height: 100%;
+      max-height: 240px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: top right;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 85%);
+      -webkit-mask-image: radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 1) 0%, transparent 85%);
+      transition: opacity 0.2s ease;
+    }
+
+    :host-context([data-theme="light"]) .card-thematic-art {
+      opacity: 0.6;
+    }
+
+    /* 1. Cabecera */
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-sm);
+    }
+
+    .game-title-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      flex-wrap: wrap;
+    }
+
+    .game-icon {
+      font-size: 24px;
+    }
+
+    .game-name {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .badge-table {
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      background: rgba(236, 72, 153, 0.15);
+      border: 1px solid rgba(236, 72, 153, 0.3);
+      color: #ec4899;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-mode {
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      color: #8b5cf6;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .dealer-text {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .dot-separator {
+      opacity: 0.5;
+    }
+
+    .dealer-badge {
+      font-weight: 700;
+      color: #ec4899;
+    }
+
+    .icon-action-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .icon-action-btn:hover {
+      background: var(--color-surface-hover);
+      transform: scale(1.05);
+    }
+
+    /* Botón Hero DJ Launcher */
+    .dj-launcher-box {
+      margin: var(--space-sm) 0 var(--space-md);
+    }
+
+    .btn-dj-hero {
+      width: 100%;
+      min-height: 58px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #06b6d4 100%);
+      border: none;
+      color: #ffffff;
+      padding: var(--space-sm) var(--space-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(236, 72, 153, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-dj-hero:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5);
+    }
+
+    .dj-btn-content {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      text-align: left;
+    }
+
+    .dj-btn-icon {
+      font-size: 32px;
+    }
+
+    .dj-btn-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dj-btn-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+
+    .dj-btn-desc {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    .dj-badge-pulse {
+      background: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: var(--radius-full);
+      padding: 4px 8px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.06); }
+    }
+
+    /* Stepper de Rondas */
+    .rounds-stepper-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: 4px;
+      border: 1px solid var(--color-border-subtle);
+    }
+
+    .stepper-nav-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: none;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .stepper-nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .rounds-scroll-track {
+      flex: 1;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .rounds-scroll-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .round-chip-btn {
+      padding: 4px 10px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--color-text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .round-chip-btn.active-round {
+      background: #ec4899;
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .round-chip-btn.confirmed-round:not(.active-round) {
+      color: #10b981;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    /* 2. Grid de Jugadores */
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+      gap: var(--space-md);
+    }
+
+    .player-card.active-turn-card {
+      border-color: #ec4899;
+      box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.35);
+    }
+
+    .player-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-sm);
+      gap: 8px;
+    }
+
+    .player-profile {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .player-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .player-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .player-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .player-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .badge-leader {
+      font-size: 10px;
+      padding: 1px 6px;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #f59e0b;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+    }
+
+    .badge-dj {
+      font-size: 10px;
+      padding: 1px 6px;
+      background: rgba(236, 72, 153, 0.2);
+      border: 1px solid rgba(236, 72, 153, 0.4);
+      color: #ec4899;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+    }
+
+    .player-rank-sub {
+      font-size: 11px;
+      color: var(--color-text-muted);
+    }
+
+    .tokens-pill-display {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      background: rgba(236, 72, 153, 0.12);
+      border: 1px solid rgba(236, 72, 153, 0.3);
+    }
+
+    .token-coin {
+      font-size: 14px;
+    }
+
+    .token-count {
+      font-size: 14px;
+      font-weight: 800;
+      color: #ec4899;
+    }
+
+    .token-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    /* Barra de Progreso de Línea de Tiempo */
+    .timeline-visual-box {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xs) var(--space-sm);
+      margin-bottom: var(--space-sm);
+    }
+
+    .timeline-meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .timeline-title {
+      font-weight: 700;
+      color: var(--color-text-secondary);
+    }
+
+    .timeline-fraction {
+      font-weight: 800;
+      color: #ec4899;
+    }
+
+    .timeline-progress-track {
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    :host-context([data-theme="light"]) .timeline-progress-track {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .timeline-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ec4899, #8b5cf6, #06b6d4);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .timeline-dots-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 2px;
+    }
+
+    .timeline-slot-dot {
+      flex: 1;
+      height: 20px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--color-border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: var(--color-text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .timeline-slot-dot.filled {
+      background: rgba(236, 72, 153, 0.25);
+      border-color: #ec4899;
+      color: #ec4899;
+      font-weight: 800;
+    }
+
+    /* Controles de Inputs */
+    .card-inputs-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .input-row-metric {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border-subtle);
+    }
+
+    .metric-label-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .metric-icon {
+      font-size: 20px;
+      color: #ec4899;
+    }
+
+    .metric-text-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .metric-desc {
+      font-size: 10px;
+      color: var(--color-text-muted);
+    }
+
+    .stepper-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-step {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-step:hover:not(:disabled) {
+      background: var(--color-surface-hover);
+    }
+
+    .btn-step:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .stepper-value {
+      min-width: 28px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .positive-val {
+      color: #10b981;
+    }
+
+    .negative-val {
+      color: #ef4444;
+    }
+
+    /* Acciones Rápidas con Fichas */
+    .quick-token-actions-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.3fr;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .btn-quick-token {
+      min-height: 36px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--color-border-subtle);
+      color: var(--color-text-secondary);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 4px 6px;
+      transition: all 0.2s ease;
+    }
+
+    :host-context([data-theme="light"]) .btn-quick-token {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    .btn-quick-token:hover {
+      background: rgba(236, 72, 153, 0.15);
+      border-color: #ec4899;
+      color: #ec4899;
+    }
+
+    .btn-buy-card {
+      background: rgba(139, 92, 246, 0.12);
+      border-color: rgba(139, 92, 246, 0.35);
+      color: #8b5cf6;
+    }
+
+    .btn-buy-card:hover {
+      background: rgba(139, 92, 246, 0.25);
+      border-color: #8b5cf6;
+      color: #ffffff;
+    }
+
+    /* 3. Matriz Histórica */
+    .matrix-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-sm);
+    }
+
+    .matrix-title-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .matrix-icon {
+      font-size: 20px;
+      color: #8b5cf6;
+    }
+
+    .matrix-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .matrix-subtitle {
+      font-size: 11px;
+      color: var(--color-text-muted);
+    }
+
+    .empty-matrix-state {
+      padding: var(--space-lg);
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 13px;
+    }
+
+    .empty-matrix-icon {
+      font-size: 40px;
+      margin-bottom: var(--space-xs);
+      opacity: 0.5;
+    }
+
+    .matrix-table-wrapper {
+      overflow-x: auto;
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .matrix-table th,
+    .matrix-table td {
+      padding: 8px 12px;
+      text-align: center;
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
+
+    .matrix-table th {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      background: var(--color-surface);
+    }
+
+    .th-round {
+      width: 70px;
+    }
+
+    .btn-link-round {
+      background: transparent;
+      border: none;
+      color: #ec4899;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .matrix-cell-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .matrix-cards-val {
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .matrix-tokens-val {
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .matrix-tokens-val.pos {
+      color: #10b981;
+    }
+
+    .matrix-tokens-val.neg {
+      color: #ef4444;
+    }
+
+    /* 4. Posiciones en Vivo */
+    .scores-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-sm);
+    }
+
+    .scores-title-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .scores-icon {
+      font-size: 20px;
+      color: #ec4899;
+    }
+
+    .scores-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .scores-subtitle {
+      font-size: 11px;
+      color: var(--color-text-muted);
+    }
+
+    .ranked-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .ranked-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-subtle);
+    }
+
+    .ranked-item.rank-leader {
+      border-color: rgba(236, 72, 153, 0.4);
+      background: rgba(236, 72, 153, 0.08);
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .rank-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .ranked-name-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ranked-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .ranked-tokens-sub {
+      font-size: 10px;
+      color: var(--color-text-muted);
+    }
+
+    .item-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .ranked-score {
+      font-size: 16px;
+      font-weight: 900;
+      color: #ec4899;
+    }
+
+    .score-unit-label {
+      font-size: 10px;
+      color: var(--color-text-muted);
+    }
+
+    /* 5. Barra Flotante Inferior (Vertical Estricta) */
+    .floating-actions-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--color-surface-container);
+      border-top: 1px solid var(--color-border-strong);
+      padding: var(--space-sm) var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      z-index: 100;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    :host-context([data-theme="light"]) .floating-actions-bar {
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+      background: #ffffff;
+    }
+
+    .btn-primary-action {
+      width: 100%;
+      min-height: 48px;
+      border-radius: var(--radius-lg);
+      background: #ec4899;
+      color: #ffffff;
+      border: none;
+      font-size: 15px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary-action:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(236, 72, 153, 0.45);
+    }
+
+    .btn-primary-action:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-save-past {
+      background: #8b5cf6;
+    }
+
+    .secondary-actions-row {
+      width: 100%;
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .btn-secondary-action {
+      width: 100%;
+      min-height: 40px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-secondary);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary-action.btn-danger {
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-secondary-action.btn-danger:hover {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: #ef4444;
+    }
+
+    .editing-past-notice {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #8b5cf6;
+    }
+
+    /* MODAL BASE */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-md);
+      z-index: 1000;
+    }
+
+    .modal-dialog-card {
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-xl);
+      padding: var(--space-lg);
+      max-width: 440px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: var(--space-sm);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+    }
+
+    :host-context([data-theme="light"]) .modal-dialog-card {
+      background: #ffffff;
+    }
+
+    .modal-icon-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-icon-badge.danger-badge {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .modal-message {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--color-text-secondary);
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      width: 100%;
+      margin-top: var(--space-sm);
+    }
+
+    .btn-modal-cancel {
+      width: 100%;
+      min-height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-modal-confirm-abandon {
+      width: 100%;
+      min-height: 44px;
+      border-radius: var(--radius-lg);
+      background: #dc2626;
+      border: none;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      transition: background 0.15s ease;
+    }
+
+    .btn-modal-confirm-abandon:hover {
+      background: #b91c1c;
+    }
+
+    /* MODAL DE REGLAS */
+    .rules-modal-dialog {
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-default);
+      border-radius: var(--radius-xl);
+      max-width: 560px;
+      width: 100%;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    :host-context([data-theme="light"]) .rules-modal-dialog {
+      background: #ffffff;
+    }
+
+    .rules-modal-header {
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--color-border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .rules-title-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .rules-icon {
+      font-size: 24px;
+      color: #ec4899;
+    }
+
+    .rules-modal-body {
+      padding: var(--space-md);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .rule-card-item {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    .rule-title-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      margin-bottom: 4px;
+    }
+
+    .rule-item-icon {
+      font-size: 18px;
+      color: #ec4899;
+    }
+
+    .rule-content {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--color-text-secondary);
+      white-space: pre-line;
+    }
+
+    .rules-modal-footer {
+      padding: var(--space-sm) var(--space-md);
+      border-top: 1px solid var(--color-border-subtle);
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-close-modal {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: transparent;
+      border: none;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* MODAL DJ HITSTER */
+    .dj-modal-dialog {
+      background: var(--color-surface-container);
+      border: 1px solid rgba(236, 72, 153, 0.4);
+      border-radius: var(--radius-xl);
+      max-width: 580px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 24px rgba(236, 72, 153, 0.25);
+    }
+
+    :host-context([data-theme="light"]) .dj-modal-dialog {
+      background: #ffffff;
+    }
+
+    .dj-modal-header {
+      padding: var(--space-sm) var(--space-md);
+      background: linear-gradient(90deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15));
+      border-bottom: 1px solid var(--color-border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dj-modal-title-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .dj-header-icon {
+      font-size: 28px;
+      color: #ec4899;
+    }
+
+    .dj-title-text h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .dj-title-text p {
+      margin: 2px 0 0;
+      font-size: 11px;
+      color: var(--color-text-muted);
+    }
+
+    .dj-modal-body {
+      padding: var(--space-md);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    /* Selector de Turno en el DJ */
+    .dj-turn-selector {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xs) var(--space-sm);
+    }
+
+    .turn-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .turn-players-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .turn-player-chip {
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .turn-player-chip.active-chip {
+      background: #ec4899;
+      border-color: #ec4899;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+    }
+
+    /* Pestañas de Fuente */
+    .source-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: var(--space-sm);
+    }
+
+    .source-tab {
+      flex: 1;
+      min-height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-subtle);
+      color: var(--color-text-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .source-tab.active {
+      background: rgba(236, 72, 153, 0.15);
+      border-color: #ec4899;
+      color: #ec4899;
+    }
+
+    /* Cámara QR */
+    .camera-scanner-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .camera-viewport-box {
+      position: relative;
+      width: 100%;
+      max-width: 320px;
+      height: 240px;
+      background: #000000;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .camera-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .scanner-frame-overlay {
+      position: absolute;
+      inset: 20px;
+      pointer-events: none;
+    }
+
+    .scanner-corner {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-color: #ec4899;
+      border-style: solid;
+      border-width: 0;
+    }
+
+    .scanner-corner.tl { top: 0; left: 0; border-top-width: 3px; border-left-width: 3px; }
+    .scanner-corner.tr { top: 0; right: 0; border-top-width: 3px; border-right-width: 3px; }
+    .scanner-corner.bl { bottom: 0; left: 0; border-bottom-width: 3px; border-left-width: 3px; }
+    .scanner-corner.br { bottom: 0; right: 0; border-bottom-width: 3px; border-right-width: 3px; }
+
+    .scanner-laser-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ec4899, #06b6d4, transparent);
+      box-shadow: 0 0 8px #ec4899;
+      animation: laserScan 2s infinite ease-in-out;
+    }
+
+    @keyframes laserScan {
+      0%, 100% { top: 0%; }
+      50% { top: 95%; }
+    }
+
+    .scanner-hint {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      text-align: center;
+      margin: 0;
+    }
+
+    .camera-error-banner {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #ef4444;
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Entrada Manual */
+    .manual-input-view {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .input-form-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .manual-input-row {
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .form-control-input {
+      flex: 1;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      padding: 0 12px;
+      font-size: 14px;
+    }
+
+    .btn-load-track {
+      min-width: 80px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: #ec4899;
+      border: none;
+      color: #ffffff;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .input-note {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+
+    /* Canciones Demo */
+    .demo-tracks-view {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .demo-tracks-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+      gap: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .demo-track-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-subtle);
+      color: var(--color-text-primary);
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .demo-track-btn:hover {
+      background: rgba(236, 72, 153, 0.12);
+      border-color: #ec4899;
+    }
+
+    .demo-decade-badge {
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      color: #8b5cf6;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .demo-track-meta {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .demo-hint-title {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .demo-hint-sub {
+      font-size: 10px;
+      color: var(--color-text-muted);
+    }
+
+    .demo-play-icon {
+      font-size: 20px;
+      color: #ec4899;
+    }
+
+    /* Pantalla del Reproductor DJ */
+    .dj-player-screen {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .player-visual-center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-lg);
+      padding: var(--space-sm) 0;
+    }
+
+    /* Vinilo Animado */
+    .vinyl-record-disc {
+      width: 100px;
+      height: 100px;
+      border-radius: var(--radius-full);
+      background: radial-gradient(circle, #18181b 30%, #09090b 70%);
+      border: 3px solid #ec4899;
+      box-shadow: 0 0 16px rgba(236, 72, 153, 0.4);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .vinyl-record-disc.spinning {
+      animation: spinVinyl 3s linear infinite;
+    }
+
+    @keyframes spinVinyl {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .vinyl-groove {
+      position: absolute;
+      inset: 8px;
+      border-radius: var(--radius-full);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+    }
+
+    .vinyl-center-sticker {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: #ec4899;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 16px;
+    }
+
+    /* Temporizador */
+    .countdown-timer-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .timer-display {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      background: var(--color-surface);
+      border: 2px solid #8b5cf6;
+      border-radius: var(--radius-lg);
+      padding: 4px 16px;
+    }
+
+    .timer-display.time-warning {
+      border-color: #ef4444;
+      color: #ef4444;
+      animation: pulseWarning 1s infinite;
+    }
+
+    @keyframes pulseWarning {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .timer-digits {
+      font-size: 32px;
+      font-weight: 900;
+      color: #8b5cf6;
+    }
+
+    .time-warning .timer-digits {
+      color: #ef4444;
+    }
+
+    .timer-unit {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+    }
+
+    .timer-controls-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-timer-action {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .btn-timer-action:hover {
+      background: var(--color-surface-hover);
+    }
+
+    .btn-timer-action.btn-pause {
+      color: #f59e0b;
+    }
+
+    /* Spotify Embed & Link */
+    .spotify-embed-container {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .spotify-iframe {
+      border-radius: 12px;
+      background: transparent;
+    }
+
+    .spotify-app-link-box {
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn-open-spotify {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      background: #1ed760;
+      color: #000000;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(30, 215, 96, 0.3);
+      transition: transform 0.2s ease;
+    }
+
+    .btn-open-spotify:hover {
+      transform: scale(1.03);
+    }
+
+    .open-ext-icon {
+      font-size: 16px;
+    }
+
+    /* Spoiler Oculto */
+    .hidden-spoiler-banner {
+      background: var(--color-surface);
+      border: 1px dashed rgba(236, 72, 153, 0.4);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .spoiler-icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-full);
+      background: rgba(236, 72, 153, 0.15);
+      color: #ec4899;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .spoiler-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .spoiler-desc {
+      margin: 0;
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      max-width: 400px;
+      line-height: 1.4;
+    }
+
+    .btn-reveal-hero {
+      margin-top: var(--space-xs);
+      min-height: 48px;
+      padding: 0 var(--space-lg);
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      border: none;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn-reveal-hero:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6);
+    }
+
+    /* Detalles Revelados */
+    .revealed-details-card {
+      background: var(--color-surface);
+      border: 1px solid rgba(236, 72, 153, 0.4);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      text-align: center;
+    }
+
+    .revealed-year-badge {
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.2));
+      border: 1px solid #ec4899;
+      border-radius: var(--radius-lg);
+      padding: var(--space-xs) var(--space-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .year-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #ec4899;
+    }
+
+    .year-number {
+      font-size: 38px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 2px 10px rgba(236, 72, 153, 0.6);
+    }
+
+    :host-context([data-theme="light"]) .year-number {
+      color: #8b5cf6;
+    }
+
+    .revealed-song-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .revealed-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .revealed-artist {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #8b5cf6;
+    }
+
+    /* Smart Resolution Panel */
+    .smart-resolution-panel {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      text-align: left;
+      background: var(--color-surface-container);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm);
+    }
+
+    .panel-section-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .resolution-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-xs);
+    }
+
+    .btn-resolve-success {
+      min-height: 44px;
+      border-radius: var(--radius-md);
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #10b981;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 6px;
+    }
+
+    .btn-resolve-success:hover {
+      background: #10b981;
+      color: #ffffff;
+    }
+
+    .btn-resolve-fail {
+      min-height: 44px;
+      border-radius: var(--radius-md);
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 6px;
+    }
+
+    .btn-resolve-fail:hover {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    .rival-challenge-section {
+      border-top: 1px solid var(--color-border-subtle);
+      padding-top: var(--space-xs);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sub-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+    }
+
+    .rival-challenge-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .rival-challenge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 6px;
+      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+    }
+
+    .rival-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .challenge-actions-group {
+      display: flex;
+      gap: 4px;
+    }
+
+    .btn-rival-action {
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border-subtle);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-rival-win {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #10b981;
+    }
+
+    .btn-rival-win:hover {
+      background: #10b981;
+      color: #ffffff;
+    }
+
+    .btn-rival-lose {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+    }
+
+    .btn-rival-lose:hover {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    .bonus-token-section {
+      border-top: 1px solid var(--color-border-subtle);
+      padding-top: var(--space-xs);
+    }
+
+    .btn-bonus-token {
+      width: 100%;
+      min-height: 38px;
+      border-radius: var(--radius-md);
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid #f59e0b;
+      color: #f59e0b;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-bonus-token:hover {
+      background: #f59e0b;
+      color: #ffffff;
+    }
+
+    .revealed-footer-actions {
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .btn-next-track {
+      flex: 1;
+      min-height: 44px;
+      border-radius: var(--radius-md);
+      background: #ec4899;
+      border: none;
+      color: #ffffff;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .btn-done-dj {
+      min-width: 120px;
+      min-height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      font-weight: 700;
+      cursor: pointer;
+    }
+  `],
+})
+export class HitsterScorerComponent implements OnDestroy {
+  match = input.required<MatchRecord<HitsterConfig, HitsterRoundInput>>();
+  private matchManager = inject(MatchManagerService);
+  private registry = inject(GameRegistryService);
+  private router = inject(Router);
+  private sanitizer = inject(DomSanitizer);
+  private engine = new HitsterEngine();
+
+  readonly Math = Math;
+  readonly gameTheme = computed(() => this.registry.getGame(this.match().gameId)?.metadata?.theme);
+  readonly quickRules = HITSTER_RULES.content.es.summary;
+  readonly demoTracks = HITSTER_DEMO_TRACKS;
+
+  @ViewChild('videoElement') videoRef?: ElementRef<HTMLVideoElement>;
+
+  // Estado del flujo de juego
+  showRulesModal = signal(false);
+  showAbandonConfirmModal = signal(false);
+  showDjModal = signal(false);
+  viewingRound = signal(1);
+  draftInputs = signal<Record<string, HitsterRoundInput>>({});
+
+  // Configuración del juego
+  targetCards = computed(() => this.match().config?.targetCards ?? 10);
+  startingTokens = computed(() => this.match().config?.startingTokens ?? 3);
+  gameMode = computed(() => this.match().config?.gameMode ?? 'original');
+  timerDefaultDuration = computed(() => this.match().config?.timerSeconds ?? 30);
+
+  modeLabel = computed(() => {
+    switch (this.gameMode()) {
+      case 'pro': return 'Modo Pro';
+      case 'expert': return 'Modo Expert';
+      case 'cooperative': return 'Cooperativo';
+      default: return 'Modo Original';
+    }
+  });
+
+  // Hitos de cartas para la barra visual (ej. 1 a 10)
+  cardSlots = computed(() => {
+    const total = this.targetCards();
+    return Array.from({ length: total }, (_, i) => i + 1);
+  });
+
+  currentMatchRound = computed(() => this.match().currentRound);
+  isEditingPastRound = computed(() => this.viewingRound() < this.currentMatchRound());
+
+  // Rondas disponibles para navegación
+  roundNumbers = computed(() => {
+    const current = this.currentMatchRound();
+    const count = Math.max(current, this.match().rounds.length + 1);
+    return Array.from({ length: count }, (_, i) => i + 1);
+  });
+
+  // DJ / Turno actual
+  currentDjPlayer = computed(() => {
+    const players = this.match().players;
+    if (players.length === 0) return null;
+    const roundIdx = (this.viewingRound() - 1) % players.length;
+    return players[roundIdx] || players[0];
+  });
+
+  // Estado del DJ Scanner
+  activeGuesserPlayerId = signal<string>('');
+  scannerInputMode = signal<'camera' | 'manual' | 'demo'>('demo');
+  manualSpotifyText = '';
+  cameraError = signal<string>('');
+  private cameraStream?: MediaStream;
+  private scanIntervalId?: any;
+
+  // Estado de Reproducción de Canción
+  activeTrack = signal<SpotifyTrackInfo | null>(null);
+  sanitizedEmbedUrl = signal<SafeResourceUrl | null>(null);
+  isRevealed = signal(false);
+  revealedTrack = signal<RevealedTrackDetails | null>(null);
+
+  // Temporizador de 30 segundos
+  timerSecondsLeft = signal(30);
+  isTimerRunning = signal(false);
+  isPlaying = signal(false);
+  private timerIntervalId?: any;
+
+  activeGuesserName = computed(() => {
+    const id = this.activeGuesserPlayerId();
+    const p = this.match().players.find((pl) => pl.id === id);
+    return p ? p.name : 'el jugador';
+  });
+
+  rivalPlayers = computed(() => {
+    const activeId = this.activeGuesserPlayerId();
+    return this.match().players.filter((p) => p.id !== activeId);
+  });
+
+  // Acumulados y rankings en vivo
+  cumulativeStats = computed(() => {
+    const m = this.match();
+    const allInputs = m.rounds.map((r) => r.data);
+    const pids = m.players.map((p) => p.id);
+    return this.engine.calculateCumulativeState(allInputs, pids, m.config);
+  });
+
+  rankedPlayers = computed(() => {
+    const m = this.match();
+    const stats = this.cumulativeStats();
+    const cardsMap: Record<string, number> = {};
+    const tokensMap: Record<string, number> = {};
+
+    for (const p of m.players) {
+      cardsMap[p.id] = stats[p.id]?.totalCards ?? 0;
+      tokensMap[p.id] = stats[p.id]?.totalTokens ?? this.startingTokens();
+    }
+
+    const ranking = this.engine.rankPlayers(cardsMap, tokensMap, this.targetCards());
+    return ranking.map((item) => {
+      const p = m.players.find((pl) => pl.id === item.playerId);
+      return {
+        id: item.playerId,
+        name: p?.name || item.playerId,
+        totalCards: item.totalCards,
+        totalTokens: item.totalTokens,
+        rank: item.rank,
+        isWinner: item.isWinner,
+      };
+    });
+  });
+
+  currentRankings = computed(() => {
+    const map: Record<string, number> = {};
+    for (const r of this.rankedPlayers()) {
+      map[r.id] = r.rank;
+    }
+    return map;
+  });
+
+  roundRows = computed(() => {
+    return this.match().rounds.map((r) => ({
+      roundNumber: r.roundNumber,
+      inputs: r.data,
+    }));
+  });
+
+  constructor() {
+    effect(
+      () => {
+        const m = this.match();
+        this.viewingRound.set(m.currentRound);
+        this.initDraftForRound(m.currentRound);
+      },
+      { allowSignalWrites: true }
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.stopCameraScanner();
+    this.stopTimer();
+  }
+
+  setViewingRound(r: number): void {
+    this.viewingRound.set(r);
+    this.initDraftForRound(r);
+  }
+
+  private initDraftForRound(roundNum: number): void {
+    const m = this.match();
+    if (roundNum === m.currentRound) {
+      if (m.currentDraftRoundData && Object.keys(m.currentDraftRoundData).length > 0) {
+        this.draftInputs.set(JSON.parse(JSON.stringify(m.currentDraftRoundData)));
+      } else {
+        const initialDraft: Record<string, HitsterRoundInput> = {};
+        for (const p of m.players) {
+          initialDraft[p.id] = { cardsWon: 0, tokensDelta: 0 };
+        }
+        this.draftInputs.set(initialDraft);
+      }
+    } else {
+      const pastRound = m.rounds.find((r) => r.roundNumber === roundNum);
+      if (pastRound) {
+        this.draftInputs.set(JSON.parse(JSON.stringify(pastRound.data)));
+      }
+    }
+  }
+
+  getDraftForPlayer(playerId: string): HitsterRoundInput {
+    return this.draftInputs()[playerId] || { cardsWon: 0, tokensDelta: 0 };
+  }
+
+  getCumulativeStatsForPlayer(playerId: string): { totalCards: number; totalTokens: number } {
+    const stats = this.cumulativeStats()[playerId];
+    const draft = this.getDraftForPlayer(playerId);
+    const prevCards = stats?.totalCards ?? 0;
+    const prevTokens = stats?.totalTokens ?? this.startingTokens();
+
+    return {
+      totalCards: prevCards + (draft.cardsWon ?? 0),
+      totalTokens: Math.max(0, prevTokens + (draft.tokensDelta ?? 0)),
+    };
+  }
+
+  getPlayerAvatarColor(idx: number): string {
+    const colors = ['#ec4899', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e', '#3b82f6'];
+    return colors[idx % colors.length];
+  }
+
+  // Modificación de Cartas y Fichas en el Draft
+  adjustCardsWon(playerId: string, delta: number): void {
+    this.draftInputs.update((prev) => {
+      const current = prev[playerId] || { cardsWon: 0, tokensDelta: 0 };
+      const updated = {
+        ...prev,
+        [playerId]: {
+          ...current,
+          cardsWon: Math.max(0, (current.cardsWon ?? 0) + delta),
+        },
+      };
+      this.syncDraft(updated);
+      return updated;
+    });
+  }
+
+  adjustTokensDelta(playerId: string, delta: number): void {
+    this.draftInputs.update((prev) => {
+      const current = prev[playerId] || { cardsWon: 0, tokensDelta: 0 };
+      const updated = {
+        ...prev,
+        [playerId]: {
+          ...current,
+          tokensDelta: (current.tokensDelta ?? 0) + delta,
+        },
+      };
+      this.syncDraft(updated);
+      return updated;
+    });
+  }
+
+  // Acciones Rápidas con Fichas
+  quickChallengeAction(playerId: string): void {
+    this.adjustTokensDelta(playerId, -1);
+  }
+
+  quickSkipAction(playerId: string): void {
+    this.adjustTokensDelta(playerId, -1);
+  }
+
+  quickBuyCardAction(playerId: string): void {
+    this.adjustCardsWon(playerId, 1);
+    this.adjustTokensDelta(playerId, -3);
+  }
+
+  private syncDraft(draft: Record<string, HitsterRoundInput>): void {
+    if (this.viewingRound() === this.currentMatchRound()) {
+      this.matchManager.saveDraftRoundData(draft);
+    }
+  }
+
+  canConfirmRound(): boolean {
+    return this.match().players.length >= 2;
+  }
+
+  async confirmCurrentRound(): Promise<void> {
+    const draft = this.draftInputs();
+    await this.matchManager.commitRound(draft);
+
+    const updatedMatch = this.match();
+    if (updatedMatch.status !== 'completed') {
+      this.viewingRound.set(updatedMatch.currentRound);
+      this.initDraftForRound(updatedMatch.currentRound);
+    }
+  }
+
+  async commitPastRound(): Promise<void> {
+    const roundNum = this.viewingRound();
+    await this.matchManager.rollbackToRound(roundNum);
+  }
+
+  // DJ Modal & Scanner
+  openDjScannerModal(): void {
+    if (!this.activeGuesserPlayerId()) {
+      const dj = this.currentDjPlayer();
+      if (dj) {
+        this.activeGuesserPlayerId.set(dj.id);
+      } else if (this.match().players.length > 0) {
+        this.activeGuesserPlayerId.set(this.match().players[0].id);
+      }
+    }
+    this.showDjModal.set(true);
+    if (this.scannerInputMode() === 'camera') {
+      setTimeout(() => this.startCameraScanner(), 300);
+    }
+  }
+
+  closeDjModal(): void {
+    this.stopCameraScanner();
+    this.stopTimer();
+    this.showDjModal.set(false);
+  }
+
+  setActiveGuesserPlayer(id: string): void {
+    this.activeGuesserPlayerId.set(id);
+  }
+
+  setScannerInputMode(mode: 'camera' | 'manual' | 'demo'): void {
+    this.scannerInputMode.set(mode);
+    if (mode === 'camera') {
+      setTimeout(() => this.startCameraScanner(), 200);
+    } else {
+      this.stopCameraScanner();
+    }
+  }
+
+  async startCameraScanner(): Promise<void> {
+    this.cameraError.set('');
+    try {
+      if (!navigator?.mediaDevices?.getUserMedia) {
+        this.cameraError.set('Acceso a la cámara no disponible en este dispositivo/navegador.');
+        return;
+      }
+
+      this.cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+      });
+
+      if (this.videoRef?.nativeElement) {
+        this.videoRef.nativeElement.srcObject = this.cameraStream;
+        await this.videoRef.nativeElement.play();
+      }
+
+      this.initBarcodeDetection();
+    } catch (err: any) {
+      this.cameraError.set(
+        'No se pudo acceder a la cámara. Puedes usar la pestaña Enlace o Canciones Demo.'
+      );
+    }
+  }
+
+  private initBarcodeDetection(): void {
+    if ('BarcodeDetector' in window) {
+      try {
+        const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
+        this.scanIntervalId = setInterval(async () => {
+          if (this.videoRef?.nativeElement && this.videoRef.nativeElement.readyState >= 2) {
+            try {
+              const barcodes = await detector.detect(this.videoRef.nativeElement);
+              if (barcodes.length > 0) {
+                const rawVal = barcodes[0].rawValue;
+                this.handleScannedRawText(rawVal);
+              }
+            } catch {}
+          }
+        }, 300);
+      } catch {}
+    }
+  }
+
+  private stopCameraScanner(): void {
+    if (this.scanIntervalId) {
+      clearInterval(this.scanIntervalId);
+      this.scanIntervalId = undefined;
+    }
+    if (this.cameraStream) {
+      this.cameraStream.getTracks().forEach((track) => track.stop());
+      this.cameraStream = undefined;
+    }
+  }
+
+  handleScannedRawText(raw: string): void {
+    const trackInfo = parseSpotifyTrackUrl(raw);
+    if (trackInfo.url || trackInfo.trackId) {
+      this.setTrackAndLoad(trackInfo, {
+        title: 'Canción Hitster',
+        artist: 'Artista Oficial',
+        year: 'Hitster Card',
+      });
+    }
+  }
+
+  loadManualTrack(): void {
+    if (!this.manualSpotifyText.trim()) return;
+    const trackInfo = parseSpotifyTrackUrl(this.manualSpotifyText.trim());
+    this.setTrackAndLoad(trackInfo, {
+      title: 'Canción Hitster',
+      artist: 'Artista de la Carta',
+      year: 'Año en la Carta',
+    });
+  }
+
+  loadDemoTrack(demo: HitsterDemoTrack): void {
+    const trackInfo: SpotifyTrackInfo = {
+      trackId: demo.spotifyTrackId,
+      url: demo.spotifyUrl,
+      embedUrl: `https://open.spotify.com/embed/track/${demo.spotifyTrackId}?utm_source=generator`,
+      appUri: `spotify:track:${demo.spotifyTrackId}`,
+    };
+    this.setTrackAndLoad(trackInfo, {
+      title: demo.title,
+      artist: demo.artist,
+      year: demo.year,
+    });
+  }
+
+  private setTrackAndLoad(info: SpotifyTrackInfo, details: RevealedTrackDetails): void {
+    this.stopCameraScanner();
+    this.activeTrack.set(info);
+    if (info.embedUrl) {
+      this.sanitizedEmbedUrl.set(
+        this.sanitizer.bypassSecurityTrustResourceUrl(info.embedUrl)
+      );
+    } else {
+      this.sanitizedEmbedUrl.set(null);
+    }
+    this.revealedTrack.set(details);
+    this.isRevealed.set(false);
+
+    // Intentar consultar oEmbed de Spotify en segundo plano para obtener el título real si es posible
+    if (info.url && !details.year) {
+      this.fetchSpotifyOEmbed(info.url);
+    }
+
+    // Iniciar temporizador de 30 segundos
+    this.resetTimer();
+    this.startTimer();
+  }
+
+  private async fetchSpotifyOEmbed(url: string): Promise<void> {
+    try {
+      const res = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(url)}`);
+      if (res.ok) {
+        const data = await res.json();
+        this.revealedTrack.update((prev) => ({
+          title: data.title || prev?.title || 'Canción Hitster',
+          artist: data.author_name || prev?.artist || 'Artista',
+          year: prev?.year || 'Año de Éxito',
+          albumArt: data.thumbnail_url,
+        }));
+      }
+    } catch {}
+  }
+
+  // Controles de Reproducción y Temporizador
+  startTimer(): void {
+    this.stopTimer();
+    this.isTimerRunning.set(true);
+    this.isPlaying.set(true);
+    this.timerIntervalId = setInterval(() => {
+      this.timerSecondsLeft.update((s) => {
+        if (s <= 1) {
+          this.stopTimer();
+          this.playTimerChime();
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  }
+
+  pauseTimer(): void {
+    this.stopTimer();
+    this.isTimerRunning.set(false);
+    this.isPlaying.set(false);
+  }
+
+  resetTimer(): void {
+    this.stopTimer();
+    this.timerSecondsLeft.set(this.timerDefaultDuration());
+    this.isTimerRunning.set(false);
+    this.isPlaying.set(false);
+  }
+
+  private stopTimer(): void {
+    if (this.timerIntervalId) {
+      clearInterval(this.timerIntervalId);
+      this.timerIntervalId = undefined;
+    }
+  }
+
+  private playTimerChime(): void {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime); // Nota La5
+        osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+      }
+      if (navigator.vibrate) {
+        navigator.vibrate(300);
+      }
+    } catch {}
+  }
+
+  revealTrackDetails(): void {
+    this.isRevealed.set(true);
+  }
+
+  // Acciones Rápidas del DJ tras Revelar
+  awardSuccessToActivePlayer(): void {
+    const id = this.activeGuesserPlayerId();
+    if (id) {
+      this.adjustCardsWon(id, 1);
+    }
+  }
+
+  markActivePlayerFailed(): void {
+    // No añade cartas, la carta va al descarte
+  }
+
+  awardStolenCardToRival(rivalId: string): void {
+    this.adjustCardsWon(rivalId, 1);
+  }
+
+  penalizeRivalToken(rivalId: string): void {
+    this.adjustTokensDelta(rivalId, -1);
+  }
+
+  awardBonusTokenToActivePlayer(): void {
+    const id = this.activeGuesserPlayerId();
+    if (id) {
+      this.adjustTokensDelta(id, 1);
+    }
+  }
+
+  resetDjTrack(): void {
+    this.activeTrack.set(null);
+    this.isRevealed.set(false);
+    this.revealedTrack.set(null);
+    this.resetTimer();
+    // Rotar al siguiente jugador activo
+    const players = this.match().players;
+    const currentIdx = players.findIndex((p) => p.id === this.activeGuesserPlayerId());
+    const nextIdx = (currentIdx + 1) % players.length;
+    this.activeGuesserPlayerId.set(players[nextIdx].id);
+
+    if (this.scannerInputMode() === 'camera') {
+      setTimeout(() => this.startCameraScanner(), 200);
+    }
+  }
+
+  // Modales
+  toggleRulesModal(): void {
+    this.showRulesModal.update((v) => !v);
+  }
+
+  askToAbandonMatch(): void {
+    this.showAbandonConfirmModal.set(true);
+  }
+
+  cancelAbandon(): void {
+    this.showAbandonConfirmModal.set(false);
+  }
+
+  async confirmAbandon(): Promise<void> {
+    this.showAbandonConfirmModal.set(false);
+    await this.matchManager.abandonMatch();
+    await this.router.navigate(['/tabs/catalog']);
+  }
+}
