@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import jsQR from 'jsqr';
 import { MatchRecord } from '../../../core/models/match.interface';
 import { MatchManagerService } from '../../../core/services/match-manager.service';
 import { GameRegistryService } from '../../../core/services/game-registry.service';
@@ -24,6 +25,10 @@ import {
   SpotifyTrackInfo,
   HITSTER_DEMO_TRACKS,
   HitsterDemoTrack,
+  searchItunesTrack,
+  ItunesTrackInfo,
+  MusicProvider,
+  SpotifyTier,
 } from '../hitster.engine';
 import { HITSTER_RULES } from '../hitster.rules';
 
@@ -32,6 +37,9 @@ interface RevealedTrackDetails {
   artist: string;
   year?: number | string;
   albumArt?: string;
+  appleMusicUrl?: string;
+  spotifyUrl?: string;
+  itunesPreviewUrl?: string;
 }
 
 @Component({
@@ -40,6 +48,15 @@ interface RevealedTrackDetails {
   imports: [CommonModule, FormsModule],
   template: `
     <div class="scorer-container">
+      <!-- Elemento de audio invisible para reproducción directa de iTunes / Apple Music -->
+      <audio
+        #itunesAudio
+        playsinline
+        preload="auto"
+        (ended)="onItunesAudioEnded()"
+        (error)="onItunesAudioError()"
+      ></audio>
+
       <!-- 1. Cabecera Contextual de Partida -->
       <div
         class="match-header-card"
@@ -70,6 +87,22 @@ interface RevealedTrackDetails {
             </p>
           </div>
           <div class="header-actions">
+            <!-- Botón Pill de Proveedor Musical (Spotify / Apple Music) -->
+            <button
+              type="button"
+              class="btn-music-provider-pill"
+              (click)="openMusicSettingsModal()"
+              title="Configurar servicio de música y cuenta"
+            >
+              <span class="provider-pill-icon">
+                {{ musicProvider() === 'itunes' ? '🍎' : '🟢' }}
+              </span>
+              <span class="provider-pill-text">
+                {{ musicProvider() === 'itunes' ? 'Apple Music / iTunes' : (isSpotifyLinked() ? 'Spotify Vinculado' : 'Spotify') }}
+              </span>
+              <span class="material-symbols-outlined provider-pill-gear">settings</span>
+            </button>
+
             <button
               type="button"
               class="icon-action-btn"
@@ -93,7 +126,9 @@ interface RevealedTrackDetails {
               <span class="material-symbols-outlined dj-btn-icon">album</span>
               <div class="dj-btn-text">
                 <span class="dj-btn-title">🎧 Abrir Escáner DJ / Reproductor</span>
-                <span class="dj-btn-desc">Escanea la carta QR con la cámara o prueba canciones demo</span>
+                <span class="dj-btn-desc">
+                  Escanea la carta QR con la cámara (iPhone & Android) o prueba canciones demo
+                </span>
               </div>
             </div>
             <span class="dj-badge-pulse">¡EN VIVO!</span>
@@ -479,17 +514,30 @@ interface RevealedTrackDetails {
                 <span class="material-symbols-outlined dj-header-icon">headphones</span>
                 <div class="dj-title-text">
                   <h3>Modo DJ Hitster</h3>
-                  <p>Escucha la música sin revelar el título, artista ni año</p>
+                  <p>
+                    Reproduciendo con:
+                    <strong>{{ musicProvider() === 'itunes' ? '🍎 Apple Music / iTunes' : '🟢 Spotify' }}</strong>
+                  </p>
                 </div>
               </div>
-              <button
-                type="button"
-                class="btn-close-modal"
-                (click)="closeDjModal()"
-                aria-label="Cerrar modal"
-              >
-                <span class="material-symbols-outlined">close</span>
-              </button>
+              <div class="dj-header-actions">
+                <button
+                  type="button"
+                  class="btn-switch-provider-icon"
+                  (click)="openMusicSettingsModal()"
+                  title="Cambiar proveedor o vincular cuenta"
+                >
+                  <span class="material-symbols-outlined">tune</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn-close-modal"
+                  (click)="closeDjModal()"
+                  aria-label="Cerrar modal"
+                >
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </div>
             </div>
 
             <div class="dj-modal-body">
@@ -544,11 +592,18 @@ interface RevealedTrackDetails {
                     </button>
                   </div>
 
-                  <!-- 1. Vista de Cámara QR -->
+                  <!-- 1. Vista de Cámara QR (Optimizado para iPhone Safari con jsQR) -->
                   @if (scannerInputMode() === 'camera') {
                     <div class="camera-scanner-view">
                       <div class="camera-viewport-box">
-                        <video #videoElement class="camera-video" playsinline autoplay muted></video>
+                        <video
+                          #videoElement
+                          class="camera-video"
+                          playsinline
+                          webkit-playsinline
+                          autoplay
+                          muted
+                        ></video>
                         <div class="scanner-frame-overlay">
                           <div class="scanner-corner tl"></div>
                           <div class="scanner-corner tr"></div>
@@ -566,14 +621,28 @@ interface RevealedTrackDetails {
                           <span>{{ cameraError() }}</span>
                         </div>
                       }
-                      <button
-                        type="button"
-                        class="btn-secondary-action"
-                        (click)="startCameraScanner()"
-                      >
-                        <span class="material-symbols-outlined">refresh</span>
-                        <span>Reiniciar Cámara</span>
-                      </button>
+                      <div class="camera-actions-row">
+                        <button
+                          type="button"
+                          class="btn-secondary-action"
+                          (click)="startCameraScanner()"
+                        >
+                          <span class="material-symbols-outlined">refresh</span>
+                          <span>Reiniciar Cámara</span>
+                        </button>
+
+                        <!-- Subir imagen como alternativa -->
+                        <label class="btn-secondary-action btn-upload-label">
+                          <span class="material-symbols-outlined">photo_camera</span>
+                          <span>Subir Foto QR</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            (change)="onQrImageFileSelected($event)"
+                            hidden
+                          />
+                        </label>
+                      </div>
                     </div>
                   }
 
@@ -635,6 +704,16 @@ interface RevealedTrackDetails {
               } @else {
                 <!-- SECCIÓN DE REPRODUCCIÓN SIN SPOILERS -->
                 <div class="dj-player-screen">
+                  <!-- Indicador de Proveedor Activo en Reproducción -->
+                  <div class="active-provider-indicator">
+                    <span class="provider-badge-icon">
+                      {{ musicProvider() === 'itunes' ? '🍎' : '🟢' }}
+                    </span>
+                    <span class="provider-badge-text">
+                      {{ musicProvider() === 'itunes' ? 'Audio Oficial iTunes / Apple Music (30s sin anuncios)' : 'Reproduciendo vía Spotify' }}
+                    </span>
+                  </div>
+
                   <!-- Animación del Vinilo Neón y Temporizador -->
                   <div class="player-visual-center">
                     <div class="vinyl-record-disc" [class.spinning]="isPlaying()">
@@ -656,7 +735,7 @@ interface RevealedTrackDetails {
                             type="button"
                             class="btn-timer-action"
                             (click)="startTimer()"
-                            title="Iniciar temporizador"
+                            title="Iniciar temporizador y audio"
                           >
                             <span class="material-symbols-outlined">play_arrow</span>
                           </button>
@@ -665,7 +744,7 @@ interface RevealedTrackDetails {
                             type="button"
                             class="btn-timer-action btn-pause"
                             (click)="pauseTimer()"
-                            title="Pausar temporizador"
+                            title="Pausar temporizador y audio"
                           >
                             <span class="material-symbols-outlined">pause</span>
                           </button>
@@ -682,35 +761,63 @@ interface RevealedTrackDetails {
                     </div>
                   </div>
 
-                  <!-- Reproductor Spotify Integrado (Iframe Seguro) -->
-                  @if (sanitizedEmbedUrl()) {
-                    <div class="spotify-embed-container">
-                      <iframe
-                        [src]="sanitizedEmbedUrl()"
-                        width="100%"
-                        height="152"
-                        frameBorder="0"
-                        allowfullscreen=""
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
-                        class="spotify-iframe"
-                      ></iframe>
+                  <!-- Reproductor según el Proveedor Musical Seleccionado -->
+                  @if (musicProvider() === 'itunes') {
+                    <!-- Modo iTunes / Apple Music: Audio Nativo HTML5 sin Iframe -->
+                    <div class="itunes-player-box">
+                      <div class="itunes-status-row">
+                        <span class="itunes-sound-wave">🎵 Vista Previa de 30s de iTunes</span>
+                        @if (isAudioLoading()) {
+                          <span class="audio-loading-tag">Cargando audio...</span>
+                        }
+                      </div>
+
+                      <div class="itunes-direct-actions">
+                        @if (revealedTrack()?.appleMusicUrl; as appleUrl) {
+                          <a
+                            [href]="appleUrl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn-open-apple-music"
+                          >
+                            <span class="apple-icon"></span>
+                            <span>Abrir en Apple Music</span>
+                            <span class="material-symbols-outlined open-ext-icon">open_in_new</span>
+                          </a>
+                        }
+                      </div>
+                    </div>
+                  } @else {
+                    <!-- Modo Spotify: Embed o App Directa según Tier -->
+                    @if (spotifyTier() === 'free' && sanitizedEmbedUrl()) {
+                      <div class="spotify-embed-container">
+                        <iframe
+                          [src]="sanitizedEmbedUrl()"
+                          width="100%"
+                          height="152"
+                          frameBorder="0"
+                          allowfullscreen=""
+                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          loading="lazy"
+                          class="spotify-iframe"
+                        ></iframe>
+                      </div>
+                    }
+
+                    <!-- Enlace Directo para Abrir en la App de Spotify -->
+                    <div class="spotify-app-link-box">
+                      <a
+                        [href]="activeTrack()?.appUri || activeTrack()?.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn-open-spotify"
+                      >
+                        <span class="spotify-logo-dot"></span>
+                        <span>Abrir en Spotify App</span>
+                        <span class="material-symbols-outlined open-ext-icon">open_in_new</span>
+                      </a>
                     </div>
                   }
-
-                  <!-- Enlace Directo para Abrir en la App de Spotify -->
-                  <div class="spotify-app-link-box">
-                    <a
-                      [href]="activeTrack()?.url"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="btn-open-spotify"
-                    >
-                      <span class="spotify-logo-dot"></span>
-                      <span>Escuchar en Spotify App</span>
-                      <span class="material-symbols-outlined open-ext-icon">open_in_new</span>
-                    </a>
-                  </div>
 
                   <!-- ESTADO 1: Oculto (El jugador está pensando dónde colocarla) -->
                   @if (!isRevealed()) {
@@ -735,6 +842,12 @@ interface RevealedTrackDetails {
                   } @else {
                     <!-- ESTADO 2: Revelado (Título, Artista, Año y Asignación de Resultados) -->
                     <div class="revealed-details-card">
+                      @if (revealedTrack()?.albumArt; as art) {
+                        <div class="revealed-cover-box">
+                          <img [src]="art" alt="Portada del álbum" class="revealed-album-art" />
+                        </div>
+                      }
+
                       <div class="revealed-year-badge">
                         <span class="year-label">AÑO DE LANZAMIENTO</span>
                         <span class="year-number">{{ revealedTrack()?.year || 'Año de Éxito' }}</span>
@@ -743,6 +856,20 @@ interface RevealedTrackDetails {
                       <div class="revealed-song-meta">
                         <h3 class="revealed-title">{{ revealedTrack()?.title || 'Título de la canción' }}</h3>
                         <h4 class="revealed-artist">{{ revealedTrack()?.artist || 'Artista' }}</h4>
+                      </div>
+
+                      <!-- Enlaces oficiales a plataformas -->
+                      <div class="revealed-platform-links">
+                        @if (revealedTrack()?.appleMusicUrl; as amUrl) {
+                          <a [href]="amUrl" target="_blank" rel="noopener noreferrer" class="link-platform-tag apple-tag">
+                            <span> Apple Music</span>
+                          </a>
+                        }
+                        @if (activeTrack()?.url; as spUrl) {
+                          <a [href]="spUrl" target="_blank" rel="noopener noreferrer" class="link-platform-tag spotify-tag">
+                            <span>🟢 Spotify</span>
+                          </a>
+                        }
                       </div>
 
                       <!-- Panel de Resolución Rápida del Turno -->
@@ -841,7 +968,142 @@ interface RevealedTrackDetails {
         </div>
       }
 
-      <!-- MODAL 2: Reglas Rápidas de Hitster -->
+      <!-- MODAL 2: Configuración del Servicio Musical y Vinculación de Cuenta -->
+      @if (showMusicSettingsModal()) {
+        <div class="modal-overlay" (click)="closeMusicSettingsModal()">
+          <div class="music-settings-dialog" (click)="$event.stopPropagation()">
+            <div class="music-settings-header">
+              <div class="music-settings-title-group">
+                <span class="material-symbols-outlined music-settings-icon">queue_music</span>
+                <div>
+                  <h3>Servicio Musical de Hitster</h3>
+                  <p>Elige tu proveedor preferido para reproducir las canciones</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="btn-close-modal"
+                (click)="closeMusicSettingsModal()"
+                aria-label="Cerrar modal"
+              >
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div class="music-settings-body">
+              <!-- Opción 1: Apple Music / iTunes (Recomendado) -->
+              <div
+                class="provider-choice-card"
+                [class.selected]="musicProvider() === 'itunes'"
+                (click)="setMusicProvider('itunes')"
+              >
+                <div class="choice-card-header">
+                  <div class="choice-brand">
+                    <span class="brand-badge itunes-badge">🍎 Apple Music / iTunes</span>
+                    <span class="recommended-tag">Recomendado en iPhone</span>
+                  </div>
+                  <span class="material-symbols-outlined radio-check">
+                    {{ musicProvider() === 'itunes' ? 'radio_button_checked' : 'radio_button_unchecked' }}
+                  </span>
+                </div>
+                <p class="choice-desc">
+                  Reproduce audio oficial de 30 segundos directamente en la app mediante la API de iTunes, con sonido nítido AAC, sin publicidad y sin requerir suscripción ni cuenta de pago.
+                </p>
+              </div>
+
+              <!-- Opción 2: Spotify -->
+              <div
+                class="provider-choice-card"
+                [class.selected]="musicProvider() === 'spotify'"
+                (click)="setMusicProvider('spotify')"
+              >
+                <div class="choice-card-header">
+                  <div class="choice-brand">
+                    <span class="brand-badge spotify-badge">🟢 Spotify</span>
+                  </div>
+                  <span class="material-symbols-outlined radio-check">
+                    {{ musicProvider() === 'spotify' ? 'radio_button_checked' : 'radio_button_unchecked' }}
+                  </span>
+                </div>
+                <p class="choice-desc">
+                  Reproduce abriendo la aplicación oficial de Spotify o a través del reproductor web integrado.
+                </p>
+
+                @if (musicProvider() === 'spotify') {
+                  <div class="spotify-account-box" (click)="$event.stopPropagation()">
+                    <span class="spotify-box-title">Modo de Cuenta Spotify:</span>
+                    <div class="spotify-tier-selector">
+                      <button
+                        type="button"
+                        class="tier-pill"
+                        [class.active]="spotifyTier() === 'premium'"
+                        (click)="setSpotifyTier('premium')"
+                      >
+                        ⭐ Spotify Premium
+                      </button>
+                      <button
+                        type="button"
+                        class="tier-pill"
+                        [class.active]="spotifyTier() === 'free'"
+                        (click)="setSpotifyTier('free')"
+                      >
+                        🎧 Spotify Free
+                      </button>
+                    </div>
+
+                    <div class="spotify-user-input-group">
+                      <label class="input-tiny-label">Vincular Nombre de Usuario o Cuenta:</label>
+                      <div class="spotify-user-input-row">
+                        <input
+                          type="text"
+                          class="spotify-user-input"
+                          placeholder="Tu usuario de Spotify"
+                          [(ngModel)]="tempSpotifyUser"
+                        />
+                        <button
+                          type="button"
+                          class="btn-link-spotify"
+                          (click)="saveSpotifyAccount()"
+                        >
+                          {{ isSpotifyLinked() ? 'Guardado ✓' : 'Vincular' }}
+                        </button>
+                      </div>
+                    </div>
+
+                    @if (isSpotifyLinked()) {
+                      <div class="linked-success-badge">
+                        <span class="material-symbols-outlined">verified</span>
+                        <span>Cuenta Vinculada: <strong>{{ spotifyUser() || 'Spotify Conectado' }}</strong></span>
+                      </div>
+                    }
+
+                    <button
+                      type="button"
+                      class="btn-test-spotify"
+                      (click)="testSpotifyLink()"
+                    >
+                      <span class="material-symbols-outlined">play_circle</span>
+                      <span>Probar Conexión con Spotify App</span>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="music-settings-footer">
+              <button
+                type="button"
+                class="btn-primary-action"
+                (click)="closeMusicSettingsModal()"
+              >
+                Guardar y Listo
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- MODAL 3: Reglas Rápidas de Hitster -->
       @if (showRulesModal()) {
         <div class="modal-overlay" (click)="toggleRulesModal()">
           <div class="rules-modal-dialog" (click)="$event.stopPropagation()">
@@ -879,7 +1141,7 @@ interface RevealedTrackDetails {
         </div>
       }
 
-      <!-- MODAL 3: Confirmación de Abandono (Regla Estricta de Diseño) -->
+      <!-- MODAL 4: Confirmación de Abandono (Regla Estricta de Diseño) -->
       @if (showAbandonConfirmModal()) {
         <div class="modal-overlay" (click)="cancelAbandon()">
           <div class="modal-dialog-card" (click)="$event.stopPropagation()">
@@ -983,6 +1245,7 @@ interface RevealedTrackDetails {
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: var(--space-sm);
+      gap: 8px;
     }
 
     .game-title-row {
@@ -1040,6 +1303,41 @@ interface RevealedTrackDetails {
     .dealer-badge {
       font-weight: 700;
       color: #ec4899;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-music-provider-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-music-provider-pill:hover {
+      background: var(--color-surface-hover);
+      border-color: #ec4899;
+    }
+
+    .provider-pill-icon {
+      font-size: 14px;
+    }
+
+    .provider-pill-gear {
+      font-size: 14px;
+      opacity: 0.6;
     }
 
     .icon-action-btn {
@@ -1806,6 +2104,10 @@ interface RevealedTrackDetails {
       border-color: #ef4444;
     }
 
+    .btn-upload-label {
+      cursor: pointer;
+    }
+
     .editing-past-notice {
       display: flex;
       align-items: center;
@@ -2060,6 +2362,25 @@ interface RevealedTrackDetails {
       color: var(--color-text-muted);
     }
 
+    .dj-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-switch-provider-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
     .dj-modal-body {
       padding: var(--space-md);
       overflow-y: auto;
@@ -2209,6 +2530,13 @@ interface RevealedTrackDetails {
       margin: 0;
     }
 
+    .camera-actions-row {
+      display: flex;
+      gap: var(--space-xs);
+      width: 100%;
+      max-width: 320px;
+    }
+
     .camera-error-banner {
       background: rgba(239, 68, 68, 0.15);
       border: 1px solid #ef4444;
@@ -2339,6 +2667,20 @@ interface RevealedTrackDetails {
       gap: var(--space-md);
     }
 
+    .active-provider-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(236, 72, 153, 0.1);
+      border: 1px solid rgba(236, 72, 153, 0.25);
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+    }
+
     .player-visual-center {
       display: flex;
       align-items: center;
@@ -2460,6 +2802,51 @@ interface RevealedTrackDetails {
       color: #f59e0b;
     }
 
+    /* Player Box iTunes */
+    .itunes-player-box {
+      background: var(--color-surface);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+      padding: var(--space-sm) var(--space-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .itunes-status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .audio-loading-tag {
+      font-size: 10px;
+      color: #ec4899;
+      animation: pulseGlow 1.5s infinite;
+    }
+
+    .btn-open-apple-music {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      background: #fa2d48;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(250, 45, 72, 0.3);
+    }
+
+    .apple-icon {
+      font-size: 14px;
+    }
+
     /* Spotify Embed & Link */
     .spotify-embed-container {
       border-radius: 12px;
@@ -2575,6 +2962,19 @@ interface RevealedTrackDetails {
       text-align: center;
     }
 
+    .revealed-cover-box {
+      display: flex;
+      justify-content: center;
+    }
+
+    .revealed-album-art {
+      width: 120px;
+      height: 120px;
+      border-radius: var(--radius-lg);
+      object-fit: cover;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
     .revealed-year-badge {
       background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.2));
       border: 1px solid #ec4899;
@@ -2621,6 +3021,32 @@ interface RevealedTrackDetails {
       font-size: 14px;
       font-weight: 600;
       color: #8b5cf6;
+    }
+
+    .revealed-platform-links {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .link-platform-tag {
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .apple-tag {
+      background: rgba(250, 45, 72, 0.15);
+      border: 1px solid rgba(250, 45, 72, 0.4);
+      color: #fa2d48;
+    }
+
+    .spotify-tag {
+      background: rgba(30, 215, 96, 0.15);
+      border: 1px solid rgba(30, 215, 96, 0.4);
+      color: #10b981;
     }
 
     /* Smart Resolution Panel */
@@ -2818,6 +3244,242 @@ interface RevealedTrackDetails {
       font-weight: 700;
       cursor: pointer;
     }
+
+    /* MODAL DE CONFIGURACIÓN DE MÚSICA */
+    .music-settings-dialog {
+      background: var(--color-surface-container);
+      border: 1px solid rgba(236, 72, 153, 0.4);
+      border-radius: var(--radius-xl);
+      max-width: 520px;
+      width: 100%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+    }
+
+    :host-context([data-theme="light"]) .music-settings-dialog {
+      background: #ffffff;
+    }
+
+    .music-settings-header {
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--color-border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .music-settings-title-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .music-settings-icon {
+      font-size: 28px;
+      color: #ec4899;
+    }
+
+    .music-settings-title-group h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .music-settings-title-group p {
+      margin: 2px 0 0;
+      font-size: 11px;
+      color: var(--color-text-muted);
+    }
+
+    .music-settings-body {
+      padding: var(--space-md);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .provider-choice-card {
+      background: var(--color-surface);
+      border: 2px solid var(--color-border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .provider-choice-card:hover {
+      border-color: rgba(236, 72, 153, 0.6);
+    }
+
+    .provider-choice-card.selected {
+      border-color: #ec4899;
+      background: rgba(236, 72, 153, 0.06);
+    }
+
+    .choice-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .choice-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-badge {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .itunes-badge {
+      color: #fa2d48;
+    }
+
+    .spotify-badge {
+      color: #10b981;
+    }
+
+    .recommended-tag {
+      font-size: 10px;
+      padding: 2px 8px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #10b981;
+      border-radius: var(--radius-full);
+      font-weight: 800;
+    }
+
+    .radio-check {
+      font-size: 22px;
+      color: #ec4899;
+    }
+
+    .choice-desc {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--color-text-secondary);
+    }
+
+    .spotify-account-box {
+      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px dashed var(--color-border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .spotify-box-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+    }
+
+    .spotify-tier-selector {
+      display: flex;
+      gap: 6px;
+    }
+
+    .tier-pill {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-secondary);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tier-pill.active {
+      background: rgba(30, 215, 96, 0.2);
+      border-color: #10b981;
+      color: #10b981;
+      font-weight: 800;
+    }
+
+    .spotify-user-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .input-tiny-label {
+      font-size: 10px;
+      color: var(--color-text-muted);
+    }
+
+    .spotify-user-input-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .spotify-user-input {
+      flex: 1;
+      height: 38px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    .btn-link-spotify {
+      padding: 0 14px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      background: #1ed760;
+      border: none;
+      color: #000000;
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .linked-success-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      background: rgba(30, 215, 96, 0.12);
+      border: 1px solid rgba(30, 215, 96, 0.3);
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      color: #10b981;
+    }
+
+    .btn-test-spotify {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-secondary);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .music-settings-footer {
+      padding: var(--space-sm) var(--space-md);
+      border-top: 1px solid var(--color-border-subtle);
+      display: flex;
+      justify-content: flex-end;
+    }
   `],
 })
 export class HitsterScorerComponent implements OnDestroy {
@@ -2834,11 +3496,13 @@ export class HitsterScorerComponent implements OnDestroy {
   readonly demoTracks = HITSTER_DEMO_TRACKS;
 
   @ViewChild('videoElement') videoRef?: ElementRef<HTMLVideoElement>;
+  @ViewChild('itunesAudio') itunesAudioRef?: ElementRef<HTMLAudioElement>;
 
   // Estado del flujo de juego
   showRulesModal = signal(false);
   showAbandonConfirmModal = signal(false);
   showDjModal = signal(false);
+  showMusicSettingsModal = signal(false);
   viewingRound = signal(1);
   draftInputs = signal<Record<string, HitsterRoundInput>>({});
 
@@ -2847,6 +3511,13 @@ export class HitsterScorerComponent implements OnDestroy {
   startingTokens = computed(() => this.match().config?.startingTokens ?? 3);
   gameMode = computed(() => this.match().config?.gameMode ?? 'original');
   timerDefaultDuration = computed(() => this.match().config?.timerSeconds ?? 30);
+
+  // Configuración de Proveedor Musical (Persistente en LocalStorage)
+  musicProvider = signal<MusicProvider>('itunes');
+  spotifyTier = signal<SpotifyTier>('free');
+  spotifyUser = signal<string>('');
+  tempSpotifyUser = '';
+  isSpotifyLinked = signal<boolean>(false);
 
   modeLabel = computed(() => {
     switch (this.gameMode()) {
@@ -2883,17 +3554,20 @@ export class HitsterScorerComponent implements OnDestroy {
 
   // Estado del DJ Scanner
   activeGuesserPlayerId = signal<string>('');
-  scannerInputMode = signal<'camera' | 'manual' | 'demo'>('demo');
+  scannerInputMode = signal<'camera' | 'manual' | 'demo'>('camera');
   manualSpotifyText = '';
   cameraError = signal<string>('');
   private cameraStream?: MediaStream;
-  private scanIntervalId?: any;
+  private isScanning = false;
+  private scanAnimationId?: number;
+  private scanCanvas: HTMLCanvasElement = document.createElement('canvas');
 
   // Estado de Reproducción de Canción
   activeTrack = signal<SpotifyTrackInfo | null>(null);
   sanitizedEmbedUrl = signal<SafeResourceUrl | null>(null);
   isRevealed = signal(false);
   revealedTrack = signal<RevealedTrackDetails | null>(null);
+  isAudioLoading = signal(false);
 
   // Temporizador de 30 segundos
   timerSecondsLeft = signal(30);
@@ -2961,6 +3635,8 @@ export class HitsterScorerComponent implements OnDestroy {
   });
 
   constructor() {
+    this.loadSavedMusicSettings();
+
     effect(
       () => {
         const m = this.match();
@@ -2974,6 +3650,31 @@ export class HitsterScorerComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.stopCameraScanner();
     this.stopTimer();
+    this.stopItunesAudio();
+  }
+
+  private loadSavedMusicSettings(): void {
+    try {
+      const savedProvider = localStorage.getItem('hitster_music_provider');
+      if (savedProvider === 'spotify' || savedProvider === 'itunes') {
+        this.musicProvider.set(savedProvider);
+      } else {
+        // En iOS / web móvil, Apple Music / iTunes es la opción predeterminada más fluida
+        this.musicProvider.set('itunes');
+      }
+
+      const savedTier = localStorage.getItem('hitster_spotify_tier');
+      if (savedTier === 'premium' || savedTier === 'free') {
+        this.spotifyTier.set(savedTier);
+      }
+
+      const savedUser = localStorage.getItem('hitster_spotify_user');
+      if (savedUser) {
+        this.spotifyUser.set(savedUser);
+        this.tempSpotifyUser = savedUser;
+        this.isSpotifyLinked.set(true);
+      }
+    } catch {}
   }
 
   setViewingRound(r: number): void {
@@ -3112,6 +3813,7 @@ export class HitsterScorerComponent implements OnDestroy {
   closeDjModal(): void {
     this.stopCameraScanner();
     this.stopTimer();
+    this.stopItunesAudio();
     this.showDjModal.set(false);
   }
 
@@ -3128,8 +3830,14 @@ export class HitsterScorerComponent implements OnDestroy {
     }
   }
 
+  /**
+   * Inicia el escáner de cámara asegurando compatibilidad completa con Safari en iPhone:
+   * playsinline, webkit-playsinline, muted y decodificación universal mediante jsQR.
+   */
   async startCameraScanner(): Promise<void> {
     this.cameraError.set('');
+    this.stopCameraScanner();
+
     try {
       if (!navigator?.mediaDevices?.getUserMedia) {
         this.cameraError.set('Acceso a la cámara no disponible en este dispositivo/navegador.');
@@ -3137,45 +3845,92 @@ export class HitsterScorerComponent implements OnDestroy {
       }
 
       this.cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
       });
 
       if (this.videoRef?.nativeElement) {
-        this.videoRef.nativeElement.srcObject = this.cameraStream;
-        await this.videoRef.nativeElement.play();
+        const video = this.videoRef.nativeElement;
+        video.srcObject = this.cameraStream;
+        video.setAttribute('playsinline', 'true');
+        video.setAttribute('webkit-playsinline', 'true');
+        video.muted = true;
+        video.autoplay = true;
+        await video.play();
       }
 
-      this.initBarcodeDetection();
+      this.startJsQrScanning();
     } catch (err: any) {
       this.cameraError.set(
-        'No se pudo acceder a la cámara. Puedes usar la pestaña Enlace o Canciones Demo.'
+        'No se pudo acceder a la cámara. Revisa los permisos o usa la pestaña Enlace, Canciones Demo o Subir Foto.'
       );
     }
   }
 
-  private initBarcodeDetection(): void {
-    if ('BarcodeDetector' in window) {
-      try {
-        const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
-        this.scanIntervalId = setInterval(async () => {
-          if (this.videoRef?.nativeElement && this.videoRef.nativeElement.readyState >= 2) {
-            try {
-              const barcodes = await detector.detect(this.videoRef.nativeElement);
-              if (barcodes.length > 0) {
-                const rawVal = barcodes[0].rawValue;
-                this.handleScannedRawText(rawVal);
-              }
-            } catch {}
+  /**
+   * Bucle de escaneo continuo con jsQR leyendo cada fotograma sobre un canvas oculto.
+   * Funciona instantáneamente en Safari de iPhone, Android y Desktop sin banderas experimentales.
+   */
+  private startJsQrScanning(): void {
+    this.isScanning = true;
+    let lastScanTime = 0;
+
+    const scanLoop = (time: number) => {
+      if (!this.isScanning) return;
+
+      // Limitar a ~6 análisis por segundo para máxima fluidez y bajo consumo de batería
+      if (time - lastScanTime >= 160) {
+        lastScanTime = time;
+        const video = this.videoRef?.nativeElement;
+
+        if (
+          video &&
+          video.readyState >= 2 &&
+          video.videoWidth > 0 &&
+          video.videoHeight > 0
+        ) {
+          this.scanCanvas.width = video.videoWidth;
+          this.scanCanvas.height = video.videoHeight;
+          const ctx = this.scanCanvas.getContext('2d', { willReadFrequently: true });
+
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, this.scanCanvas.width, this.scanCanvas.height);
+            const imageData = ctx.getImageData(
+              0,
+              0,
+              this.scanCanvas.width,
+              this.scanCanvas.height
+            );
+
+            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+              inversionAttempts: 'dontInvert',
+            });
+
+            if (code && code.data && code.data.trim().length > 0) {
+              this.isScanning = false;
+              this.stopCameraScanner();
+              this.triggerScanFeedback();
+              this.handleScannedRawText(code.data.trim());
+              return;
+            }
           }
-        }, 300);
-      } catch {}
-    }
+        }
+      }
+
+      this.scanAnimationId = requestAnimationFrame(scanLoop);
+    };
+
+    this.scanAnimationId = requestAnimationFrame(scanLoop);
   }
 
   private stopCameraScanner(): void {
-    if (this.scanIntervalId) {
-      clearInterval(this.scanIntervalId);
-      this.scanIntervalId = undefined;
+    this.isScanning = false;
+    if (this.scanAnimationId) {
+      cancelAnimationFrame(this.scanAnimationId);
+      this.scanAnimationId = undefined;
     }
     if (this.cameraStream) {
       this.cameraStream.getTracks().forEach((track) => track.stop());
@@ -3183,12 +3938,52 @@ export class HitsterScorerComponent implements OnDestroy {
     }
   }
 
+  private triggerScanFeedback(): void {
+    try {
+      if (navigator.vibrate) {
+        navigator.vibrate([60, 40, 60]);
+      }
+    } catch {}
+  }
+
+  /**
+   * Alternativa fotográfica: procesa una foto o captura subida por el usuario
+   */
+  onQrImageFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        this.scanCanvas.width = img.width;
+        this.scanCanvas.height = img.height;
+        const ctx = this.scanCanvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, img.width, img.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+          if (code && code.data) {
+            this.triggerScanFeedback();
+            this.handleScannedRawText(code.data);
+          } else {
+            alert('No se detectó ningún código QR en la imagen. Intenta con una foto más nítida.');
+          }
+        }
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
   handleScannedRawText(raw: string): void {
     const trackInfo = parseSpotifyTrackUrl(raw);
     if (trackInfo.url || trackInfo.trackId) {
-      this.setTrackAndLoad(trackInfo, {
-        title: 'Canción Hitster',
-        artist: 'Artista Oficial',
+      this.loadTrackForCurrentProvider(trackInfo, {
+        title: 'Cargando título...',
+        artist: 'Cargando artista...',
         year: 'Hitster Card',
       });
     }
@@ -3197,9 +3992,9 @@ export class HitsterScorerComponent implements OnDestroy {
   loadManualTrack(): void {
     if (!this.manualSpotifyText.trim()) return;
     const trackInfo = parseSpotifyTrackUrl(this.manualSpotifyText.trim());
-    this.setTrackAndLoad(trackInfo, {
+    this.loadTrackForCurrentProvider(trackInfo, {
       title: 'Canción Hitster',
-      artist: 'Artista de la Carta',
+      artist: 'Artista',
       year: 'Año en la Carta',
     });
   }
@@ -3211,16 +4006,46 @@ export class HitsterScorerComponent implements OnDestroy {
       embedUrl: `https://open.spotify.com/embed/track/${demo.spotifyTrackId}?utm_source=generator`,
       appUri: `spotify:track:${demo.spotifyTrackId}`,
     };
-    this.setTrackAndLoad(trackInfo, {
+
+    const details: RevealedTrackDetails = {
       title: demo.title,
       artist: demo.artist,
       year: demo.year,
-    });
+      spotifyUrl: demo.spotifyUrl,
+    };
+
+    this.stopCameraScanner();
+    this.activeTrack.set(trackInfo);
+    this.revealedTrack.set(details);
+    this.isRevealed.set(false);
+
+    // Si el usuario eligió Apple Music / iTunes, consultar la pista oficial y su audio preview
+    if (this.musicProvider() === 'itunes') {
+      const searchTerm = demo.itunesSearchTerm || `${demo.artist} ${demo.title}`;
+      this.fetchAndPlayItunesAudio(searchTerm, details);
+    } else {
+      if (trackInfo.embedUrl) {
+        this.sanitizedEmbedUrl.set(
+          this.sanitizer.bypassSecurityTrustResourceUrl(trackInfo.embedUrl)
+        );
+      }
+      this.resetTimer();
+      this.startTimer();
+    }
   }
 
-  private setTrackAndLoad(info: SpotifyTrackInfo, details: RevealedTrackDetails): void {
+  /**
+   * Carga y orquesta la reproducción según el servicio configurado (iTunes o Spotify)
+   */
+  private async loadTrackForCurrentProvider(
+    info: SpotifyTrackInfo,
+    fallbackDetails: RevealedTrackDetails
+  ): Promise<void> {
     this.stopCameraScanner();
     this.activeTrack.set(info);
+    this.revealedTrack.set(fallbackDetails);
+    this.isRevealed.set(false);
+
     if (info.embedUrl) {
       this.sanitizedEmbedUrl.set(
         this.sanitizer.bypassSecurityTrustResourceUrl(info.embedUrl)
@@ -3228,32 +4053,122 @@ export class HitsterScorerComponent implements OnDestroy {
     } else {
       this.sanitizedEmbedUrl.set(null);
     }
-    this.revealedTrack.set(details);
-    this.isRevealed.set(false);
 
-    // Intentar consultar oEmbed de Spotify en segundo plano para obtener el título real si es posible
-    if (info.url && !details.year) {
-      this.fetchSpotifyOEmbed(info.url);
+    // 1. Obtener metadatos reales de Spotify vía oEmbed en segundo plano
+    let oEmbedData: { title?: string; author_name?: string; thumbnail_url?: string } | null = null;
+    if (info.url) {
+      oEmbedData = await this.fetchSpotifyOEmbed(info.url);
     }
 
-    // Iniciar temporizador de 30 segundos
-    this.resetTimer();
-    this.startTimer();
+    const title = oEmbedData?.title || fallbackDetails.title;
+    const artist = oEmbedData?.author_name || fallbackDetails.artist;
+    const albumArt = oEmbedData?.thumbnail_url || fallbackDetails.albumArt;
+
+    this.revealedTrack.update((prev) => ({
+      ...prev,
+      title,
+      artist,
+      albumArt,
+    }));
+
+    // 2. Si el servicio es iTunes / Apple Music, buscar y reproducir la vista previa oficial
+    if (this.musicProvider() === 'itunes') {
+      const query = `${artist} ${title}`;
+      this.fetchAndPlayItunesAudio(query, {
+        title,
+        artist,
+        albumArt,
+      });
+    } else {
+      this.resetTimer();
+      this.startTimer();
+    }
   }
 
-  private async fetchSpotifyOEmbed(url: string): Promise<void> {
+  /**
+   * Consulta iTunes Search API para reproducir audio nativo de 30 segundos
+   */
+  private async fetchAndPlayItunesAudio(
+    query: string,
+    currentDetails: RevealedTrackDetails
+  ): Promise<void> {
+    this.isAudioLoading.set(true);
+    try {
+      const itunesResult = await searchItunesTrack(query);
+      if (itunesResult && itunesResult.previewUrl) {
+        this.revealedTrack.update((prev) => ({
+          ...prev,
+          title: itunesResult.trackName || prev?.title || currentDetails.title,
+          artist: itunesResult.artistName || prev?.artist || currentDetails.artist,
+          year: itunesResult.year || prev?.year || currentDetails.year,
+          albumArt: itunesResult.artworkUrl || prev?.albumArt || currentDetails.albumArt,
+          appleMusicUrl: itunesResult.trackViewUrl,
+          itunesPreviewUrl: itunesResult.previewUrl,
+        }));
+
+        this.playItunesAudioStream(itunesResult.previewUrl);
+      } else {
+        // Si no se encuentra en iTunes, fallback a Spotify Web Player
+        this.isAudioLoading.set(false);
+        this.resetTimer();
+        this.startTimer();
+      }
+    } catch {
+      this.isAudioLoading.set(false);
+      this.resetTimer();
+      this.startTimer();
+    }
+  }
+
+  private playItunesAudioStream(url: string): void {
+    if (this.itunesAudioRef?.nativeElement) {
+      const audio = this.itunesAudioRef.nativeElement;
+      audio.src = url;
+      audio.currentTime = 0;
+      audio
+        .play()
+        .then(() => {
+          this.isAudioLoading.set(false);
+          this.resetTimer();
+          this.startTimer();
+        })
+        .catch(() => {
+          this.isAudioLoading.set(false);
+          this.resetTimer();
+          this.startTimer();
+        });
+    } else {
+      this.isAudioLoading.set(false);
+      this.resetTimer();
+      this.startTimer();
+    }
+  }
+
+  private stopItunesAudio(): void {
+    if (this.itunesAudioRef?.nativeElement) {
+      const audio = this.itunesAudioRef.nativeElement;
+      audio.pause();
+    }
+  }
+
+  onItunesAudioEnded(): void {
+    this.pauseTimer();
+  }
+
+  onItunesAudioError(): void {
+    this.isAudioLoading.set(false);
+  }
+
+  private async fetchSpotifyOEmbed(
+    url: string
+  ): Promise<{ title?: string; author_name?: string; thumbnail_url?: string } | null> {
     try {
       const res = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(url)}`);
       if (res.ok) {
-        const data = await res.json();
-        this.revealedTrack.update((prev) => ({
-          title: data.title || prev?.title || 'Canción Hitster',
-          artist: data.author_name || prev?.artist || 'Artista',
-          year: prev?.year || 'Año de Éxito',
-          albumArt: data.thumbnail_url,
-        }));
+        return await res.json();
       }
     } catch {}
+    return null;
   }
 
   // Controles de Reproducción y Temporizador
@@ -3261,10 +4176,16 @@ export class HitsterScorerComponent implements OnDestroy {
     this.stopTimer();
     this.isTimerRunning.set(true);
     this.isPlaying.set(true);
+
+    if (this.musicProvider() === 'itunes' && this.itunesAudioRef?.nativeElement) {
+      this.itunesAudioRef.nativeElement.play().catch(() => {});
+    }
+
     this.timerIntervalId = setInterval(() => {
       this.timerSecondsLeft.update((s) => {
         if (s <= 1) {
           this.stopTimer();
+          this.stopItunesAudio();
           this.playTimerChime();
           return 0;
         }
@@ -3277,6 +4198,7 @@ export class HitsterScorerComponent implements OnDestroy {
     this.stopTimer();
     this.isTimerRunning.set(false);
     this.isPlaying.set(false);
+    this.stopItunesAudio();
   }
 
   resetTimer(): void {
@@ -3284,6 +4206,10 @@ export class HitsterScorerComponent implements OnDestroy {
     this.timerSecondsLeft.set(this.timerDefaultDuration());
     this.isTimerRunning.set(false);
     this.isPlaying.set(false);
+    if (this.itunesAudioRef?.nativeElement) {
+      this.itunesAudioRef.nativeElement.currentTime = 0;
+      this.itunesAudioRef.nativeElement.pause();
+    }
   }
 
   private stopTimer(): void {
@@ -3303,7 +4229,7 @@ export class HitsterScorerComponent implements OnDestroy {
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime); // Nota La5
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.3);
         gain.gain.setValueAtTime(0.3, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
@@ -3348,10 +4274,12 @@ export class HitsterScorerComponent implements OnDestroy {
   }
 
   resetDjTrack(): void {
+    this.stopItunesAudio();
     this.activeTrack.set(null);
     this.isRevealed.set(false);
     this.revealedTrack.set(null);
     this.resetTimer();
+
     // Rotar al siguiente jugador activo
     const players = this.match().players;
     const currentIdx = players.findIndex((p) => p.id === this.activeGuesserPlayerId());
@@ -3363,7 +4291,43 @@ export class HitsterScorerComponent implements OnDestroy {
     }
   }
 
-  // Modales
+  // Modales y Configuración Musical
+  openMusicSettingsModal(): void {
+    this.showMusicSettingsModal.set(true);
+  }
+
+  closeMusicSettingsModal(): void {
+    this.showMusicSettingsModal.set(false);
+  }
+
+  setMusicProvider(provider: MusicProvider): void {
+    this.musicProvider.set(provider);
+    try {
+      localStorage.setItem('hitster_music_provider', provider);
+    } catch {}
+  }
+
+  setSpotifyTier(tier: SpotifyTier): void {
+    this.spotifyTier.set(tier);
+    try {
+      localStorage.setItem('hitster_spotify_tier', tier);
+    } catch {}
+  }
+
+  saveSpotifyAccount(): void {
+    const user = this.tempSpotifyUser.trim();
+    this.spotifyUser.set(user);
+    this.isSpotifyLinked.set(true);
+    try {
+      localStorage.setItem('hitster_spotify_user', user);
+    } catch {}
+  }
+
+  testSpotifyLink(): void {
+    // Abrir un tema legendario en la app de Spotify para verificar vinculación
+    window.open('spotify:track:4u7EnebtmKWzUH433cf5Qv', '_blank');
+  }
+
   toggleRulesModal(): void {
     this.showRulesModal.update((v) => !v);
   }

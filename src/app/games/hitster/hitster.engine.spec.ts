@@ -5,6 +5,7 @@ import {
   HitsterRoundInput,
   parseSpotifyTrackUrl,
   HITSTER_DEMO_TRACKS,
+  searchItunesTrack,
 } from './hitster.engine';
 
 describe('HitsterEngine', () => {
@@ -166,13 +167,21 @@ describe('HitsterEngine', () => {
     });
   });
 
+  describe('searchItunesTrack', () => {
+    it('retorna null para términos vacíos o nulos', async () => {
+      expect(await searchItunesTrack('')).toBeNull();
+      expect(await searchItunesTrack('   ')).toBeNull();
+    });
+  });
+
   describe('HITSTER_DEMO_TRACKS', () => {
-    it('incluye catálogo de canciones de prueba a través de distintas décadas', () => {
+    it('incluye catálogo de canciones de prueba a través de distintas décadas y términos de iTunes', () => {
       expect(HITSTER_DEMO_TRACKS.length).toBeGreaterThanOrEqual(10);
       const decades = new Set(HITSTER_DEMO_TRACKS.map((t) => t.decade));
       expect(decades.has('70s')).toBe(true);
       expect(decades.has('80s')).toBe(true);
       expect(decades.has('90s')).toBe(true);
+      expect(HITSTER_DEMO_TRACKS[0].itunesSearchTerm).toBeDefined();
     });
   });
 });

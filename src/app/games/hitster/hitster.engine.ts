@@ -1,12 +1,22 @@
 import { GameEngine } from '../../core/models/game.interface';
 
 export type HitsterGameMode = 'original' | 'pro' | 'expert' | 'cooperative';
+export type MusicProvider = 'spotify' | 'itunes';
+export type SpotifyTier = 'free' | 'premium';
+
+export interface HitsterMusicSettings {
+  provider: MusicProvider;
+  spotifyTier: SpotifyTier;
+  spotifyLinkedUser?: string;
+  isSpotifyLinked?: boolean;
+}
 
 export interface HitsterConfig {
   targetCards: number; // Número de cartas en la línea de tiempo para ganar (10 por defecto)
   startingTokens: number; // Fichas Hitster iniciales por jugador (3 por defecto)
   gameMode: HitsterGameMode; // 'original' | 'pro' | 'expert' | 'cooperative'
   timerSeconds: number; // Duración del temporizador de escucha en segundos (30 por defecto)
+  preferredMusicProvider?: MusicProvider; // 'spotify' | 'itunes'
 }
 
 export interface HitsterRoundInput {
@@ -45,6 +55,15 @@ export interface SpotifyTrackInfo {
   appUri?: string;
 }
 
+export interface ItunesTrackInfo {
+  trackName: string;
+  artistName: string;
+  year?: number;
+  previewUrl?: string;
+  artworkUrl?: string;
+  trackViewUrl?: string;
+}
+
 export interface HitsterDemoTrack {
   id: string;
   title: string;
@@ -53,6 +72,45 @@ export interface HitsterDemoTrack {
   decade: string;
   spotifyTrackId: string;
   spotifyUrl: string;
+  itunesSearchTerm?: string;
+}
+
+/**
+ * Consulta la API oficial y pública de iTunes / Apple Music (con CORS habilitado)
+ * para obtener la vista previa oficial de audio de 30 segundos, el año de lanzamiento
+ * y la portada del álbum.
+ */
+export async function searchItunesTrack(term: string): Promise<ItunesTrackInfo | null> {
+  if (!term || typeof term !== 'string' || !term.trim()) return null;
+  try {
+    const encoded = encodeURIComponent(term.trim());
+    const res = await fetch(
+      `https://itunes.apple.com/search?term=${encoded}&entity=song&limit=1`
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.results && data.results.length > 0) {
+      const item = data.results[0];
+      let year: number | undefined;
+      if (item.releaseDate) {
+        const d = new Date(item.releaseDate);
+        if (!isNaN(d.getFullYear())) {
+          year = d.getFullYear();
+        }
+      }
+      return {
+        trackName: item.trackName,
+        artistName: item.artistName,
+        year,
+        previewUrl: item.previewUrl,
+        artworkUrl: item.artworkUrl100 || item.artworkUrl60,
+        trackViewUrl: item.trackViewUrl,
+      };
+    }
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 /**
@@ -68,6 +126,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '60s',
     spotifyTrackId: '2PzDXAhNmMy1lD634o2ZgV',
     spotifyUrl: 'https://open.spotify.com/track/2PzDXAhNmMy1lD634o2ZgV',
+    itunesSearchTerm: 'Rolling Stones Satisfaction',
   },
   {
     id: 'demo-1975',
@@ -77,6 +136,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '70s',
     spotifyTrackId: '4u7EnebtmKWzUH433cf5Qv',
     spotifyUrl: 'https://open.spotify.com/track/4u7EnebtmKWzUH433cf5Qv',
+    itunesSearchTerm: 'Queen Bohemian Rhapsody',
   },
   {
     id: 'demo-1976',
@@ -86,6 +146,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '70s',
     spotifyTrackId: '0GjEhRrOhbyBMr7KG5p0m4',
     spotifyUrl: 'https://open.spotify.com/track/0GjEhRrOhbyBMr7KG5p0m4',
+    itunesSearchTerm: 'ABBA Dancing Queen',
   },
   {
     id: 'demo-1982',
@@ -95,6 +156,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '80s',
     spotifyTrackId: '5ChkMS8Otdzsq2hnSt4Omm',
     spotifyUrl: 'https://open.spotify.com/track/5ChkMS8Otdzsq2hnSt4Omm',
+    itunesSearchTerm: 'Michael Jackson Billie Jean',
   },
   {
     id: 'demo-1983',
@@ -104,6 +166,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '80s',
     spotifyTrackId: '1TfqLAPs4KFs2HQ6AyFYxm',
     spotifyUrl: 'https://open.spotify.com/track/1TfqLAPs4KFs2HQ6AyFYxm',
+    itunesSearchTerm: 'Eurythmics Sweet Dreams',
   },
   {
     id: 'demo-1987',
@@ -113,6 +176,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '80s',
     spotifyTrackId: '4cOdK2wGLETKBW3PvgPWqT',
     spotifyUrl: 'https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT',
+    itunesSearchTerm: 'Rick Astley Never Gonna Give You Up',
   },
   {
     id: 'demo-1991',
@@ -122,6 +186,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '90s',
     spotifyTrackId: '5ghIWrM2980CTj0fI9vFIO',
     spotifyUrl: 'https://open.spotify.com/track/5ghIWrM2980CTj0fI9vFIO',
+    itunesSearchTerm: 'Nirvana Smells Like Teen Spirit',
   },
   {
     id: 'demo-1999',
@@ -131,6 +196,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '90s',
     spotifyTrackId: '3MjUtNVVq3C8Fn0MP3zhcW',
     spotifyUrl: 'https://open.spotify.com/track/3MjUtNVVq3C8Fn0MP3zhcW',
+    itunesSearchTerm: 'Britney Spears Baby One More Time',
   },
   {
     id: 'demo-2003',
@@ -140,6 +206,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '00s',
     spotifyTrackId: '5IVuqXILoxVWvWEPm82Jxr',
     spotifyUrl: 'https://open.spotify.com/track/5IVuqXILoxVWvWEPm82Jxr',
+    itunesSearchTerm: 'Beyonce Crazy In Love',
   },
   {
     id: 'demo-2011',
@@ -149,6 +216,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '10s',
     spotifyTrackId: '4OSBTYWVwsQhGLF9v0E957',
     spotifyUrl: 'https://open.spotify.com/track/4OSBTYWVwsQhGLF9v0E957',
+    itunesSearchTerm: 'Adele Rolling in the Deep',
   },
   {
     id: 'demo-2013',
@@ -158,6 +226,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '10s',
     spotifyTrackId: '2Foc5Q5nqNiosCNqttzHof',
     spotifyUrl: 'https://open.spotify.com/track/2Foc5Q5nqNiosCNqttzHof',
+    itunesSearchTerm: 'Daft Punk Get Lucky',
   },
   {
     id: 'demo-2020',
@@ -167,6 +236,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     decade: '20s',
     spotifyTrackId: '0VjIjW4GlULA7k21f1Jglc',
     spotifyUrl: 'https://open.spotify.com/track/0VjIjW4GlULA7k21f1Jglc',
+    itunesSearchTerm: 'The Weeknd Blinding Lights',
   },
 ];
 
