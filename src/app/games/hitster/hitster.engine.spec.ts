@@ -54,6 +54,54 @@ describe('HitsterEngine', () => {
       expect(parsed.trackId).toBe('0VjIjW4GlULA7k21f1Jglc');
     });
 
+    it('parsea y resuelve URLs oficiales de cartas Hitster (hitstergame.com/us/{id})', () => {
+      const raw = 'https://hitstergame.com/us/00268';
+      const parsed = parseSpotifyTrackUrl(raw);
+      expect(parsed.isHitsterCard).toBe(true);
+      expect(parsed.country).toBe('us');
+      expect(parsed.cardId).toBe('00268');
+      expect(parsed.trackId).toBe('55CHeLEfn5iJ0IIkgaa4si');
+      expect(parsed.url).toBe('https://open.spotify.com/track/55CHeLEfn5iJ0IIkgaa4si');
+      expect(parsed.appUri).toBe('spotify:track:55CHeLEfn5iJ0IIkgaa4si');
+    });
+
+    it('parsea URLs de cartas de España (http://www.hitstergame.com/es/00001)', () => {
+      const raw = 'http://www.hitstergame.com/es/00001';
+      const parsed = parseSpotifyTrackUrl(raw);
+      expect(parsed.isHitsterCard).toBe(true);
+      expect(parsed.country).toBe('es');
+      expect(parsed.cardId).toBe('00001');
+      expect(parsed.trackId).toBe('0pQskrTITgmCMyr85tb9qq');
+      expect(parsed.appUri).toBe('spotify:track:0pQskrTITgmCMyr85tb9qq');
+    });
+
+    it('soporta entrada manual directa de número de carta (ej. 00268 o 268)', () => {
+      const parsed = parseSpotifyTrackUrl('00268');
+      expect(parsed.isHitsterCard).toBe(true);
+      expect(parsed.cardId).toBe('00268');
+      expect(parsed.trackId).toBe('55CHeLEfn5iJ0IIkgaa4si');
+
+      const parsedShort = parseSpotifyTrackUrl('268');
+      expect(parsedShort.trackId).toBe('55CHeLEfn5iJ0IIkgaa4si');
+    });
+
+    it('permite inyectar una base de datos externa de cartas', () => {
+      const customDb = {
+        us: { '99999': 'CUSTOM_SPOTIFY_ID_12345678' },
+      };
+      const parsed = parseSpotifyTrackUrl('https://hitstergame.com/us/99999', customDb);
+      expect(parsed.trackId).toBe('CUSTOM_SPOTIFY_ID_12345678');
+      expect(parsed.cardId).toBe('99999');
+    });
+
+    it('marca isHitsterCard = true cuando la carta no está en la BD para permitir búsqueda manual', () => {
+      const parsed = parseSpotifyTrackUrl('https://hitstergame.com/us/88888');
+      expect(parsed.isHitsterCard).toBe(true);
+      expect(parsed.cardId).toBe('88888');
+      expect(parsed.trackId).toBeUndefined();
+      expect(parsed.url).toBe('https://hitstergame.com/us/88888');
+    });
+
     it('maneja strings vacíos o inválidos con elegancia', () => {
       expect(parseSpotifyTrackUrl('').url).toBe('');
       expect(parseSpotifyTrackUrl('   ').url).toBe('');

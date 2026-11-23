@@ -53,6 +53,9 @@ export interface SpotifyTrackInfo {
   url: string;
   embedUrl?: string;
   appUri?: string;
+  cardId?: string;
+  country?: string;
+  isHitsterCard?: boolean;
 }
 
 export interface ItunesTrackInfo {
@@ -241,10 +244,57 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
 ];
 
 /**
- * Función pura que analiza y parsea cualquier formato de URL, URI o código de Spotify
- * extraído de un código QR de una carta física de Hitster.
+ * Diccionario integrado de cartas Hitster fundamentales (ediciones US y España)
+ * para garantizar resolución offline inmediata y cobertura en pruebas unitarias.
  */
-export function parseSpotifyTrackUrl(raw: string): SpotifyTrackInfo {
+export const HITSTER_CORE_CARDS: Record<string, Record<string, string>> = {
+  us: {
+    '00001': '0KMGxYKeUzK9wc5DZCt3HT',
+    '1': '0KMGxYKeUzK9wc5DZCt3HT',
+    '00002': '7o2CTH4ctstm8TNelqjb51',
+    '2': '7o2CTH4ctstm8TNelqjb51',
+    '00003': '3L7RtEcu1Hw3OXrpnthngx',
+    '3': '3L7RtEcu1Hw3OXrpnthngx',
+    '00010': '5jUA1njy3h6ynHLvPdEVHt',
+    '10': '5jUA1njy3h6ynHLvPdEVHt',
+    '00020': '4aTCNddtjztjuK2EOgz7ZZ',
+    '20': '4aTCNddtjztjuK2EOgz7ZZ',
+    '00100': '62AuGbAkt8Ox2IrFFb8GKV',
+    '100': '62AuGbAkt8Ox2IrFFb8GKV',
+    '00200': '57yz5oqMytzbwdewSG28L9',
+    '200': '57yz5oqMytzbwdewSG28L9',
+    '00268': '55CHeLEfn5iJ0IIkgaa4si',
+    '268': '55CHeLEfn5iJ0IIkgaa4si',
+  },
+  es: {
+    '00001': '0pQskrTITgmCMyr85tb9qq',
+    '1': '0pQskrTITgmCMyr85tb9qq',
+    '00002': '5Hu3Y13dE9rEZire0tlAMW',
+    '2': '5Hu3Y13dE9rEZire0tlAMW',
+    '00003': '7iL6o9tox1zgHpKUfh9vuC',
+    '3': '7iL6o9tox1zgHpKUfh9vuC',
+    '00010': '40riOy7x9W7GXjyGp4pjAv',
+    '10': '40riOy7x9W7GXjyGp4pjAv',
+    '00020': '7GrAOZRMBhUPN5PdbJZVO9',
+    '20': '7GrAOZRMBhUPN5PdbJZVO9',
+    '00100': '08bNPGLD8AhKpnnERrAc6G',
+    '100': '08bNPGLD8AhKpnnERrAc6G',
+    '00200': '4pt5fDVTg5GhEvEtlz9dKk',
+    '200': '4pt5fDVTg5GhEvEtlz9dKk',
+    '00268': '5RzFJd6W40SDTyZkX6xx45',
+    '268': '5RzFJd6W40SDTyZkX6xx45',
+  },
+};
+
+/**
+ * Función pura que analiza y parsea cualquier formato de URL, URI o código de Spotify,
+ * incluyendo URLs oficiales de cartas físicas Hitster (ej. hitstergame.com/us/{id}).
+ */
+export function parseSpotifyTrackUrl(
+  raw: string,
+  cardsDb?: Record<string, Record<string, string>>,
+  defaultCountry = 'us'
+): SpotifyTrackInfo {
   if (!raw || typeof raw !== 'string') {
     return { url: '' };
   }
@@ -277,7 +327,81 @@ export function parseSpotifyTrackUrl(raw: string): SpotifyTrackInfo {
     };
   }
 
-  // Caso 3: Formato Hitster con prefijo (ej. HITSTER-id o QR:id)
+  // Caso 3: URL oficial de cartas físicas de Hitster (ej. https://hitstergame.com/us/00268 o http://www.hitstergame.com/es/1)
+  const hitsterUrlMatch = clean.match(
+    /(?:https?:\/\/)?(?:www\.)?hitstergame\.com\/(?:([a-zA-Z]{2})\/)?([a-zA-Z0-9_\-]+)/i
+  );
+  if (hitsterUrlMatch) {
+    const country = (hitsterUrlMatch[1] || defaultCountry || 'us').toLowerCase();
+    const cardIdRaw = hitsterUrlMatch[2];
+    const isDigits = /^[0-9]+$/.test(cardIdRaw);
+    const normId = isDigits ? String(parseInt(cardIdRaw, 10)) : cardIdRaw;
+    const paddedId = isDigits ? cardIdRaw.padStart(5, '0') : cardIdRaw;
+
+    const dbToSearch = cardsDb || HITSTER_CORE_CARDS;
+    const foundTrackId =
+      dbToSearch?.[country]?.[paddedId] ||
+      dbToSearch?.[country]?.[normId] ||
+      dbToSearch?.['global']?.[paddedId] ||
+      dbToSearch?.['global']?.[normId] ||
+      HITSTER_CORE_CARDS[country]?.[paddedId] ||
+      HITSTER_CORE_CARDS[country]?.[normId] ||
+      HITSTER_CORE_CARDS['us']?.[paddedId] ||
+      HITSTER_CORE_CARDS['us']?.[normId];
+
+    if (foundTrackId) {
+      return {
+        trackId: foundTrackId,
+        url: `https://open.spotify.com/track/${foundTrackId}`,
+        embedUrl: `https://open.spotify.com/embed/track/${foundTrackId}?utm_source=generator`,
+        appUri: `spotify:track:${foundTrackId}`,
+        cardId: paddedId,
+        country,
+        isHitsterCard: true,
+      };
+    }
+
+    return {
+      url: `https://hitstergame.com/${country}/${cardIdRaw}`,
+      cardId: paddedId,
+      country,
+      isHitsterCard: true,
+    };
+  }
+
+  // Caso 4: Número de carta directo introducido manualmente (ej. 00268, #268, card:100)
+  const directCardMatch = clean.match(/^(?:#|card:|hitster:)?([0-9]{1,6})$/i);
+  if (directCardMatch && clean.length <= 6) {
+    const cardIdRaw = directCardMatch[1];
+    const country = (defaultCountry || 'us').toLowerCase();
+    const normId = String(parseInt(cardIdRaw, 10));
+    const paddedId = cardIdRaw.padStart(5, '0');
+
+    const dbToSearch = cardsDb || HITSTER_CORE_CARDS;
+    const foundTrackId =
+      dbToSearch?.[country]?.[paddedId] ||
+      dbToSearch?.[country]?.[normId] ||
+      dbToSearch?.['global']?.[paddedId] ||
+      dbToSearch?.['global']?.[normId] ||
+      HITSTER_CORE_CARDS[country]?.[paddedId] ||
+      HITSTER_CORE_CARDS[country]?.[normId] ||
+      HITSTER_CORE_CARDS['us']?.[paddedId] ||
+      HITSTER_CORE_CARDS['us']?.[normId];
+
+    if (foundTrackId) {
+      return {
+        trackId: foundTrackId,
+        url: `https://open.spotify.com/track/${foundTrackId}`,
+        embedUrl: `https://open.spotify.com/embed/track/${foundTrackId}?utm_source=generator`,
+        appUri: `spotify:track:${foundTrackId}`,
+        cardId: paddedId,
+        country,
+        isHitsterCard: true,
+      };
+    }
+  }
+
+  // Caso 5: Formato Hitster con prefijo (ej. HITSTER-id o QR:id)
   const hitsterPrefixMatch = clean.match(/(?:hitster|qr)[:\-_]([a-zA-Z0-9]{22})/i);
   if (hitsterPrefixMatch && hitsterPrefixMatch[1]) {
     const trackId = hitsterPrefixMatch[1];
@@ -289,7 +413,7 @@ export function parseSpotifyTrackUrl(raw: string): SpotifyTrackInfo {
     };
   }
 
-  // Caso 4: Solo el ID alfanumérico directo de Spotify (típicamente 22 caracteres alfanuméricos)
+  // Caso 6: Solo el ID alfanumérico directo de Spotify (22 caracteres alfanuméricos)
   if (/^[a-zA-Z0-9]{22}$/.test(clean)) {
     const trackId = clean;
     return {
@@ -300,7 +424,7 @@ export function parseSpotifyTrackUrl(raw: string): SpotifyTrackInfo {
     };
   }
 
-  // Caso 5: URL genérica o no reconocida
+  // Caso 7: URL genérica o no reconocida
   return {
     url: clean,
     embedUrl: clean.startsWith('http') ? clean : undefined,

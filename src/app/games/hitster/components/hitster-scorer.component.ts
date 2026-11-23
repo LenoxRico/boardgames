@@ -702,124 +702,182 @@ interface RevealedTrackDetails {
                   }
                 </div>
               } @else {
-                <!-- SECCIÓN DE REPRODUCCIÓN SIN SPOILERS -->
-                <div class="dj-player-screen">
-                  <!-- Indicador de Proveedor Activo en Reproducción -->
-                  <div class="active-provider-indicator">
-                    <span class="provider-badge-icon">
-                      {{ musicProvider() === 'itunes' ? '🍎' : '🟢' }}
-                    </span>
-                    <span class="provider-badge-text">
-                      {{ musicProvider() === 'itunes' ? 'Audio Oficial iTunes / Apple Music (30s sin anuncios)' : 'Reproduciendo vía Spotify' }}
-                    </span>
+                <!-- SECCIÓN DE CARTA NO MAPEADA O REPRODUCTOR SIN SPOILERS -->
+                @if (unmappedCardDetected(); as unmapped) {
+                  <div class="unmapped-card-box">
+                    <div class="unmapped-badge-row">
+                      <span class="unmapped-badge">🃏 Carta #{{ unmapped.cardId }} ({{ unmapped.country.toUpperCase() }})</span>
+                      <span class="unmapped-tag">No encontrada en índice local</span>
+                    </div>
+                    <p class="unmapped-desc">
+                      Esta carta física no está en la base de datos descargada. Escribe el título o artista para escucharla de inmediato en {{ musicProvider() === 'itunes' ? 'iTunes' : 'Spotify' }}:
+                    </p>
+                    <div class="unmapped-input-row">
+                      <input
+                        type="text"
+                        class="form-control-input"
+                        placeholder="Ej: Bohemian Rhapsody Queen"
+                        [(ngModel)]="fallbackSearchText"
+                        (keyup.enter)="searchAndPlayFallback()"
+                      />
+                      <button
+                        type="button"
+                        class="btn-load-track"
+                        [disabled]="!fallbackSearchText.trim()"
+                        (click)="searchAndPlayFallback()"
+                      >
+                        Buscar
+                      </button>
+                    </div>
+                    <div class="unmapped-secondary-actions">
+                      <a [href]="unmapped.url" target="_blank" rel="noopener noreferrer" class="link-open-card-web">
+                        <span>Abrir enlace de la carta en el navegador</span>
+                        <span class="material-symbols-outlined open-ext-icon">open_in_new</span>
+                      </a>
+                      <button type="button" class="btn-rescan-card" (click)="resetDjTrack()">
+                        <span class="material-symbols-outlined">qr_code_scanner</span>
+                        <span>Escanear otra carta</span>
+                      </button>
+                    </div>
                   </div>
-
-                  <!-- Animación del Vinilo Neón y Temporizador -->
-                  <div class="player-visual-center">
-                    <div class="vinyl-record-disc" [class.spinning]="isPlaying()">
-                      <div class="vinyl-groove"></div>
-                      <div class="vinyl-center-sticker">
-                        <span class="material-symbols-outlined">music_note</span>
-                      </div>
+                } @else {
+                  <div class="dj-player-screen">
+                    <!-- Indicador de Proveedor Activo en Reproducción -->
+                    <div class="active-provider-indicator">
+                      <span class="provider-badge-icon">
+                        {{ musicProvider() === 'itunes' ? '🍎' : '🟢' }}
+                      </span>
+                      <span class="provider-badge-text">
+                        {{ musicProvider() === 'itunes' ? 'Audio Oficial iTunes / Apple Music (30s sin anuncios)' : 'Reproduciendo vía Spotify' }}
+                      </span>
+                      @if (activeTrack()?.cardId; as cid) {
+                        <span class="card-id-pill">Carta #{{ cid }}</span>
+                      }
                     </div>
 
-                    <!-- Temporizador Regresivo de 30 Segundos -->
-                    <div class="countdown-timer-box">
-                      <div class="timer-display" [class.time-warning]="timerSecondsLeft() <= 5">
-                        <span class="timer-digits tabular-nums">{{ timerSecondsLeft() }}</span>
-                        <span class="timer-unit">seg</span>
-                      </div>
-                      <div class="timer-controls-row">
-                        @if (!isTimerRunning()) {
-                          <button
-                            type="button"
-                            class="btn-timer-action"
-                            (click)="startTimer()"
-                            title="Iniciar temporizador y audio"
-                          >
-                            <span class="material-symbols-outlined">play_arrow</span>
-                          </button>
-                        } @else {
-                          <button
-                            type="button"
-                            class="btn-timer-action btn-pause"
-                            (click)="pauseTimer()"
-                            title="Pausar temporizador y audio"
-                          >
-                            <span class="material-symbols-outlined">pause</span>
-                          </button>
-                        }
-                        <button
-                          type="button"
-                          class="btn-timer-action btn-reset"
-                          (click)="resetTimer()"
-                          title="Reiniciar a 30s"
-                        >
-                          <span class="material-symbols-outlined">restart_alt</span>
+                    <!-- Botón Hero para Iniciar Audio en iTunes si Safari bloqueó autoplay -->
+                    @if (musicProvider() === 'itunes' && !isPlaying()) {
+                      <div class="itunes-hero-play-container">
+                        <button type="button" class="btn-hero-itunes-play" (click)="startTimer()">
+                          <span class="material-symbols-outlined hero-play-icon">play_circle</span>
+                          <div class="hero-play-text">
+                            <strong>Reproducir Audio Oficial (30s)</strong>
+                            <span>Toca para comenzar la cuenta regresiva sin spoilers</span>
+                          </div>
                         </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Reproductor según el Proveedor Musical Seleccionado -->
-                  @if (musicProvider() === 'itunes') {
-                    <!-- Modo iTunes / Apple Music: Audio Nativo HTML5 sin Iframe -->
-                    <div class="itunes-player-box">
-                      <div class="itunes-status-row">
-                        <span class="itunes-sound-wave">🎵 Vista Previa de 30s de iTunes</span>
-                        @if (isAudioLoading()) {
-                          <span class="audio-loading-tag">Cargando audio...</span>
-                        }
-                      </div>
-
-                      <div class="itunes-direct-actions">
-                        @if (revealedTrack()?.appleMusicUrl; as appleUrl) {
-                          <a
-                            [href]="appleUrl"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="btn-open-apple-music"
-                          >
-                            <span class="apple-icon"></span>
-                            <span>Abrir en Apple Music</span>
-                            <span class="material-symbols-outlined open-ext-icon">open_in_new</span>
-                          </a>
-                        }
-                      </div>
-                    </div>
-                  } @else {
-                    <!-- Modo Spotify: Embed o App Directa según Tier -->
-                    @if (spotifyTier() === 'free' && sanitizedEmbedUrl()) {
-                      <div class="spotify-embed-container">
-                        <iframe
-                          [src]="sanitizedEmbedUrl()"
-                          width="100%"
-                          height="152"
-                          frameBorder="0"
-                          allowfullscreen=""
-                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                          loading="lazy"
-                          class="spotify-iframe"
-                        ></iframe>
                       </div>
                     }
 
-                    <!-- Enlace Directo para Abrir en la App de Spotify -->
-                    <div class="spotify-app-link-box">
-                      <a
-                        [href]="activeTrack()?.appUri || activeTrack()?.url"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="btn-open-spotify"
-                      >
-                        <span class="spotify-logo-dot"></span>
-                        <span>Abrir en Spotify App</span>
-                        <span class="material-symbols-outlined open-ext-icon">open_in_new</span>
-                      </a>
-                    </div>
-                  }
+                    <!-- Botón Hero Gigante para Spotify: Abrir en la App -->
+                    @if (musicProvider() === 'spotify') {
+                      <div class="spotify-hero-card">
+                        <button
+                          type="button"
+                          class="btn-hero-spotify-play"
+                          (click)="openSpotifyApp()"
+                        >
+                          <span class="spotify-circle-icon">▶</span>
+                          <div class="spotify-btn-text">
+                            <strong>Abrir y Reproducir en Spotify App</strong>
+                            <span>Toca para escuchar la canción en tu aplicación de Spotify</span>
+                          </div>
+                          <span class="material-symbols-outlined open-ext-icon">open_in_new</span>
+                        </button>
+                      </div>
+                    }
 
-                  <!-- ESTADO 1: Oculto (El jugador está pensando dónde colocarla) -->
+                    <!-- Animación del Vinilo Neón y Temporizador -->
+                    <div class="player-visual-center">
+                      <div class="vinyl-record-disc" [class.spinning]="isPlaying()">
+                        <div class="vinyl-groove"></div>
+                        <div class="vinyl-center-sticker">
+                          <span class="material-symbols-outlined">music_note</span>
+                        </div>
+                      </div>
+
+                      <!-- Temporizador Regresivo de 30 Segundos -->
+                      <div class="countdown-timer-box">
+                        <div class="timer-display" [class.time-warning]="timerSecondsLeft() <= 5">
+                          <span class="timer-digits tabular-nums">{{ timerSecondsLeft() }}</span>
+                          <span class="timer-unit">seg</span>
+                        </div>
+                        <div class="timer-controls-row">
+                          @if (!isTimerRunning()) {
+                            <button
+                              type="button"
+                              class="btn-timer-action"
+                              (click)="startTimer()"
+                              title="Iniciar temporizador y audio"
+                            >
+                              <span class="material-symbols-outlined">play_arrow</span>
+                            </button>
+                          } @else {
+                            <button
+                              type="button"
+                              class="btn-timer-action btn-pause"
+                              (click)="pauseTimer()"
+                              title="Pausar temporizador y audio"
+                            >
+                              <span class="material-symbols-outlined">pause</span>
+                            </button>
+                          }
+                          <button
+                            type="button"
+                            class="btn-timer-action btn-reset"
+                            (click)="resetTimer()"
+                            title="Reiniciar a 30s"
+                          >
+                            <span class="material-symbols-outlined">restart_alt</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Reproductor según el Proveedor Musical Seleccionado -->
+                    @if (musicProvider() === 'itunes') {
+                      <!-- Modo iTunes / Apple Music: Audio Nativo HTML5 sin Iframe -->
+                      <div class="itunes-player-box">
+                        <div class="itunes-status-row">
+                          <span class="itunes-sound-wave">🎵 Vista Previa Oficial de iTunes</span>
+                          @if (isAudioLoading()) {
+                            <span class="audio-loading-tag">Cargando audio...</span>
+                          }
+                        </div>
+
+                        <div class="itunes-direct-actions">
+                          @if (revealedTrack()?.appleMusicUrl; as appleUrl) {
+                            <a
+                              [href]="appleUrl"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="btn-open-apple-music"
+                            >
+                              <span class="apple-icon"></span>
+                              <span>Abrir en Apple Music</span>
+                              <span class="material-symbols-outlined open-ext-icon">open_in_new</span>
+                            </a>
+                          }
+                        </div>
+                      </div>
+                    } @else {
+                      <!-- Modo Spotify: Embed si es Free -->
+                      @if (spotifyTier() === 'free' && sanitizedEmbedUrl()) {
+                        <div class="spotify-embed-container">
+                          <iframe
+                            [src]="sanitizedEmbedUrl()"
+                            width="100%"
+                            height="152"
+                            frameBorder="0"
+                            allowfullscreen=""
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                            loading="lazy"
+                            class="spotify-iframe"
+                          ></iframe>
+                        </div>
+                      }
+                    }
+
+                    <!-- ESTADO 1: Oculto (El jugador está pensando dónde colocarla) -->
                   @if (!isRevealed()) {
                     <div class="hidden-spoiler-banner">
                       <div class="spoiler-icon-badge">
@@ -963,10 +1021,11 @@ interface RevealedTrackDetails {
                   }
                 </div>
               }
-            </div>
+            }
           </div>
         </div>
-      }
+      </div>
+    }
 
       <!-- MODAL 2: Configuración del Servicio Musical y Vinculación de Cuenta -->
       @if (showMusicSettingsModal()) {
@@ -1088,6 +1147,39 @@ interface RevealedTrackDetails {
                   </div>
                 }
               </div>
+
+              <!-- Selector de Edición o País de tus Cartas Hitster -->
+              <div class="settings-edition-section">
+                <span class="settings-subheading">Edición o País de tus Cartas Hitster:</span>
+                <div class="edition-pills-row">
+                  @for (opt of countryOptions; track opt.code) {
+                    <button
+                      type="button"
+                      class="country-edition-pill"
+                      [class.active]="selectedCardCountry() === opt.code"
+                      (click)="setCardCountry(opt.code)"
+                    >
+                      <span>{{ opt.flag }} {{ opt.label }}</span>
+                    </button>
+                  }
+                </div>
+                <p class="settings-sub-hint">
+                  Las cartas con prefijo regional (ej. hitstergame.com/us/...) se auto-detectan. Este ajuste asegura la concordancia exacta en mazos nacionales.
+                </p>
+              </div>
+
+              <!-- Toggle de Redirección Automática para Spotify -->
+              @if (musicProvider() === 'spotify') {
+                <div class="toggle-setting-row" (click)="toggleAutoRedirectSpotify()">
+                  <div class="toggle-setting-text">
+                    <span class="toggle-title">Redirección directa a Spotify App</span>
+                    <span class="toggle-desc">Abre la app de Spotify automáticamente al escanear</span>
+                  </div>
+                  <span class="material-symbols-outlined toggle-switch-icon" [class.enabled]="autoRedirectSpotify()">
+                    {{ autoRedirectSpotify() ? 'toggle_on' : 'toggle_off' }}
+                  </span>
+                </div>
+              }
             </div>
 
             <div class="music-settings-footer">
@@ -3474,6 +3566,280 @@ interface RevealedTrackDetails {
       cursor: pointer;
     }
 
+    /* Carta No Mapeada / Búsqueda Manual */
+    .unmapped-card-box {
+      background: var(--color-surface);
+      border: 1px dashed rgba(245, 158, 11, 0.5);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .unmapped-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-xs);
+    }
+
+    .unmapped-badge {
+      font-size: 13px;
+      font-weight: 800;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.12);
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+    }
+
+    .unmapped-tag {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+
+    .unmapped-desc {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    .unmapped-input-row {
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .unmapped-secondary-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-xs);
+      margin-top: 4px;
+    }
+
+    .link-open-card-web {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      text-decoration: underline;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-rescan-card {
+      background: transparent;
+      border: none;
+      color: var(--color-primary);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Spotify Hero Button */
+    .spotify-hero-card {
+      width: 100%;
+      margin-bottom: var(--space-xs);
+    }
+
+    .btn-hero-spotify-play {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: #1ed760;
+      color: #000000;
+      border: none;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(30, 215, 96, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-hero-spotify-play:active {
+      transform: scale(0.98);
+    }
+
+    .spotify-circle-icon {
+      font-size: 16px;
+      background: #000000;
+      color: #1ed760;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .spotify-btn-text {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      flex: 1;
+    }
+
+    .spotify-btn-text strong {
+      font-size: 13px;
+      font-weight: 800;
+      color: #000000;
+    }
+
+    .spotify-btn-text span {
+      font-size: 10px;
+      color: rgba(0, 0, 0, 0.7);
+      font-weight: 600;
+    }
+
+    /* iTunes Hero Button */
+    .itunes-hero-play-container {
+      width: 100%;
+      margin-bottom: var(--space-xs);
+    }
+
+    .btn-hero-itunes-play {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(236, 72, 153, 0.35);
+      transition: transform 0.15s ease;
+    }
+
+    .btn-hero-itunes-play:active {
+      transform: scale(0.98);
+    }
+
+    .hero-play-icon {
+      font-size: 30px;
+      flex-shrink: 0;
+    }
+
+    .hero-play-text {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      flex: 1;
+    }
+
+    .hero-play-text strong {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .hero-play-text span {
+      font-size: 10px;
+      opacity: 0.9;
+    }
+
+    .card-id-pill {
+      background: rgba(236, 72, 153, 0.15);
+      color: #ec4899;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 800;
+      margin-left: auto;
+    }
+
+    /* Country Edition & Auto-Redirect Settings */
+    .settings-edition-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--color-border-subtle);
+    }
+
+    .settings-subheading {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+    }
+
+    .edition-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .country-edition-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .country-edition-pill.active {
+      background: rgba(236, 72, 153, 0.15);
+      border-color: #ec4899;
+      color: #ec4899;
+    }
+
+    .settings-sub-hint {
+      font-size: 10px;
+      color: var(--color-text-tertiary);
+      margin: 0;
+    }
+
+    .toggle-setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      padding: var(--space-xs) 0;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .toggle-setting-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toggle-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .toggle-desc {
+      font-size: 10px;
+      color: var(--color-text-secondary);
+    }
+
+    .toggle-switch-icon {
+      font-size: 32px;
+      color: var(--color-text-tertiary);
+      transition: color 0.2s ease;
+    }
+
+    .toggle-switch-icon.enabled {
+      color: #1ed760;
+    }
+
     .music-settings-footer {
       padding: var(--space-sm) var(--space-md);
       border-top: 1px solid var(--color-border-subtle);
@@ -3569,6 +3935,23 @@ export class HitsterScorerComponent implements OnDestroy {
   revealedTrack = signal<RevealedTrackDetails | null>(null);
   isAudioLoading = signal(false);
 
+  // Base de datos de cartas Hitster y configuración regional
+  cardsDatabase = signal<Record<string, Record<string, string>>>({});
+  selectedCardCountry = signal<string>('us');
+  autoRedirectSpotify = signal<boolean>(true);
+  unmappedCardDetected = signal<{ cardId: string; country: string; url: string } | null>(null);
+  fallbackSearchText = '';
+
+  readonly countryOptions = [
+    { code: 'us', label: 'EE.UU. / Inglés', flag: '🇺🇸' },
+    { code: 'es', label: 'España', flag: '🇪🇸' },
+    { code: 'mx', label: 'México / Latino', flag: '🇲🇽' },
+    { code: 'de', label: 'Alemania', flag: '🇩🇪' },
+    { code: 'fr', label: 'Francia', flag: '🇫🇷' },
+    { code: 'it', label: 'Italia', flag: '🇮🇹' },
+    { code: 'global', label: 'Internacional / Todos', flag: '🌍' },
+  ];
+
   // Temporizador de 30 segundos
   timerSecondsLeft = signal(30);
   isTimerRunning = signal(false);
@@ -3636,6 +4019,7 @@ export class HitsterScorerComponent implements OnDestroy {
 
   constructor() {
     this.loadSavedMusicSettings();
+    this.loadHitsterCardsDatabase();
 
     effect(
       () => {
@@ -3655,6 +4039,16 @@ export class HitsterScorerComponent implements OnDestroy {
 
   private loadSavedMusicSettings(): void {
     try {
+      const browserLang = navigator.language?.toLowerCase() || '';
+      const defaultCountry = browserLang.startsWith('es') ? 'es' : 'us';
+      const savedCountry = localStorage.getItem('hitster_card_country');
+      this.selectedCardCountry.set(savedCountry || defaultCountry);
+
+      const savedAutoRedirect = localStorage.getItem('hitster_auto_redirect_spotify');
+      if (savedAutoRedirect !== null) {
+        this.autoRedirectSpotify.set(savedAutoRedirect === 'true');
+      }
+
       const savedProvider = localStorage.getItem('hitster_music_provider');
       if (savedProvider === 'spotify' || savedProvider === 'itunes') {
         this.musicProvider.set(savedProvider);
@@ -3673,6 +4067,16 @@ export class HitsterScorerComponent implements OnDestroy {
         this.spotifyUser.set(savedUser);
         this.tempSpotifyUser = savedUser;
         this.isSpotifyLinked.set(true);
+      }
+    } catch {}
+  }
+
+  private async loadHitsterCardsDatabase(): Promise<void> {
+    try {
+      const res = await fetch('assets/games/hitster/cards-db.json');
+      if (res.ok) {
+        const db = await res.json();
+        this.cardsDatabase.set(db);
       }
     } catch {}
   }
@@ -3978,12 +4382,39 @@ export class HitsterScorerComponent implements OnDestroy {
     reader.readAsDataURL(file);
   }
 
-  handleScannedRawText(raw: string): void {
-    const trackInfo = parseSpotifyTrackUrl(raw);
-    if (trackInfo.url || trackInfo.trackId) {
-      this.loadTrackForCurrentProvider(trackInfo, {
+  async handleScannedRawText(raw: string): Promise<void> {
+    this.unmappedCardDetected.set(null);
+    const trackInfo = parseSpotifyTrackUrl(
+      raw,
+      this.cardsDatabase(),
+      this.selectedCardCountry()
+    );
+
+    if (trackInfo.trackId) {
+      const cardLabel = trackInfo.cardId ? `Carta #${trackInfo.cardId}` : 'Carta Hitster';
+
+      // Redirección directa a la app de Spotify si está configurada
+      if (this.musicProvider() === 'spotify' && this.autoRedirectSpotify()) {
+        this.openSpotifyApp(trackInfo);
+      }
+
+      await this.loadTrackForCurrentProvider(trackInfo, {
         title: 'Cargando título...',
         artist: 'Cargando artista...',
+        year: cardLabel,
+      });
+    } else if (trackInfo.isHitsterCard && trackInfo.cardId) {
+      // Es una carta física de Hitster pero no está en la base de datos local
+      this.stopCameraScanner();
+      this.unmappedCardDetected.set({
+        cardId: trackInfo.cardId,
+        country: trackInfo.country || this.selectedCardCountry(),
+        url: trackInfo.url,
+      });
+    } else if (trackInfo.url) {
+      await this.loadTrackForCurrentProvider(trackInfo, {
+        title: 'Canción Hitster',
+        artist: 'Artista',
         year: 'Hitster Card',
       });
     }
@@ -3991,12 +4422,7 @@ export class HitsterScorerComponent implements OnDestroy {
 
   loadManualTrack(): void {
     if (!this.manualSpotifyText.trim()) return;
-    const trackInfo = parseSpotifyTrackUrl(this.manualSpotifyText.trim());
-    this.loadTrackForCurrentProvider(trackInfo, {
-      title: 'Canción Hitster',
-      artist: 'Artista',
-      year: 'Año en la Carta',
-    });
+    this.handleScannedRawText(this.manualSpotifyText.trim());
   }
 
   loadDemoTrack(demo: HitsterDemoTrack): void {
@@ -4073,12 +4499,20 @@ export class HitsterScorerComponent implements OnDestroy {
 
     // 2. Si el servicio es iTunes / Apple Music, buscar y reproducir la vista previa oficial
     if (this.musicProvider() === 'itunes') {
-      const query = `${artist} ${title}`;
-      this.fetchAndPlayItunesAudio(query, {
-        title,
-        artist,
-        albumArt,
-      });
+      const query =
+        title && title !== 'Cargando título...'
+          ? `${artist && artist !== 'Cargando artista...' ? artist + ' ' : ''}${title}`
+          : (info.cardId ? `Carta ${info.cardId}` : '');
+      if (query) {
+        this.fetchAndPlayItunesAudio(query, {
+          title,
+          artist,
+          albumArt,
+        });
+      } else {
+        this.resetTimer();
+        this.startTimer();
+      }
     } else {
       this.resetTimer();
       this.startTimer();
@@ -4275,7 +4709,10 @@ export class HitsterScorerComponent implements OnDestroy {
 
   resetDjTrack(): void {
     this.stopItunesAudio();
+    this.unmappedCardDetected.set(null);
+    this.fallbackSearchText = '';
     this.activeTrack.set(null);
+    this.sanitizedEmbedUrl.set(null);
     this.isRevealed.set(false);
     this.revealedTrack.set(null);
     this.resetTimer();
@@ -4289,6 +4726,89 @@ export class HitsterScorerComponent implements OnDestroy {
     if (this.scannerInputMode() === 'camera') {
       setTimeout(() => this.startCameraScanner(), 200);
     }
+  }
+
+  openSpotifyApp(info?: SpotifyTrackInfo): void {
+    const track = info || this.activeTrack();
+    if (!track) return;
+    const targetUri = track.appUri || track.url;
+    if (!targetUri) return;
+
+    try {
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        window.location.href = track.appUri || track.url;
+      } else {
+        window.open(track.url, '_blank');
+      }
+    } catch {
+      window.open(track.url, '_blank');
+    }
+  }
+
+  async searchAndPlayFallback(): Promise<void> {
+    const query = this.fallbackSearchText.trim();
+    if (!query) return;
+
+    const unmapped = this.unmappedCardDetected();
+    const cardYear = unmapped ? `Carta #${unmapped.cardId}` : 'Canción Hitster';
+    this.unmappedCardDetected.set(null);
+
+    if (this.musicProvider() === 'itunes') {
+      const pseudoTrack: SpotifyTrackInfo = {
+        url: `https://itunes.apple.com/search?term=${encodeURIComponent(query)}`,
+        cardId: unmapped?.cardId,
+        country: unmapped?.country,
+      };
+      this.activeTrack.set(pseudoTrack);
+      this.revealedTrack.set({
+        title: query,
+        artist: 'Búsqueda en iTunes',
+        year: cardYear,
+      });
+      this.isRevealed.set(false);
+      await this.fetchAndPlayItunesAudio(query, {
+        title: query,
+        artist: 'Artista',
+        year: cardYear,
+      });
+    } else {
+      const encoded = encodeURIComponent(query);
+      const searchTrack: SpotifyTrackInfo = {
+        url: `https://open.spotify.com/search/${encoded}`,
+        appUri: `spotify:search:${encoded}`,
+        cardId: unmapped?.cardId,
+        country: unmapped?.country,
+      };
+      this.activeTrack.set(searchTrack);
+      this.revealedTrack.set({
+        title: query,
+        artist: 'Búsqueda en Spotify',
+        year: cardYear,
+      });
+      this.isRevealed.set(false);
+      if (this.autoRedirectSpotify()) {
+        this.openSpotifyApp(searchTrack);
+      }
+      this.resetTimer();
+      this.startTimer();
+    }
+  }
+
+  setCardCountry(country: string): void {
+    this.selectedCardCountry.set(country);
+    try {
+      localStorage.setItem('hitster_card_country', country);
+    } catch {}
+  }
+
+  toggleAutoRedirectSpotify(): void {
+    this.autoRedirectSpotify.update((v) => {
+      const next = !v;
+      try {
+        localStorage.setItem('hitster_auto_redirect_spotify', String(next));
+      } catch {}
+      return next;
+    });
   }
 
   // Modales y Configuración Musical
