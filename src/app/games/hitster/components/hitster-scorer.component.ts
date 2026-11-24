@@ -5450,6 +5450,7 @@ export class HitsterScorerComponent implements OnDestroy {
   isRevealed = signal(false);
   revealedTrack = signal<RevealedTrackDetails | null>(null);
   isAudioLoading = signal(false);
+  currentItunesPreviewUrl = signal<string>('');
 
   // Base de datos de cartas Hitster y configuración regional
   cardsDatabase = signal<Record<string, Record<string, string>>>({});
@@ -6605,6 +6606,7 @@ export class HitsterScorerComponent implements OnDestroy {
   }
 
   private playItunesAudioStream(url: string): void {
+    this.currentItunesPreviewUrl.set(url);
     if (!this.showDjModal()) {
       this.stopItunesAudio();
       return;
@@ -6614,6 +6616,10 @@ export class HitsterScorerComponent implements OnDestroy {
       const audio = this.itunesAudioRef.nativeElement;
       audio.src = url;
       audio.currentTime = 0;
+      this.isAudioLoading.set(false);
+      this.stopTimer();
+      this.timerSecondsLeft.set(this.timerDefaultDuration());
+
       audio
         .play()
         .then(() => {
@@ -6621,23 +6627,17 @@ export class HitsterScorerComponent implements OnDestroy {
             this.stopItunesAudio();
             return;
           }
-          this.isAudioLoading.set(false);
-          this.resetTimer();
-          this.startTimer();
+          this.isPlaying.set(true);
+          this.isTimerRunning.set(true);
+          this.startCountdownInterval();
         })
         .catch(() => {
-          this.isAudioLoading.set(false);
-          if (this.showDjModal()) {
-            this.resetTimer();
-            this.startTimer();
-          }
+          this.isPlaying.set(false);
+          this.isTimerRunning.set(false);
+          this.stopTimer();
         });
     } else {
       this.isAudioLoading.set(false);
-      if (this.showDjModal()) {
-        this.resetTimer();
-        this.startTimer();
-      }
     }
   }
 
@@ -6675,22 +6675,8 @@ export class HitsterScorerComponent implements OnDestroy {
     return null;
   }
 
-  // Controles de Reproducción y Temporizador
-  startTimer(): void {
-    if (!this.showDjModal()) {
-      this.stopTimer();
-      this.stopItunesAudio();
-      return;
-    }
-
+  private startCountdownInterval(): void {
     this.stopTimer();
-    this.isTimerRunning.set(true);
-    this.isPlaying.set(true);
-
-    if (this.musicProvider() === 'itunes' && this.itunesAudioRef?.nativeElement) {
-      this.itunesAudioRef.nativeElement.play().catch(() => {});
-    }
-
     this.timerIntervalId = setInterval(() => {
       if (!this.showDjModal()) {
         this.stopTimer();
@@ -6709,11 +6695,42 @@ export class HitsterScorerComponent implements OnDestroy {
     }, 1000);
   }
 
+  // Controles de Reproducción y Temporizador
+  startTimer(): void {
+    if (!this.showDjModal()) {
+      this.stopTimer();
+      this.stopItunesAudio();
+      return;
+    }
+
+    this.stopTimer();
+    this.isTimerRunning.set(true);
+    this.isPlaying.set(true);
+
+    if (this.musicProvider() === 'itunes' && this.itunesAudioRef?.nativeElement) {
+      const audio = this.itunesAudioRef.nativeElement;
+      if (!audio.src && this.currentItunesPreviewUrl()) {
+        audio.src = this.currentItunesPreviewUrl();
+      }
+      if (audio.src) {
+        audio.play().catch(() => {
+          this.isPlaying.set(false);
+          this.isTimerRunning.set(false);
+          this.stopTimer();
+        });
+      }
+    }
+
+    this.startCountdownInterval();
+  }
+
   pauseTimer(): void {
     this.stopTimer();
     this.isTimerRunning.set(false);
     this.isPlaying.set(false);
-    this.stopItunesAudio();
+    if (this.itunesAudioRef?.nativeElement) {
+      this.itunesAudioRef.nativeElement.pause();
+    }
   }
 
   resetTimer(): void {
@@ -6721,7 +6738,10 @@ export class HitsterScorerComponent implements OnDestroy {
     this.timerSecondsLeft.set(this.timerDefaultDuration());
     this.isTimerRunning.set(false);
     this.isPlaying.set(false);
-    this.stopItunesAudio();
+    if (this.itunesAudioRef?.nativeElement) {
+      this.itunesAudioRef.nativeElement.pause();
+      this.itunesAudioRef.nativeElement.currentTime = 0;
+    }
   }
 
   private stopTimer(): void {
@@ -6931,6 +6951,7 @@ export class HitsterScorerComponent implements OnDestroy {
 
   private resetDjTrackState(): void {
     this.stopItunesAudio();
+    this.currentItunesPreviewUrl.set('');
     this.unmappedCardDetected.set(null);
     this.fallbackSearchText = '';
     this.activeTrack.set(null);
