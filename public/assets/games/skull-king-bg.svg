@@ -1,122 +1,135 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
   <defs>
-    <!-- Paleta Náutica Skull King -->
-    <radialGradient id="skGlow" cx="70%" cy="30%" r="60%">
-      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.35"/>
-      <stop offset="50%" stop-color="#d97706" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#0f2a4a" stop-opacity="0"/>
+    <!-- Gradiente de Atmósfera Náutica Skull King -->
+    <radialGradient id="skGlow" cx="65%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.38"/>
+      <stop offset="40%" stop-color="#d97706" stop-opacity="0.22"/>
+      <stop offset="75%" stop-color="#1e3a8a" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#0b1326" stop-opacity="0"/>
     </radialGradient>
 
-    <radialGradient id="moonGlow" cx="75%" cy="25%" r="35%">
-      <stop offset="0%" stop-color="#fef3c7" stop-opacity="0.5"/>
-      <stop offset="60%" stop-color="#f59e0b" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#0a192f" stop-opacity="0"/>
+    <!-- Resplandor Dorado de la Luna Llena Pirata -->
+    <radialGradient id="moonGlow" cx="60%" cy="30%" r="45%">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="0.5"/>
+      <stop offset="45%" stop-color="#f59e0b" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#0b1326" stop-opacity="0"/>
     </radialGradient>
 
-    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fde68a" stop-opacity="0.6"/>
-      <stop offset="50%" stop-color="#d97706" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#92400e" stop-opacity="0.2"/>
+    <!-- Gradiente de Oro Pulido para Timón y Corona -->
+    <linearGradient id="goldHelm" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="0.95"/>
+      <stop offset="35%" stop-color="#fbbf24" stop-opacity="0.9"/>
+      <stop offset="70%" stop-color="#d97706" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#78350f" stop-opacity="0.85"/>
     </linearGradient>
 
-    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#1e3a8a" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#0a192f" stop-opacity="0.05"/>
+    <!-- Gradiente de Madera de Galeón -->
+    <linearGradient id="galleonWood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#92400e" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#451a03" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#1c1917" stop-opacity="0.9"/>
     </linearGradient>
 
-    <filter id="skBlur" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3"/>
-    </filter>
+    <!-- Gradiente de Hueso y Calavera -->
+    <linearGradient id="skullBone" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="60%" stop-color="#fef3c7" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#d97706" stop-opacity="0.75"/>
+    </linearGradient>
   </defs>
 
-  <!-- Atmósfera de Fondo con Neblina Nocturna y Resplandor -->
-  <rect width="800" height="600" fill="url(#skGlow)"/>
-  <circle cx="620" cy="140" r="120" fill="url(#moonGlow)"/>
+  <!-- Atmósfera General de Mar Nocturno -->
+  <rect width="600" height="600" fill="url(#skGlow)"/>
+  <circle cx="410" cy="230" r="230" fill="url(#moonGlow)"/>
 
-  <!-- Rosa de los Vientos y Cartografía Pirata -->
-  <g opacity="0.3" stroke="#f59e0b" stroke-width="1.2" fill="none">
-    <circle cx="620" cy="140" r="100" stroke-dasharray="4,6"/>
-    <circle cx="620" cy="140" r="70"/>
-    <circle cx="620" cy="140" r="30"/>
-    <!-- Rayos del Compás -->
-    <path d="M 620,30 L 620,250 M 510,140 L 730,140 M 542,62 L 698,218 M 542,218 L 698,62"/>
-    <!-- Puntas Principales del Compás -->
-    <polygon points="620,40 626,134 620,140" fill="#f59e0b" opacity="0.5"/>
-    <polygon points="620,40 614,134 620,140" fill="#92400e" opacity="0.5"/>
-    <polygon points="620,240 626,146 620,140" fill="#f59e0b" opacity="0.5"/>
-    <polygon points="620,240 614,146 620,140" fill="#92400e" opacity="0.5"/>
-    <polygon points="720,140 626,134 620,140" fill="#f59e0b" opacity="0.5"/>
-    <polygon points="720,140 626,146 620,140" fill="#92400e" opacity="0.5"/>
-    <polygon points="520,140 614,134 620,140" fill="#f59e0b" opacity="0.5"/>
-    <polygon points="520,140 614,146 620,140" fill="#92400e" opacity="0.5"/>
+  <!-- Cartografía y Rosa de los Vientos de Fondo -->
+  <g opacity="0.22" stroke="#f59e0b" stroke-width="2" fill="none">
+    <circle cx="410" cy="230" r="215" stroke-dasharray="16,8"/>
+    <circle cx="410" cy="230" r="185"/>
+    <circle cx="410" cy="230" r="145" stroke-dasharray="8,6"/>
+    <circle cx="410" cy="230" r="110"/>
+    <line x1="410" y1="15" x2="410" y2="445" stroke-dasharray="6,6"/>
+    <line x1="195" y1="230" x2="625" y2="230" stroke-dasharray="6,6"/>
   </g>
 
-  <!-- Olas del Océano Tenebroso -->
-  <path d="M 0,420 Q 150,380 300,430 T 600,410 T 800,440 L 800,600 L 0,600 Z" fill="url(#waveGrad)"/>
-  <path d="M 0,460 Q 200,420 400,470 T 800,450 L 800,600 L 0,600 Z" fill="url(#waveGrad)" opacity="0.6"/>
+  <!-- Timón Principal del Capitán Pirata (Ship's Wheel) -->
+  <g transform="translate(410, 230)">
+    <!-- Radios del Timón (8 Manijas Radiantes) -->
+    <g stroke="url(#goldHelm)" stroke-width="6" stroke-linecap="round">
+      <line x1="0" y1="-145" x2="0" y2="145"/>
+      <line x1="-145" y1="0" x2="145" y2="0"/>
+      <line x1="-102" y1="-102" x2="102" y2="102"/>
+      <line x1="-102" y1="102" x2="102" y2="-102"/>
+    </g>
 
-  <!-- Silueta de Galeón Pirata Navegando en el Horizonte -->
-  <g opacity="0.35" fill="#f59e0b">
-    <!-- Casco del Navío -->
-    <path d="M 120,430 C 140,430 260,435 290,410 C 275,445 220,455 130,450 C 115,445 110,435 120,430 Z"/>
-    <!-- Mástiles -->
-    <rect x="170" y="320" width="4" height="110"/>
-    <rect x="220" y="300" width="5" height="130"/>
-    <rect x="260" y="335" width="3" height="95"/>
-    <!-- Bauprés -->
-    <path d="M 285,415 L 340,390 L 335,395 Z"/>
-    <!-- Velas Cuadradas Henchidas -->
-    <path d="M 155,340 Q 172,330 188,340 C 185,370 158,370 155,340 Z"/>
-    <path d="M 152,380 Q 172,370 190,380 C 187,410 155,410 152,380 Z"/>
-    <path d="M 205,320 Q 222,310 240,320 C 238,350 207,350 205,320 Z"/>
-    <path d="M 202,360 Q 222,350 242,360 C 239,395 204,395 202,360 Z"/>
-    <path d="M 250,350 Q 262,342 274,350 C 272,375 252,375 250,350 Z"/>
-    <!-- Bandera Jolly Roger ondeando -->
-    <path d="M 225,300 Q 240,295 255,302 Q 245,310 225,308 Z" fill="#ef4444"/>
+    <!-- Empuñaduras Exteriores Torneadas -->
+    <g fill="url(#goldHelm)" stroke="#fef08a" stroke-width="1.5">
+      <circle cx="0" cy="-148" r="9"/>
+      <circle cx="0" cy="148" r="9"/>
+      <circle cx="-148" cy="0" r="9"/>
+      <circle cx="148" cy="0" r="9"/>
+      <circle cx="-105" cy="-105" r="9"/>
+      <circle cx="105" cy="105" r="9"/>
+      <circle cx="-105" cy="105" r="9"/>
+      <circle cx="105" cy="-105" r="9"/>
+    </g>
+
+    <!-- Aro Exterior de Madera y Oro -->
+    <circle cx="0" cy="0" r="115" fill="none" stroke="url(#galleonWood)" stroke-width="16" opacity="0.9"/>
+    <circle cx="0" cy="0" r="123" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="107" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+
+    <!-- Remaches Náuticos en el Aro Exterior -->
+    <g fill="#fef08a">
+      <circle cx="0" cy="-115" r="3"/>
+      <circle cx="0" cy="115" r="3"/>
+      <circle cx="-115" cy="0" r="3"/>
+      <circle cx="115" cy="0" r="3"/>
+      <circle cx="-81" cy="-81" r="3"/>
+      <circle cx="81" cy="81" r="3"/>
+      <circle cx="-81" cy="81" r="3"/>
+      <circle cx="81" cy="-81" r="3"/>
+    </g>
+
+    <!-- Aro Interior Concéntrico -->
+    <circle cx="0" cy="0" r="68" fill="none" stroke="url(#goldHelm)" stroke-width="5" opacity="0.85"/>
+
+    <!-- Espadas Piratas Cruzadas (Cutlasses) detrás del Escudo -->
+    <g stroke="#ffffff" stroke-width="2.5" stroke-linecap="round">
+      <!-- Hoja 1 -->
+      <path d="M -80,-80 Q -30,-30 80,80" fill="none" stroke="#e2e8f0" stroke-width="5"/>
+      <path d="M -80,-80 L -70,-65" fill="none" stroke="#fbbf24" stroke-width="6"/>
+      <!-- Hoja 2 -->
+      <path d="M 80,-80 Q 30,-30 -80,80" fill="none" stroke="#e2e8f0" stroke-width="5"/>
+      <path d="M 80,-80 L 70,-65" fill="none" stroke="#fbbf24" stroke-width="6"/>
+    </g>
+
+    <!-- Núcleo Central: Sello de la Calavera del Rey Pirata -->
+    <circle cx="0" cy="0" r="50" fill="url(#galleonWood)" stroke="url(#goldHelm)" stroke-width="4"/>
+
+    <!-- Calavera Pirata Grabada -->
+    <path d="M -18,-15 C -18,-30 18,-30 18,-15 C 22,-5 20,10 12,16 L 10,24 L -10,24 L -12,16 C -20,10 -22,-5 -18,-15 Z" fill="url(#skullBone)" stroke="#78350f" stroke-width="1.5"/>
+    
+    <!-- Ojos y Nariz de la Calavera -->
+    <circle cx="-7" cy="-10" r="4.5" fill="#0f172a"/>
+    <circle cx="7" cy="-10" r="4.5" fill="#0f172a"/>
+    <polygon points="0,-3 -3,3 3,3" fill="#0f172a"/>
+    
+    <!-- Dientes de la Calavera -->
+    <line x1="-6" y1="18" x2="-6" y2="24" stroke="#78350f" stroke-width="1.5"/>
+    <line x1="0" y1="18" x2="0" y2="24" stroke="#78350f" stroke-width="1.5"/>
+    <line x1="6" y1="18" x2="6" y2="24" stroke="#78350f" stroke-width="1.5"/>
+
+    <!-- Corona Dorada del Skull King -->
+    <path d="M -16,-26 L -20,-38 L -9,-32 L 0,-42 L 9,-32 L 20,-38 L 16,-26 Z" fill="url(#goldHelm)" stroke="#fef08a" stroke-width="1.5"/>
+    <circle cx="0" cy="-33" r="2.5" fill="#ef4444"/>
+    <circle cx="-10" cy="-28" r="2" fill="#3b82f6"/>
+    <circle cx="10" cy="-28" r="2" fill="#10b981"/>
   </g>
 
-  <!-- Gran Corona y Emblema de Calavera del Skull King (Marca de Agua) -->
-  <g transform="translate(480, 180) scale(0.9)" opacity="0.45">
-    <!-- Corona del Rey Pirata -->
-    <path d="M 60,60 L 90,10 L 140,55 L 190,10 L 220,60 L 210,80 L 70,80 Z" fill="url(#goldGradient)" stroke="#f59e0b" stroke-width="2"/>
-    <circle cx="90" cy="10" r="7" fill="#f59e0b"/>
-    <circle cx="140" cy="55" r="9" fill="#ef4444"/>
-    <circle cx="190" cy="10" r="7" fill="#f59e0b"/>
-    <!-- Joyas de la Corona -->
-    <circle cx="105" cy="70" r="5" fill="#3b82f6"/>
-    <circle cx="140" cy="70" r="6" fill="#10b981"/>
-    <circle cx="175" cy="70" r="5" fill="#ef4444"/>
-
-    <!-- Calavera Pirata -->
-    <path d="M 80,85 C 80,75 200,75 200,85 C 215,100 220,150 200,185 C 195,195 185,200 175,200 L 175,225 C 175,230 165,235 140,235 C 115,235 105,230 105,225 L 105,200 C 95,200 85,195 80,185 C 60,150 65,100 80,85 Z" fill="#0b1326" stroke="#f59e0b" stroke-width="3"/>
-
-    <!-- Cuencas de los Ojos -->
-    <ellipse cx="112" cy="140" rx="18" ry="24" fill="#f59e0b" opacity="0.65"/>
-    <ellipse cx="168" cy="140" rx="18" ry="24" fill="#0f2a4a"/>
-    <!-- Parche Pirata en Ojo Derecho -->
-    <path d="M 148,115 L 188,165 L 175,170 L 145,120 Z" fill="#000000" opacity="0.9"/>
-    <path d="M 80,110 L 205,175" stroke="#92400e" stroke-width="3"/>
-
-    <!-- Cavidad Nasal -->
-    <path d="M 140,165 L 134,185 L 146,185 Z" fill="#f59e0b" opacity="0.5"/>
-
-    <!-- Dientes Afilados del Corsario -->
-    <g fill="#f59e0b" opacity="0.7">
-      <rect x="115" y="210" width="7" height="15" rx="2"/>
-      <rect x="127" y="210" width="7" height="15" rx="2"/>
-      <rect x="139" y="210" width="7" height="15" rx="2"/>
-      <rect x="151" y="210" width="7" height="15" rx="2"/>
-      <!-- Diente de Oro característico -->
-      <rect x="163" y="210" width="7" height="15" rx="2" fill="#fef08a"/>
-    </g>
-
-    <!-- Sables Piratas Cruzados en la Base -->
-    <g stroke="#f59e0b" stroke-width="4" stroke-linecap="round" opacity="0.5">
-      <line x1="40" y1="270" x2="240" y2="70"/>
-      <line x1="240" y1="270" x2="40" y2="70"/>
-      <!-- Empuñaduras de los Sables -->
-      <circle cx="45" cy="265" r="12" fill="none" stroke-width="3"/>
-      <circle cx="235" cy="265" r="12" fill="none" stroke-width="3"/>
-    </g>
+  <!-- Olas Oceánicas y Tentáculos del Kraken en Primer Plano -->
+  <g opacity="0.35" stroke="#f59e0b" stroke-linecap="round" fill="none">
+    <path d="M 120,490 C 220,440 320,530 430,460 C 490,420 540,460 590,430" stroke-width="3"/>
+    <path d="M 160,530 C 260,480 360,570 470,500 C 520,470 560,500 600,470" stroke-width="2"/>
   </g>
 </svg>

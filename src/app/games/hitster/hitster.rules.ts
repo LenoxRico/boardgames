@@ -2,6 +2,7 @@ import { GameRules } from '../../core/models/game.interface';
 
 export const HITSTER_RULES: GameRules = {
   languages: ['es', 'en'],
+  coverImage: '/assets/games/hitster-rules.svg',
   content: {
     es: {
       summary: [

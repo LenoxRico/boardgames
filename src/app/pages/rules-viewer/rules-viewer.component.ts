@@ -100,75 +100,77 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
           </div>
         </div>
 
-        <!-- Card de Identidad Temática con Imagen Alusiva del Juego -->
+        <!-- Card Dedicada para la Ilustración Alusiva de Reglas (Ocupa todo el espacio de forma centrada) -->
+        @if (getRulesCoverImage(game); as coverImg) {
+          <div
+            class="rules-image-card"
+            [style.background-image]="game.metadata.theme?.gradient"
+          >
+            <img
+              [src]="coverImg"
+              [alt]="'Ilustración oficial de reglas - ' + game.metadata.name"
+              class="rules-cover-image"
+            />
+          </div>
+        }
+
+        <!-- Card de Identidad y Especificaciones Técnicas del Juego -->
         <div
-          class="game-hero-card"
+          class="game-overview-card"
           [style.background-image]="game.metadata.theme?.gradient"
         >
-          @if (getGameImage(game); as bg) {
+          @if (getGameBgImage(game); as bg) {
             <div
               class="card-thematic-art"
               [style.background-image]="'url(' + bg + ')'"
             ></div>
           }
 
-          <div class="game-hero-content">
-            <!-- Marco destacado con la Ilustración Temática del Juego -->
-            <div class="game-art-showcase">
-              <img
-                [src]="getGameImage(game)"
-                [alt]="game.metadata.name"
-                class="game-art-image"
-              />
+          <div class="game-overview-content">
+            <div class="game-hero-header">
+              <span class="game-hero-emoji">{{ game.metadata.emoji }}</span>
+              <div class="game-hero-titles">
+                <h2 class="game-hero-name">{{ game.metadata.name }}</h2>
+                @if (game.metadata.subtitle) {
+                  <span class="game-hero-subtitle">{{ game.metadata.subtitle }}</span>
+                }
+              </div>
             </div>
 
-            <!-- Ficha Técnica e Identidad del Juego -->
-            <div class="game-hero-info">
-              <div class="game-hero-header">
-                <span class="game-hero-emoji">{{ game.metadata.emoji }}</span>
-                <div class="game-hero-titles">
-                  <h2 class="game-hero-name">{{ game.metadata.name }}</h2>
-                  @if (game.metadata.subtitle) {
-                    <span class="game-hero-subtitle">{{ game.metadata.subtitle }}</span>
-                  }
-                </div>
+            <p class="game-hero-tagline">{{ game.metadata.tagline }}</p>
+
+            <!-- Badges de Especificaciones Técnicas del Juego -->
+            <div class="game-specs-grid">
+              <div class="spec-chip">
+                <span class="material-symbols-outlined spec-icon">group</span>
+                <span>{{ game.metadata.minPlayers }} - {{ game.metadata.maxPlayers }} jugadores</span>
               </div>
 
-              <p class="game-hero-tagline">{{ game.metadata.tagline }}</p>
+              <div class="spec-chip">
+                <span class="material-symbols-outlined spec-icon">military_tech</span>
+                <span>
+                  {{
+                    game.metadata.victoryType === 'highest_score'
+                      ? 'Mayor puntuación gana'
+                      : 'Menor puntuación gana'
+                  }}
+                </span>
+              </div>
 
-              <!-- Badges de Especificaciones Técnicas del Juego -->
-              <div class="game-specs-grid">
-                <div class="spec-chip">
-                  <span class="material-symbols-outlined spec-icon">group</span>
-                  <span>{{ game.metadata.minPlayers }} - {{ game.metadata.maxPlayers }} jugadores</span>
-                </div>
+              <div class="spec-chip">
+                <span class="material-symbols-outlined spec-icon">timer</span>
+                <span>
+                  {{
+                    game.metadata.defaultRounds
+                      ? game.metadata.defaultRounds + ' rondas oficiales'
+                      : 'Puntuación variable'
+                  }}
+                </span>
+              </div>
 
-                <div class="spec-chip">
-                  <span class="material-symbols-outlined spec-icon">military_tech</span>
-                  <span>
-                    {{
-                      game.metadata.victoryType === 'highest_score'
-                        ? 'Mayor puntuación gana'
-                        : 'Menor puntuación gana'
-                    }}
-                  </span>
-                </div>
-
-                <div class="spec-chip">
-                  <span class="material-symbols-outlined spec-icon">timer</span>
-                  <span>
-                    {{
-                      game.metadata.defaultRounds
-                        ? game.metadata.defaultRounds + ' rondas oficiales'
-                        : 'Puntuación variable'
-                    }}
-                  </span>
-                </div>
-
-                <div class="spec-chip">
-                  <span class="material-symbols-outlined spec-icon">score</span>
-                  <span>Unidad: {{ game.metadata.scoreUnit }}</span>
-                </div>
+              <div class="spec-chip">
+                <span class="material-symbols-outlined spec-icon">score</span>
+                <span>Unidad: {{ game.metadata.scoreUnit }}</span>
               </div>
             </div>
           </div>
@@ -245,14 +247,43 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
     }
 
     .controls-card,
-    .game-hero-card,
+    .rules-image-card,
+    .game-overview-card,
     .rules-content-section {
       position: relative;
       z-index: 1;
     }
 
-    /* Card de Identidad Temática e Imagen Alusiva del Juego */
-    .game-hero-card {
+    /* Card Dedicada para la Ilustración de Reglas (Centrada y ocupa todo el espacio) */
+    .rules-image-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-default);
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 100%;
+    }
+
+    .rules-cover-image {
+      width: 100%;
+      height: auto;
+      max-height: 290px;
+      aspect-ratio: 2 / 1;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.35s ease;
+    }
+
+    .rules-image-card:hover .rules-cover-image {
+      transform: scale(1.02);
+    }
+
+    /* Card de Información y Especificaciones del Juego */
+    .game-overview-card {
       position: relative;
       overflow: hidden;
       background: var(--color-surface-container);
@@ -262,55 +293,9 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     }
 
-    .game-hero-content {
+    .game-overview-content {
       position: relative;
       z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: var(--space-md);
-    }
-
-    @media (max-width: 600px) {
-      .game-hero-content {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-
-    .game-art-showcase {
-      width: 120px;
-      height: 120px;
-      min-width: 120px;
-      border-radius: var(--radius-lg);
-      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.35) 100%);
-      border: 1.5px solid var(--color-border-default);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: var(--space-xs);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-    }
-
-    :host-context([data-theme='light']) .game-art-showcase {
-      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.95) 0%, rgba(226, 232, 240, 0.7) 100%);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    }
-
-    .game-art-image {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
-      transition: transform 0.3s ease;
-    }
-
-    .game-hero-card:hover .game-art-image {
-      transform: scale(1.05);
-    }
-
-    .game-hero-info {
-      flex: 1;
       display: flex;
       flex-direction: column;
       gap: var(--space-xs);
@@ -766,10 +751,20 @@ export class RulesViewerComponent {
     }
   }
 
-  getGameImage(game: GameDefinition): string {
+  getRulesCoverImage(game: GameDefinition): string {
     const img = game.rules?.coverImage || game.metadata?.theme?.bgImageUrl || '';
     if (!img) return '';
     return img.startsWith('/') ? img : '/' + img;
+  }
+
+  getGameBgImage(game: GameDefinition): string {
+    const img = game.metadata?.theme?.bgImageUrl || '';
+    if (!img) return '';
+    return img.startsWith('/') ? img : '/' + img;
+  }
+
+  getGameImage(game: GameDefinition): string {
+    return this.getRulesCoverImage(game);
   }
 
   setLanguage(lang: 'es' | 'en'): void {

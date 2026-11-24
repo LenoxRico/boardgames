@@ -1,105 +1,123 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
   <defs>
-    <!-- Gradiente de Campo y Pradera Táctica -->
-    <radialGradient id="take6Glow" cx="75%" cy="30%" r="65%">
-      <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
-      <stop offset="45%" stop-color="#047857" stop-opacity="0.15"/>
-      <stop offset="85%" stop-color="#064e3b" stop-opacity="0.05"/>
+    <!-- Gradiente de Atmósfera Pradera Táctica de Toma 6 -->
+    <radialGradient id="take6Glow" cx="65%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.38"/>
+      <stop offset="40%" stop-color="#047857" stop-opacity="0.22"/>
+      <stop offset="75%" stop-color="#dc2626" stop-opacity="0.1"/>
       <stop offset="100%" stop-color="#0b1326" stop-opacity="0"/>
     </radialGradient>
 
-    <!-- Resplandor de Alerta de Cuernos (66 Puntos) -->
-    <radialGradient id="bullGlow" cx="65%" cy="40%" r="40%">
-      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25"/>
-      <stop offset="50%" stop-color="#dc2626" stop-opacity="0.15"/>
+    <!-- Resplandor Alerta de Cuernos de Toro -->
+    <radialGradient id="bullGlow" cx="60%" cy="35%" r="45%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.45"/>
+      <stop offset="50%" stop-color="#ef4444" stop-opacity="0.2"/>
       <stop offset="100%" stop-color="#0b1326" stop-opacity="0"/>
     </radialGradient>
 
-    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#34d399" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#047857" stop-opacity="0.1"/>
+    <!-- Gradiente de Cabeza de Toro Furia -->
+    <linearGradient id="bullHeadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.95"/>
+      <stop offset="50%" stop-color="#b91c1c" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#7f1d1d" stop-opacity="0.85"/>
     </linearGradient>
 
-    <linearGradient id="hornGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.7"/>
-      <stop offset="100%" stop-color="#dc2626" stop-opacity="0.4"/>
+    <!-- Gradiente de Cuernos de Toro Dorados -->
+    <linearGradient id="bullHornGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="0.95"/>
+      <stop offset="40%" stop-color="#fbbf24" stop-opacity="0.9"/>
+      <stop offset="80%" stop-color="#d97706" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#b45309" stop-opacity="0.8"/>
+    </linearGradient>
+
+    <!-- Gradiente de Carta Táctica Verde Esmeralda -->
+    <linearGradient id="cardEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.95"/>
+      <stop offset="60%" stop-color="#059669" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#064e3b" stop-opacity="0.85"/>
     </linearGradient>
   </defs>
 
-  <!-- Atmósfera General -->
-  <rect width="800" height="600" fill="url(#take6Glow)"/>
-  <circle cx="560" cy="240" r="260" fill="url(#bullGlow)"/>
+  <!-- Atmósfera de Fondo -->
+  <rect width="600" height="600" fill="url(#take6Glow)"/>
+  <circle cx="410" cy="230" r="230" fill="url(#bullGlow)"/>
 
-  <!-- Cuadrícula Esquemática de las 4 Filas de Cartas de Toma 6 -->
-  <g opacity="0.18" stroke="#34d399" stroke-width="1.5" fill="none">
-    <!-- Fila 1 -->
-    <rect x="60" y="80" width="75" height="110" rx="8" stroke-dasharray="4,4"/>
-    <rect x="150" y="80" width="75" height="110" rx="8"/>
-    <rect x="240" y="80" width="75" height="110" rx="8"/>
-    <rect x="330" y="80" width="75" height="110" rx="8"/>
-    <rect x="420" y="80" width="75" height="110" rx="8"/>
-    <!-- La 6ª Carta (¡Peligro!) -->
-    <rect x="510" y="80" width="75" height="110" rx="8" stroke="#ef4444" stroke-width="2.5" fill="rgba(239, 68, 68, 0.08)"/>
-
-    <!-- Fila 2 -->
-    <rect x="60" y="210" width="75" height="110" rx="8"/>
-    <rect x="150" y="210" width="75" height="110" rx="8"/>
-    <rect x="240" y="210" width="75" height="110" rx="8"/>
-    <rect x="330" y="210" width="75" height="110" rx="8"/>
-    <!-- Fila 3 -->
-    <rect x="60" y="340" width="75" height="110" rx="8"/>
-    <rect x="150" y="340" width="75" height="110" rx="8"/>
-    <rect x="240" y="340" width="75" height="110" rx="8"/>
-    <!-- Fila 4 -->
-    <rect x="60" y="470" width="75" height="110" rx="8"/>
-    <rect x="150" y="470" width="75" height="110" rx="8"/>
+  <!-- Cuadrícula Táctica de Filas de Cartas de Fondo -->
+  <g opacity="0.22" stroke="#34d399" stroke-width="2" fill="none">
+    <circle cx="410" cy="230" r="215" stroke-dasharray="16,8"/>
+    <circle cx="410" cy="230" r="175"/>
+    <circle cx="410" cy="230" r="135" stroke-dasharray="8,6"/>
+    <!-- Indicadores de Filas -->
+    <path d="M 60,180 L 320,180" stroke-dasharray="6,4"/>
+    <path d="M 60,240 L 290,240"/>
+    <path d="M 60,300 L 320,300" stroke-dasharray="6,4"/>
   </g>
 
-  <!-- Cartas Gigantes Superpuestas en Perspectiva -->
-  <g transform="translate(420, 160) rotate(-12)" opacity="0.3">
-    <rect x="0" y="0" width="130" height="190" rx="14" fill="#131e38" stroke="#34d399" stroke-width="2.5"/>
-    <text x="18" y="44" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="34" fill="#34d399">55</text>
-    <text x="75" y="170" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="34" fill="#34d399">55</text>
-    <!-- 7 Cuernos en el centro (Carta 55 con 7 cabezas de buey) -->
-    <text x="35" y="110" font-size="28" fill="#ef4444">🐂x7</text>
+  <!-- Abanico de Cartas Número Detrás del Toro -->
+  <g transform="translate(410, 230)">
+    <!-- Carta Izquierda (45°) -->
+    <g transform="rotate(-25) translate(-30, -50)">
+      <rect x="-42" y="-62" width="84" height="124" rx="8" fill="url(#cardEmerald)" stroke="#6ee7b7" stroke-width="2.5" opacity="0.8"/>
+      <text x="0" y="5" font-family="'Plus Jakarta Sans', sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">55</text>
+    </g>
+
+    <!-- Carta Derecha (25°) -->
+    <g transform="rotate(25) translate(30, -50)">
+      <rect x="-42" y="-62" width="84" height="124" rx="8" fill="url(#cardEmerald)" stroke="#6ee7b7" stroke-width="2.5" opacity="0.8"/>
+      <text x="0" y="5" font-family="'Plus Jakarta Sans', sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">66</text>
+    </g>
   </g>
 
-  <g transform="translate(480, 140) rotate(8)" opacity="0.35">
-    <rect x="0" y="0" width="130" height="190" rx="14" fill="#131e38" stroke="#ef4444" stroke-width="3"/>
-    <text x="18" y="44" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="36" fill="#ef4444">66</text>
-    <text x="75" y="170" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="36" fill="#ef4444">66</text>
-    <circle cx="65" cy="95" r="28" fill="rgba(239, 68, 68, 0.15)"/>
-    <text x="48" y="105" font-size="30">🐂</text>
-  </g>
+  <!-- Cabeza de Buey / Toro Legendario de Toma 6 (Central) -->
+  <g transform="translate(410, 230)">
+    <!-- Cuerno Izquierdo Puntiagudo -->
+    <path d="M -22,-30 C -60,-80 -120,-115 -145,-100 C -152,-90 -120,-60 -55,-10 Z" fill="url(#bullHornGrad)" stroke="#fef08a" stroke-width="2.5" opacity="0.95"/>
 
-  <!-- Gran Silueta del Buey Astado de Take 6 (Marca de Agua Principal) -->
-  <g transform="translate(430, 80) scale(1.15)" opacity="0.45">
-    <!-- Cuernos Curvos Majestuosos -->
-    <path d="M 60,110 C 20,40 -20,10 -70,20 C -75,30 -50,60 10,95 C 35,115 50,125 60,135 Z" fill="url(#hornGrad)"/>
-    <path d="M 180,110 C 220,40 260,10 310,20 C 315,30 290,60 230,95 C 205,115 190,125 180,135 Z" fill="url(#hornGrad)"/>
+    <!-- Cuerno Derecho Puntiagudo -->
+    <path d="M 22,-30 C 60,-80 120,-115 145,-100 C 152,-90 120,-60 55,-10 Z" fill="url(#bullHornGrad)" stroke="#fef08a" stroke-width="2.5" opacity="0.95"/>
 
-    <!-- Cabeza del Buey -->
-    <path d="M 60,120 C 50,140 45,180 55,220 C 65,260 85,310 120,325 C 155,310 175,260 185,220 C 195,180 190,140 180,120 C 160,105 80,105 60,120 Z" fill="#0b1326" stroke="#34d399" stroke-width="3"/>
+    <!-- Oreja Izquierda -->
+    <ellipse cx="-75" cy="5" rx="22" ry="12" transform="rotate(-20 -75 5)" fill="#b91c1c" stroke="#f87171" stroke-width="2"/>
 
-    <!-- Frente y Estructura Ósea -->
-    <polygon points="120,135 150,180 120,240 90,180" fill="rgba(52, 211, 153, 0.15)" stroke="#34d399" stroke-width="1.5"/>
+    <!-- Oreja Derecha -->
+    <ellipse cx="75" cy="5" rx="22" ry="12" transform="rotate(20 75 5)" fill="#b91c1c" stroke="#f87171" stroke-width="2"/>
 
-    <!-- Orejas de Toro -->
-    <path d="M 52,145 C 25,150 15,170 30,185 C 45,180 50,165 52,145 Z" fill="#047857"/>
-    <path d="M 188,145 C 215,150 225,170 210,185 C 195,180 190,165 188,145 Z" fill="#047857"/>
+    <!-- Cráneo / Frente del Toro (Escudo) -->
+    <path d="M -50,-40 C -30,-60 30,-60 50,-40 C 68,-10 65,30 45,70 C 25,95 -25,95 -45,70 C -65,30 -68,-10 -50,-40 Z" fill="url(#bullHeadGrad)" stroke="#f87171" stroke-width="3" opacity="0.95"/>
 
-    <!-- Ojos Amenazantes Rojos / Ámbar -->
-    <ellipse cx="85" cy="185" rx="14" ry="8" transform="rotate(-15, 85, 185)" fill="#ef4444"/>
-    <ellipse cx="155" cy="185" rx="14" ry="8" transform="rotate(15, 155, 185)" fill="#ef4444"/>
-    <circle cx="85" cy="185" r="4" fill="#fef08a"/>
-    <circle cx="155" cy="185" r="4" fill="#fef08a"/>
+    <!-- Placa Frontal con el Número 6 Legendario -->
+    <polygon points="0,-35 25,-10 18,25 -18,25 -25,-10" fill="#1e1b4b" stroke="#fbbf24" stroke-width="2"/>
+    <text x="0" y="14" font-family="'Plus Jakarta Sans', sans-serif" font-size="28" font-weight="900" fill="#fbbf24" text-anchor="middle">6</text>
+
+    <!-- Ojos Amenazantes del Toro -->
+    <polygon points="-38,0 -20,-6 -25,8" fill="#fef08a" stroke="#d97706" stroke-width="1.5"/>
+    <circle cx="-27" cy="1" r="3" fill="#b91c1c"/>
+
+    <polygon points="38,0 20,-6 25,8" fill="#fef08a" stroke="#d97706" stroke-width="1.5"/>
+    <circle cx="27" cy="1" r="3" fill="#b91c1c"/>
 
     <!-- Hocico y Nariz de Buey -->
-    <ellipse cx="120" cy="285" rx="35" ry="24" fill="#047857" opacity="0.6"/>
-    <!-- Orificios Nasales Exhalando Vaho -->
-    <ellipse cx="106" cy="288" rx="8" ry="10" fill="#0b1326"/>
-    <ellipse cx="134" cy="288" rx="8" ry="10" fill="#0b1326"/>
-    <!-- Aro en la Nariz -->
-    <path d="M 112,298 C 112,320 128,320 128,298" stroke="#fbbf24" stroke-width="3.5" fill="none"/>
+    <path d="M -30,48 C -30,35 30,35 30,48 C 30,75 -30,75 -30,48 Z" fill="#7f1d1d" stroke="#fca5a5" stroke-width="2"/>
+    <circle cx="-12" cy="52" r="5" fill="#18181b"/>
+    <circle cx="12" cy="52" r="5" fill="#18181b"/>
+
+    <!-- Aro / Argolla en la Nariz Dorada -->
+    <circle cx="0" cy="74" r="14" fill="none" stroke="url(#bullHornGrad)" stroke-width="3.5"/>
+  </g>
+
+  <!-- Siluetas de Mini Cabezas de Buey (Símbolo de Cuernos) -->
+  <g opacity="0.35" fill="#f59e0b">
+    <!-- Mini Toro 1 -->
+    <g transform="translate(180, 430) scale(0.6)">
+      <path d="M -15,-10 C -25,-25 -45,-30 -50,-25 C -45,-15 -25,0 -10,0 C 0,15 20,15 30,0 C 45,0 65,-15 70,-25 C 65,-30 45,-25 35,-10 Z"/>
+    </g>
+    <!-- Mini Toro 2 -->
+    <g transform="translate(270, 480) scale(0.7)">
+      <path d="M -15,-10 C -25,-25 -45,-30 -50,-25 C -45,-15 -25,0 -10,0 C 0,15 20,15 30,0 C 45,0 65,-15 70,-25 C 65,-30 45,-25 35,-10 Z"/>
+    </g>
+    <!-- Mini Toro 3 -->
+    <g transform="translate(370, 490) scale(0.6)">
+      <path d="M -15,-10 C -25,-25 -45,-30 -50,-25 C -45,-15 -25,0 -10,0 C 0,15 20,15 30,0 C 45,0 65,-15 70,-25 C 65,-30 45,-25 35,-10 Z"/>
+    </g>
   </g>
 </svg>

@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="mdrBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1326"/>
+      <stop offset="50%" stop-color="#111c38"/>
+      <stop offset="100%" stop-color="#080e1d"/>
+    </linearGradient>
+
+    <radialGradient id="mdrGlow" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.45"/>
+      <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0b1326" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Gradiente de Bronce Cretense -->
+    <linearGradient id="mdrBronze" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="35%" stop-color="#fbbf24"/>
+      <stop offset="75%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+
+    <!-- Gradiente Turquesa del Egeo -->
+    <linearGradient id="mdrCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="50%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+
+    <linearGradient id="mdrDiceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo Card Panorámico -->
+  <rect width="800" height="400" rx="16" fill="url(#mdrBg)"/>
+  <rect width="800" height="400" rx="16" fill="url(#mdrGlow)"/>
+
+  <!-- Columnas Griegas y Ruinas de Knossos a los Lados -->
+  <!-- Columna Izquierda -->
+  <g transform="translate(60, 160)" opacity="0.6">
+    <rect x="-25" y="-120" width="50" height="20" rx="3" fill="#cbd5e1" stroke="#06b6d4" stroke-width="2"/>
+    <rect x="-18" y="-100" width="36" height="220" fill="#64748b" stroke="#06b6d4" stroke-width="2"/>
+    <line x1="-8" y1="-100" x2="-8" y2="120" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="8" y1="-100" x2="8" y2="120" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="-28" y="120" width="56" height="25" rx="3" fill="#cbd5e1" stroke="#06b6d4" stroke-width="2"/>
+  </g>
+
+  <!-- Columna Derecha -->
+  <g transform="translate(740, 160)" opacity="0.6">
+    <rect x="-25" y="-120" width="50" height="20" rx="3" fill="#cbd5e1" stroke="#06b6d4" stroke-width="2"/>
+    <rect x="-18" y="-100" width="36" height="220" fill="#64748b" stroke="#06b6d4" stroke-width="2"/>
+    <line x1="-8" y1="-100" x2="-8" y2="120" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="8" y1="-100" x2="8" y2="120" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="-28" y="120" width="56" height="25" rx="3" fill="#cbd5e1" stroke="#06b6d4" stroke-width="2"/>
+  </g>
+
+  <!-- Greca del Laberinto en la Base -->
+  <path d="M 120,350 L 680,350" stroke="#06b6d4" stroke-width="3" stroke-dasharray="14,8" opacity="0.4"/>
+
+  <!-- Tríada Mítica: Grifo (Izquierda), Sirena (Derecha), Minotauro (Centro) -->
+
+  <!-- 1. El Grifo Mítico (Alas Doradas y Pico de Águila) -->
+  <g transform="translate(190, 200)">
+    <!-- Alas de Águila Abiertas -->
+    <path d="M 0,-40 C -40,-90 -85,-110 -120,-85 C -100,-50 -60,-20 0,-10 C -50,0 -80,25 -70,55 C -45,45 -20,20 0,10 Z"
+          fill="url(#mdrBronze)" stroke="#fde047" stroke-width="2.5"/>
+    <!-- Cabeza y Corona de Plumas del Grifo -->
+    <circle cx="20" cy="-20" r="32" fill="#1e1b4b" stroke="#fbbf24" stroke-width="2.5"/>
+    <path d="M 45,-20 L 75,-12 L 45,-2 Z" fill="#f59e0b" stroke="#fde047" stroke-width="2"/>
+    <circle cx="28" cy="-24" r="5" fill="#fef08a"/>
+    <circle cx="28" cy="-24" r="2" fill="#000000"/>
+    <!-- Dado del Grifo -->
+    <g transform="translate(20, 70) rotate(-10)">
+      <polygon points="30,0 60,18 30,36 0,18" fill="url(#mdrBronze)" stroke="#fde047" stroke-width="2"/>
+      <polygon points="0,18 30,36 30,72 0,54" fill="#b45309" stroke="#fde047" stroke-width="2"/>
+      <polygon points="30,36 60,18 60,54 30,72" fill="#78350f" stroke="#fde047" stroke-width="2"/>
+      <text x="30" y="24" fill="#ffffff" font-size="14" text-anchor="middle">🦅</text>
+    </g>
+  </g>
+
+  <!-- 2. La Sirena Encantadora (Aletas y Olas Turquesas) -->
+  <g transform="translate(610, 200)">
+    <!-- Olas y Cola Mística -->
+    <path d="M 0,-40 C 40,-90 85,-110 120,-85 C 100,-50 60,-20 0,-10 C 50,0 80,25 70,55 C 45,45 20,20 0,10 Z"
+          fill="url(#mdrCyan)" stroke="#67e8f9" stroke-width="2.5"/>
+    <circle cx="-20" cy="-20" r="32" fill="#042f2e" stroke="#2dd4bf" stroke-width="2.5"/>
+    <!-- Rostro Místico Sirena con Cabello de Algas Neón -->
+    <path d="M -35,-45 Q -20,-10 -5,-35" stroke="#2dd4bf" stroke-width="3" fill="none"/>
+    <circle cx="-28" cy="-24" r="5" fill="#67e8f9"/>
+    <circle cx="-28" cy="-24" r="2" fill="#000000"/>
+    <!-- Dado de la Sirena -->
+    <g transform="translate(-50, 70) rotate(10)">
+      <polygon points="30,0 60,18 30,36 0,18" fill="url(#mdrCyan)" stroke="#67e8f9" stroke-width="2"/>
+      <polygon points="0,18 30,36 30,72 0,54" fill="#0d9488" stroke="#67e8f9" stroke-width="2"/>
+      <polygon points="30,36 60,18 60,54 30,72" fill="#134e4a" stroke="#67e8f9" stroke-width="2"/>
+      <text x="30" y="24" fill="#ffffff" font-size="14" text-anchor="middle">🧜</text>
+    </g>
+  </g>
+
+  <!-- 3. Gran Señor Minotauro del Laberinto (Centro) -->
+  <g transform="translate(400, 160)">
+    <!-- Cuernos Épicos de Bronce -->
+    <path d="M -45,-30 C -85,-85 -145,-105 -190,-85 C -195,-70 -170,-40 -110,-10 C -75,5 -55,10 -40,15 Z"
+          fill="url(#mdrBronze)" stroke="#fde047" stroke-width="3.5"/>
+    <path d="M 45,-30 C 85,-85 145,-105 190,-85 C 195,-70 170,-40 110,-10 C 75,5 55,10 40,15 Z"
+          fill="url(#mdrBronze)" stroke="#fde047" stroke-width="3.5"/>
+
+    <!-- Cabeza del Minotauro -->
+    <path d="M -50,-40 C -65,-15 -65,30 -50,75 C -35,115 -15,145 0,155 C 15,145 35,115 50,75 C 65,30 65,-15 50,-40 C 30,-60 -30,-60 -50,-40 Z"
+          fill="url(#mdrDiceGrad)" stroke="#06b6d4" stroke-width="3.5"/>
+
+    <!-- Ojos de Fuego Dorado -->
+    <ellipse cx="-25" cy="5" rx="14" ry="7" transform="rotate(-15, -25, 5)" fill="#f59e0b"/>
+    <ellipse cx="25" cy="5" rx="14" ry="7" transform="rotate(15, 25, 5)" fill="#f59e0b"/>
+    <circle cx="-25" cy="5" r="4.5" fill="#ffffff"/>
+    <circle cx="25" cy="5" r="4.5" fill="#ffffff"/>
+
+    <!-- Hocico Potente con Argolla -->
+    <ellipse cx="0" cy="85" rx="34" ry="24" fill="#312e81" stroke="#22d3ee" stroke-width="2.5"/>
+    <circle cx="-13" cy="88" r="7" fill="#0b1326"/>
+    <circle cx="13" cy="88" r="7" fill="#0b1326"/>
+    <circle cx="0" cy="115" r="18" fill="none" stroke="url(#mdrBronze)" stroke-width="5"/>
+  </g>
+
+  <!-- Gran Dado Rúnico Central del Minotauro en la Base -->
+  <g transform="translate(400, 310)">
+    <polygon points="35,-20 70,0 35,20 0,0" fill="#312e81" stroke="#06b6d4" stroke-width="2.5" transform="translate(-35,-10)"/>
+    <polygon points="0,0 35,20 35,60 0,40" fill="#1e1b4b" stroke="#06b6d4" stroke-width="2.5" transform="translate(-35,-10)"/>
+    <polygon points="35,20 70,0 70,40 35,60" fill="#0f172a" stroke="#06b6d4" stroke-width="2.5" transform="translate(-35,-10)"/>
+    <text x="0" y="2" fill="#fbbf24" font-size="18" text-anchor="middle">🐂</text>
+  </g>
+</svg>

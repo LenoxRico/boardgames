@@ -2,6 +2,7 @@ import { GameRules } from '../../core/models/game.interface';
 
 export const TAKE_6_RULES: GameRules = {
   languages: ['es', 'en'],
+  coverImage: '/assets/games/take-6-rules.svg',
   content: {
     es: {
       summary: [

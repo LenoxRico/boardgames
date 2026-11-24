@@ -2,6 +2,7 @@ import { GameRules } from '../../core/models/game.interface';
 
 export const SKULL_KING_RULES: GameRules = {
   languages: ['es', 'en'],
+  coverImage: '/assets/games/skull-king-rules.svg',
   content: {
     es: {
       summary: [

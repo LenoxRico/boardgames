@@ -2,6 +2,7 @@ import { GameRules } from '../../core/models/game.interface';
 
 export const PELUSAS_RULES: GameRules = {
   languages: ['es', 'en'],
+  coverImage: '/assets/games/pelusas-rules.svg',
   content: {
     es: {
       summary: [

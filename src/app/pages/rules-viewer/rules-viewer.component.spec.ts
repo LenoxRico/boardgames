@@ -42,25 +42,32 @@ describe('RulesViewerComponent', () => {
     expect(component.selectedGame()?.metadata.name).toBe('Pelusas');
   });
 
-  it('should render the game hero card with the allusive game image and specs', () => {
+  it('should render the dedicated rules image card and the game overview card', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const heroCard = compiled.querySelector('.game-hero-card');
-    expect(heroCard).toBeTruthy();
+    const rulesImageCard = compiled.querySelector('.rules-image-card');
+    expect(rulesImageCard).toBeTruthy();
 
-    const heroImage = compiled.querySelector('.game-art-image') as HTMLImageElement;
-    expect(heroImage).toBeTruthy();
-    expect(heroImage.src).toContain('/assets/games/pelusas-bg.svg');
+    const coverImage = compiled.querySelector('.rules-cover-image') as HTMLImageElement;
+    expect(coverImage).toBeTruthy();
+    expect(coverImage.src).toContain('/assets/games/pelusas-rules.svg');
+
+    const overviewCard = compiled.querySelector('.game-overview-card');
+    expect(overviewCard).toBeTruthy();
 
     const heroName = compiled.querySelector('.game-hero-name');
     expect(heroName?.textContent).toContain('Pelusas');
   });
 
-  it('should normalize game image url to ensure leading slash', () => {
+  it('should normalize game rules image url to ensure leading slash', () => {
     const registry = TestBed.inject(GameRegistryService);
     const game = registry.getGame('skull-king')!;
-    const imgUrl = component.getGameImage(game);
-    expect(imgUrl.startsWith('/')).toBe(true);
-    expect(imgUrl).toBe('/assets/games/skull-king-bg.svg');
+    const coverUrl = component.getRulesCoverImage(game);
+    expect(coverUrl.startsWith('/')).toBe(true);
+    expect(coverUrl).toBe('/assets/games/skull-king-rules.svg');
+
+    const bgUrl = component.getGameBgImage(game);
+    expect(bgUrl.startsWith('/')).toBe(true);
+    expect(bgUrl).toBe('/assets/games/skull-king-bg.svg');
   });
 
   it('should update selected game when onGameSelectId is called', () => {

@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="smrBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#042f2e"/>
+      <stop offset="50%" stop-color="#0b1326"/>
+      <stop offset="100%" stop-color="#021a19"/>
+    </linearGradient>
+
+    <radialGradient id="smrSun" cx="50%" cy="30%" r="55%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.5"/>
+      <stop offset="45%" stop-color="#0d9488" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#042f2e" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Gradiente de Madera Tiki de Samoa -->
+    <linearGradient id="smrWood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="40%" stop-color="#b45309"/>
+      <stop offset="80%" stop-color="#78350f"/>
+      <stop offset="100%" stop-color="#451a03"/>
+    </linearGradient>
+
+    <!-- Gradientes de Plumas de los 5 Jugadores -->
+    <linearGradient id="smrFeatherGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <linearGradient id="smrFeatherTeal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+
+    <linearGradient id="smrFeatherCoral" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fda4af"/>
+      <stop offset="100%" stop-color="#be123c"/>
+    </linearGradient>
+
+    <linearGradient id="smrFeatherPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d8b4fe"/>
+      <stop offset="100%" stop-color="#6b21a8"/>
+    </linearGradient>
+
+    <linearGradient id="smrFeatherGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#86efac"/>
+      <stop offset="100%" stop-color="#15803d"/>
+    </linearGradient>
+
+    <!-- Fuego Sagrado Ceremonial Polinesio -->
+    <linearGradient id="smrFire" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fef08a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo Card Panorámico -->
+  <rect width="800" height="400" rx="16" fill="url(#smrBg)"/>
+  <rect width="800" height="400" rx="16" fill="url(#smrSun)"/>
+
+  <!-- Hojas de Palmeras Tropicales en las Esquinas -->
+  <!-- Esquina Izquierda -->
+  <g stroke="#0d9488" stroke-width="2.5" fill="#042f2e" opacity="0.4">
+    <path d="M 0,0 C 80,40 140,110 160,180 C 120,130 60,80 0,60 Z"/>
+    <path d="M 0,40 C 60,80 110,150 120,220 C 90,160 40,110 0,90 Z"/>
+  </g>
+  <!-- Esquina Derecha -->
+  <g stroke="#0d9488" stroke-width="2.5" fill="#042f2e" opacity="0.4" transform="translate(800,0) scale(-1,1)">
+    <path d="M 0,0 C 80,40 140,110 160,180 C 120,130 60,80 0,60 Z"/>
+    <path d="M 0,40 C 60,80 110,150 120,220 C 90,160 40,110 0,90 Z"/>
+  </g>
+
+  <!-- Fuego Sagrado Ceremonial (Centro Abajo) -->
+  <g transform="translate(400, 330)">
+    <!-- Piedras del Fogón Ceremonial -->
+    <ellipse cx="0" cy="15" rx="100" ry="25" fill="#1c1917" stroke="#78350f" stroke-width="2"/>
+    <ellipse cx="-60" cy="15" rx="20" ry="12" fill="#292524"/>
+    <ellipse cx="-20" cy="20" rx="22" ry="13" fill="#44403c"/>
+    <ellipse cx="25" cy="20" rx="22" ry="13" fill="#44403c"/>
+    <ellipse cx="65" cy="15" rx="20" ry="12" fill="#292524"/>
+
+    <!-- Llamas de Fuego Danzantes -->
+    <path d="M -40,10 C -50,-20 -20,-50 0,-75 C 20,-50 50,-20 40,10 C 25,5 15,-10 0,-15 C -15,-10 -25,5 -40,10 Z"
+          fill="url(#smrFire)"/>
+    <path d="M -20,5 C -25,-15 -10,-35 0,-50 C 10,-35 25,-15 20,5 C 10,0 0,-5 0,-5 C 0,-5 -10,0 -20,5 Z"
+          fill="#fef08a"/>
+  </g>
+
+  <!-- Las 5 Máscaras Sagradas de Samoa en Semicírculo -->
+
+  <!-- Máscara 1: Verde (Extrema Izquierda) -->
+  <g transform="translate(140, 210) rotate(-14)">
+    <!-- Pluma Verde -->
+    <path d="M 0,-60 C -12,-95 0,-125 0,-135 C 0,-125 12,-95 0,-60 Z" fill="url(#smrFeatherGreen)" stroke="#4ade80" stroke-width="1.5"/>
+    <!-- Máscara de Madera -->
+    <rect x="-30" y="-60" width="60" height="100" rx="12" fill="url(#smrWood)" stroke="#4ade80" stroke-width="2.5"/>
+    <circle cx="-13" cy="-25" r="7" fill="#042f2e" stroke="#4ade80" stroke-width="2"/>
+    <circle cx="13" cy="-25" r="7" fill="#042f2e" stroke="#4ade80" stroke-width="2"/>
+    <path d="M -16,15 Q 0,25 16,15" stroke="#fef08a" stroke-width="3" fill="none"/>
+  </g>
+
+  <!-- Máscara 2: Coral (Izquierda Media) -->
+  <g transform="translate(260, 160) rotate(-7)">
+    <!-- Pluma Coral -->
+    <path d="M 0,-70 C -14,-105 0,-140 0,-150 C 0,-140 14,-105 0,-70 Z" fill="url(#smrFeatherCoral)" stroke="#f43f5e" stroke-width="1.5"/>
+    <rect x="-35" y="-70" width="70" height="115" rx="14" fill="url(#smrWood)" stroke="#fb7185" stroke-width="2.5"/>
+    <circle cx="-16" cy="-30" r="8" fill="#1c1917" stroke="#f43f5e" stroke-width="2"/>
+    <circle cx="16" cy="-30" r="8" fill="#1c1917" stroke="#f43f5e" stroke-width="2"/>
+    <ellipse cx="0" cy="18" rx="15" ry="8" fill="#1c1917" stroke="#fef08a" stroke-width="2"/>
+  </g>
+
+  <!-- Máscara 3: Jefe Dorada con Tocado y Plumas Triples (Centro) -->
+  <g transform="translate(400, 120)">
+    <!-- Penacho Central de 3 Plumas -->
+    <path d="M 0,-80 C -18,-130 0,-170 0,-185 C 0,-170 18,-130 0,-80 Z" fill="url(#smrFeatherGold)" stroke="#fde047" stroke-width="2"/>
+    <path d="M -22,-75 C -45,-120 -35,-155 -30,-165 C -25,-150 -15,-115 -2,-75 Z" fill="url(#smrFeatherTeal)" stroke="#2dd4bf" stroke-width="1.5"/>
+    <path d="M 22,-75 C 45,-120 35,-155 30,-165 C 25,-150 15,-115 2,-75 Z" fill="url(#smrFeatherCoral)" stroke="#f43f5e" stroke-width="1.5"/>
+
+    <!-- Gran Máscara del Jefe Tiki -->
+    <path d="M -50,-80 C -60,-40 -55,30 -45,90 C -20,105 20,105 45,90 C 55,30 60,-40 50,-80 Z"
+          fill="url(#smrWood)" stroke="#fde047" stroke-width="3.5"/>
+
+    <!-- Ojos Misteriosos Turquesa -->
+    <ellipse cx="-24" cy="-35" rx="14" ry="8" fill="#021a19" stroke="#2dd4bf" stroke-width="2.5"/>
+    <ellipse cx="24" cy="-35" rx="14" ry="8" fill="#021a19" stroke="#2dd4bf" stroke-width="2.5"/>
+    <circle cx="-24" cy="-35" r="4.5" fill="#5eead4"/>
+    <circle cx="24" cy="-35" r="4.5" fill="#5eead4"/>
+
+    <!-- Nariz Tallada -->
+    <path d="M -10,-28 L -6,15 L -16,22 L 0,28 L 16,22 L 6,15 L 10,-28 Z" fill="#b45309" stroke="#fde047" stroke-width="2"/>
+
+    <!-- Sonrisa Feroz con Dientes Blancos -->
+    <path d="M -35,50 Q 0,42 35,50 Q 28,78 0,82 Q -28,78 -35,50 Z" fill="#1c1917" stroke="#fde047" stroke-width="2.5"/>
+    <rect x="-22" y="52" width="7" height="12" fill="#ffffff"/>
+    <rect x="-11" y="53" width="7" height="14" fill="#ffffff"/>
+    <rect x="0" y="53" width="7" height="14" fill="#ffffff"/>
+    <rect x="11" y="53" width="7" height="14" fill="#ffffff"/>
+    <rect x="22" y="52" width="7" height="12" fill="#ffffff"/>
+  </g>
+
+  <!-- Máscara 4: Turquesa (Derecha Media) -->
+  <g transform="translate(540, 160) rotate(7)">
+    <!-- Pluma Turquesa -->
+    <path d="M 0,-70 C -14,-105 0,-140 0,-150 C 0,-140 14,-105 0,-70 Z" fill="url(#smrFeatherTeal)" stroke="#2dd4bf" stroke-width="1.5"/>
+    <rect x="-35" y="-70" width="70" height="115" rx="14" fill="url(#smrWood)" stroke="#2dd4bf" stroke-width="2.5"/>
+    <circle cx="-16" cy="-30" r="8" fill="#1c1917" stroke="#2dd4bf" stroke-width="2"/>
+    <circle cx="16" cy="-30" r="8" fill="#2dd4bf" stroke="#2dd4bf" stroke-width="2"/>
+    <ellipse cx="0" cy="18" rx="15" ry="8" fill="#1c1917" stroke="#fef08a" stroke-width="2"/>
+  </g>
+
+  <!-- Máscara 5: Púrpura (Extrema Derecha) -->
+  <g transform="translate(660, 210) rotate(14)">
+    <!-- Pluma Púrpura -->
+    <path d="M 0,-60 C -12,-95 0,-125 0,-135 C 0,-125 12,-95 0,-60 Z" fill="url(#smrFeatherPurple)" stroke="#c084fc" stroke-width="1.5"/>
+    <rect x="-30" y="-60" width="60" height="100" rx="12" fill="url(#smrWood)" stroke="#c084fc" stroke-width="2.5"/>
+    <circle cx="-13" cy="-25" r="7" fill="#042f2e" stroke="#c084fc" stroke-width="2"/>
+    <circle cx="13" cy="-25" r="7" fill="#042f2e" stroke="#c084fc" stroke-width="2"/>
+    <path d="M -16,15 Q 0,25 16,15" stroke="#fef08a" stroke-width="3" fill="none"/>
+  </g>
+</svg>

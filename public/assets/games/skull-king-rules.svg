@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="skrBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050b14"/>
+      <stop offset="50%" stop-color="#141a29"/>
+      <stop offset="100%" stop-color="#070c18"/>
+    </linearGradient>
+
+    <radialGradient id="skrMoon" cx="50%" cy="30%" r="55%">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="0.45"/>
+      <stop offset="45%" stop-color="#f59e0b" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#050b14" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Gradientes de Oro y Gemas del Cofre -->
+    <linearGradient id="skrGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#fbbf24"/>
+      <stop offset="80%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+
+    <linearGradient id="skrChestWood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#78350f"/>
+      <stop offset="50%" stop-color="#451a03"/>
+      <stop offset="100%" stop-color="#1c1917"/>
+    </linearGradient>
+
+    <linearGradient id="skrKraken" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#831843"/>
+      <stop offset="50%" stop-color="#9f1239"/>
+      <stop offset="100%" stop-color="#e11d48"/>
+    </linearGradient>
+
+    <linearGradient id="skrMermaid" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5eead4"/>
+      <stop offset="50%" stop-color="#0d9488"/>
+      <stop offset="100%" stop-color="#115e59"/>
+    </linearGradient>
+
+    <linearGradient id="skrSteel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo Nocturno Marítimo -->
+  <rect width="800" height="400" rx="16" fill="url(#skrBg)"/>
+  <rect width="800" height="400" rx="16" fill="url(#skrMoon)"/>
+
+  <!-- Olas de Mar Nocturno -->
+  <g fill="none" stroke="#1e3a8a" stroke-width="2" opacity="0.35">
+    <path d="M 0,330 Q 100,310 200,330 T 400,330 T 600,330 T 800,330"/>
+    <path d="M 0,360 Q 120,340 240,360 T 480,360 T 720,360 T 800,360"/>
+  </g>
+
+  <!-- Tentáculo del Kraken Gigante (Izquierda) -->
+  <g transform="translate(140, 200) rotate(15)" opacity="0.95">
+    <!-- Tentáculo enrollándose -->
+    <path d="M -40,160 C -60,90 -20,20 -10,-40 C -5,-70 20,-110 50,-130 C 55,-135 60,-130 55,-120 C 40,-95 30,-60 25,-10 C 20,40 -10,100 10,160 Z"
+          fill="url(#skrKraken)" stroke="#fda4af" stroke-width="2"/>
+    <!-- Ventosas del Tentáculo -->
+    <ellipse cx="28" cy="-55" rx="8" ry="5" fill="#fecdd3" stroke="#9f1239" stroke-width="1.5"/>
+    <ellipse cx="22" cy="-15" rx="10" ry="6" fill="#fecdd3" stroke="#9f1239" stroke-width="1.5"/>
+    <ellipse cx="14" cy="35" rx="12" ry="7" fill="#fecdd3" stroke="#9f1239" stroke-width="1.5"/>
+    <ellipse cx="2" cy="90" rx="14" ry="8" fill="#fecdd3" stroke="#9f1239" stroke-width="1.5"/>
+  </g>
+
+  <!-- Cola Mágica de la Sirena con Escamas (Derecha) -->
+  <g transform="translate(660, 220) rotate(-15)" opacity="0.95">
+    <path d="M 30,140 C 50,70 10,10 0,-50 C -10,-90 -40,-120 -60,-140 C -70,-150 -55,-155 -45,-145 C -25,-125 10,-80 20,-30 C 35,20 60,80 45,140 Z"
+          fill="url(#skrMermaid)" stroke="#5eead4" stroke-width="2"/>
+    <!-- Aletas Caudales Luminosas -->
+    <path d="M -55,-145 C -90,-165 -110,-150 -85,-125 C -70,-110 -60,-125 -55,-145 Z" fill="#2dd4bf" stroke="#5eead4" stroke-width="2"/>
+    <path d="M -50,-148 C -60,-185 -40,-190 -30,-165 C -25,-150 -40,-145 -50,-148 Z" fill="#2dd4bf" stroke="#5eead4" stroke-width="2"/>
+  </g>
+
+  <!-- Espadas Piratas Cruzadas (Cutlasses) detrás del cofre -->
+  <g transform="translate(400, 150)">
+    <!-- Espada 1 (\) -->
+    <g transform="rotate(38)">
+      <path d="M -5,-120 L 5,-120 L 7,40 L -7,40 Z" fill="url(#skrSteel)" stroke="#94a3b8" stroke-width="1.5"/>
+      <rect x="-18" y="40" width="36" height="8" rx="2" fill="url(#skrGold)"/>
+      <path d="M 0,48 L 0,80" stroke="url(#skrGold)" stroke-width="6"/>
+      <circle cx="0" cy="85" r="7" fill="url(#skrGold)"/>
+    </g>
+    <!-- Espada 2 (/) -->
+    <g transform="rotate(-38)">
+      <path d="M -5,-120 L 5,-120 L 7,40 L -7,40 Z" fill="url(#skrSteel)" stroke="#94a3b8" stroke-width="1.5"/>
+      <rect x="-18" y="40" width="36" height="8" rx="2" fill="url(#skrGold)"/>
+      <path d="M 0,48 L 0,80" stroke="url(#skrGold)" stroke-width="6"/>
+      <circle cx="0" cy="85" r="7" fill="url(#skrGold)"/>
+    </g>
+  </g>
+
+  <!-- Gran Cofre del Tesoro Abierto (Centro) -->
+  <g transform="translate(400, 260)">
+    <!-- Base del Cofre -->
+    <rect x="-110" y="-30" width="220" height="110" rx="6" fill="url(#skrChestWood)" stroke="url(#skrGold)" stroke-width="3"/>
+    <!-- Refuerzos de Hierro y Oro del Cofre -->
+    <rect x="-105" y="-30" width="20" height="110" fill="url(#skrGold)"/>
+    <rect x="85" y="-30" width="20" height="110" fill="url(#skrGold)"/>
+    <circle cx="-95" cy="20" r="4" fill="#1c1917"/>
+    <circle cx="95" cy="20" r="4" fill="#1c1917"/>
+
+    <!-- Cerradura Principal del Cofre con Calavera Pirata -->
+    <rect x="-18" y="-10" width="36" height="40" rx="6" fill="url(#skrGold)" stroke="#fef08a" stroke-width="2"/>
+    <circle cx="0" cy="5" r="5" fill="#000000"/>
+    <polygon points="0,5 -3,18 3,18" fill="#000000"/>
+
+    <!-- Tapa del Cofre Abierta en Perspectiva Hacia Arriba -->
+    <path d="M -115,-30 C -115,-90 115,-90 115,-30 L 105,-45 C 95,-80 -95,-80 -105,-45 Z"
+          fill="url(#skrChestWood)" stroke="url(#skrGold)" stroke-width="3"/>
+
+    <!-- Oro Brillante y Gemas que Rebosan del Cofre -->
+    <!-- Montículo de Monedas de Oro -->
+    <ellipse cx="0" cy="-28" rx="95" ry="25" fill="url(#skrGold)"/>
+    <!-- Monedas Individuales Relucientes -->
+    <circle cx="-50" cy="-35" r="9" fill="#fef08a" stroke="#d97706" stroke-width="1.5"/>
+    <circle cx="-30" cy="-42" r="9" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
+    <circle cx="-10" cy="-38" r="9" fill="#fef08a" stroke="#d97706" stroke-width="1.5"/>
+    <circle cx="15" cy="-44" r="9" fill="#fde047" stroke="#d97706" stroke-width="1.5"/>
+    <circle cx="40" cy="-35" r="9" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
+    <circle cx="60" cy="-40" r="9" fill="#fef08a" stroke="#d97706" stroke-width="1.5"/>
+
+    <!-- Gemas Preciosas Relucientes -->
+    <!-- Rubí Rojo -->
+    <polygon points="-25,-55 -15,-65 -5,-55 -15,-45" fill="#ef4444" stroke="#fca5a5" stroke-width="1.5"/>
+    <!-- Esmeralda Verde -->
+    <polygon points="25,-55 35,-68 45,-55 35,-42" fill="#10b981" stroke="#a7f3d0" stroke-width="1.5"/>
+    <!-- Zafiro Azul -->
+    <polygon points="2,-62 10,-72 18,-62 10,-52" fill="#3b82f6" stroke="#bfdbfe" stroke-width="1.5"/>
+  </g>
+
+  <!-- Gran Calavera del Skull King con Corona y Sombrero Pirata -->
+  <g transform="translate(400, 110)">
+    <!-- Sombrero Tricornio Pirata -->
+    <path d="M -90,-25 C -50,-80 50,-80 90,-25 C 65,-20 30,-30 0,-15 C -30,-30 -65,-20 -90,-25 Z"
+          fill="#0f172a" stroke="url(#skrGold)" stroke-width="3"/>
+    <!-- Corona de Oro del Rey Pirata en el Sombrero -->
+    <path d="M -40,-45 L -20,-75 L 0,-55 L 20,-75 L 40,-45 Z" fill="url(#skrGold)" stroke="#fef08a" stroke-width="2"/>
+    <circle cx="-20" cy="-75" r="4" fill="#ef4444"/>
+    <circle cx="0" cy="-55" r="4" fill="#3b82f6"/>
+    <circle cx="20" cy="-75" r="4" fill="#10b981"/>
+
+    <!-- Cara de Calavera Blanca -->
+    <path d="M -42,-15 C -45,15 -35,45 -22,55 L -22,72 L 22,72 L 22,55 C 35,45 45,15 42,-15 C 30,-28 -30,-28 -42,-15 Z"
+          fill="#ffffff" stroke="#cbd5e1" stroke-width="2.5"/>
+
+    <!-- Cuencas Oculares -->
+    <!-- Ojo Izquierdo con Parche Pirata -->
+    <path d="M -30,-5 L -5,12 L -35,8 Z" fill="#0f172a"/>
+    <line x1="-50" y1="-25" x2="0" y2="25" stroke="#0f172a" stroke-width="3"/>
+
+    <!-- Ojo Derecho que Resplandece en Fuego Dorado -->
+    <ellipse cx="18" cy="12" rx="10" ry="12" fill="#0f172a"/>
+    <circle cx="18" cy="12" r="5" fill="#f59e0b"/>
+    <circle cx="18" cy="12" r="2" fill="#ffffff"/>
+
+    <!-- Nariz Triangular Invertida -->
+    <polygon points="0,25 -5,35 5,35" fill="#0f172a"/>
+
+    <!-- Dientes de Pirata con 1 Diente de Oro -->
+    <g stroke="#94a3b8" stroke-width="1.5">
+      <rect x="-18" y="55" width="7" height="12" fill="#ffffff"/>
+      <rect x="-9" y="55" width="7" height="12" fill="url(#skrGold)"/>
+      <rect x="0" y="55" width="7" height="12" fill="#ffffff"/>
+      <rect x="9" y="55" width="7" height="12" fill="#ffffff"/>
+    </g>
+  </g>
+</svg>

@@ -2,6 +2,7 @@ import { GameRules } from '../../core/models/game.interface';
 
 export const SAMOA_RULES: GameRules = {
   languages: ['es', 'en'],
+  coverImage: '/assets/games/samoa-rules.svg',
   content: {
     es: {
       summary: [

@@ -2,6 +2,7 @@ import { GameRules } from '../../core/models/game.interface';
 
 export const MINO_DICE_RULES: GameRules = {
   languages: ['es', 'en'],
+  coverImage: '/assets/games/mino-dice-rules.svg',
   content: {
     es: {
       summary: [
