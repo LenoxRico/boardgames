@@ -30,7 +30,7 @@ Para garantizar una experiencia visual inmersiva, cohesiva y uniforme sin proble
 Los gradientes y el arte alusivo de cada juego **se renderizan dentro de TODAS las tarjetas principales**, garantizando una estricta simetría visual en cualquier pantalla:
 - **En Catálogo:** Cada `.game-card` y el hero `.active-match-hero`.
 - **En Configuración de Partida:** La tarjeta de configuración `.match-setup-card`.
-- **En Visor de Reglas:** La tarjeta de controles `.controls-card`.
+- **En Visor de Reglas:** La tarjeta de controles `.controls-card` y la tarjeta de identidad con imagen alusiva `.game-hero-card`.
 - **En la Partida en Vivo:** **TODAS las tarjetas de la mesa**:
   1. `.match-header-card` (cabecera con steppers y repartidor).
   2. Cada `.player-card` (tarjeta de interacción y captura de datos por jugador).
@@ -84,6 +84,15 @@ Los gradientes y el arte alusivo de cada juego **se renderizan dentro de TODAS l
 2. **Dimensiones:** `viewBox="0 0 600 600"`.
 3. **Estilo visual:** Siluetas, líneas o composiciones temáticas (coronas, barcos, bueyes, dados, laberintos, etc.).
 4. **Opacidad y Máscara:** Gracias a la máscara radial y la opacidad estándar de **0.6**, la imagen se aprecia con gran detalle en la esquina superior derecha y se desvanece suavemente hacia los textos para mantener la legibilidad al 100%.
+
+### 2.4 Tarjeta Hero con Imagen Alusiva en el Visor de Reglas (`.game-hero-card`)
+Cada juego registrado en Tabletop Companion dispone automáticamente de una tarjeta de presentación destacada en la parte superior del Visor de Reglas (`/tabs/rules`):
+1. **Marco Visual Destacado (`.game-art-showcase`):** Presenta la ilustración alusiva del juego (`metadata.theme.bgImageUrl` o `rules.coverImage`) sobre un contenedor con relieve, borde sutil y efecto drop-shadow.
+2. **Ficha Técnica y Badges:**
+   - Nombre oficial, emoji y subtítulo temático.
+   - Tagline o frase descriptiva del juego.
+   - 4 chips de especificaciones rápidas: Rango de jugadores, criterio de victoria (*Mayor puntuación* o *Menor puntuación*), número de rondas o duración, y unidad de puntuación.
+3. **Ruta Absoluta:** Todas las imágenes deben declararse iniciando obligatoriamente con barra diagonal (ej. `bgImageUrl: '/assets/games/<game-id>-bg.svg'`) para garantizar resolución limpia en cualquier ruta o sub-ruta.
 
 ---
 
@@ -520,7 +529,8 @@ Completa este formulario al solicitar o diseñar un nuevo juego:
 | **Tiene Perdedor Destacado** | `true` o `false` | Sí | `true` si alguien detona el fin (ej. Take 6 al superar 66 pts). |
 | **Unidad de Puntuación** | `pts`, `cuernos`, `dados` | Sí | Etiqueta para los marcadores numéricos. |
 | **Tema Visual (`theme`)** | Colores primario/secundario y gradiente | Sí | Gradiente radial ambiental aplicado a las cards. |
-| **Asset SVG (`bgImageUrl`)** | `/assets/games/<id>-bg.svg` | Sí | Arte vectorial para marca de agua en cards con opacidad 0.6. |
+| **Asset SVG (`bgImageUrl`)** | `/assets/games/<id>-bg.svg` | Sí | Arte vectorial para marca de agua en cards y showcase destacado en la tarjeta hero de reglas (.game-hero-card). Inicia con `/assets/`. |
+| **Imagen de Portada de Reglas (`coverImage`)** | `/assets/games/<id>-cover.svg` | Opcional | Sobreescribe la imagen alusiva en la card de reglas si se desea una ilustración distinta al fondo. |
 | **Opciones Previas** | Rondas fijas, Límite, Expansiones | Opcional | Opciones booleanas o numéricas editables antes de iniciar. |
 | **Idiomas de Reglas** | `['es']` o `['es', 'en']` | Sí | Si contiene ambos, habilita botón conmutador de idioma. |
 | **Resumen Rápido (Mesa)** | 3 a 5 tarjetas clave | Sí | Objetivo, penalizaciones y casos especiales. |

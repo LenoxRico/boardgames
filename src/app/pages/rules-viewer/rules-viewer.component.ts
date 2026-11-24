@@ -1,14 +1,16 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { GameRegistryService } from '../../core/services/game-registry.service';
 import { StorageService } from '../../core/services/storage.service';
+import { MatchManagerService } from '../../core/services/match-manager.service';
 import { GameDefinition, GameRuleSection } from '../../core/models/game.interface';
 
 @Component({
   selector: 'app-rules-viewer',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="rules-page">
       @if (selectedGame(); as game) {
@@ -17,90 +19,162 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
           class="controls-card"
           [style.background-image]="game.metadata.theme?.gradient"
         >
-          @if (game.metadata.theme?.bgImageUrl; as bg) {
+          @if (getGameImage(game); as bg) {
             <div
               class="card-thematic-art"
               [style.background-image]="'url(' + bg + ')'"
             ></div>
           }
           <div class="selector-lang-row">
-          <!-- Selector Dropdown de Juego -->
-          <div class="game-dropdown-container">
-            <select
-              class="game-select-input"
-              [value]="selectedGameId()"
-              (change)="onGameSelect($event)"
-            >
-              @for (game of games(); track game.metadata.id) {
-                <option [value]="game.metadata.id">
-                  {{ game.metadata.emoji }} {{ game.metadata.name }}
-                </option>
-              }
-            </select>
-          </div>
-
-          <!-- Botón de Idioma: Se muestra ÚNICAMENTE si el juego tiene ambos idiomas definidos -->
-          @if (hasMultipleLanguages()) {
-            <div class="lang-toggle-pill">
-              <button
-                type="button"
-                class="lang-btn"
-                [class.active-lang]="currentLang() === 'es'"
-                (click)="setLanguage('es')"
+            <!-- Selector Dropdown de Juego -->
+            <div class="game-dropdown-container">
+              <select
+                class="game-select-input"
+                [ngModel]="selectedGameId()"
+                (ngModelChange)="onGameSelectId($event)"
               >
-                ES
-              </button>
-              <button
-                type="button"
-                class="lang-btn"
-                [class.active-lang]="currentLang() === 'en'"
-                (click)="setLanguage('en')"
-              >
-                EN
-              </button>
+                @for (g of games(); track g.metadata.id) {
+                  <option [value]="g.metadata.id" [selected]="g.metadata.id === selectedGameId()">
+                    {{ g.metadata.emoji }} {{ g.metadata.name }}
+                  </option>
+                }
+              </select>
             </div>
-          }
-        </div>
 
-        <!-- Indicador de Disponibilidad de Idioma -->
-        <div class="rules-meta-indicator">
-          <div class="meta-left">
-            <span class="material-symbols-outlined indicator-icon">
-              {{ hasMultipleLanguages() ? 'translate' : 'language' }}
-            </span>
-            <span class="indicator-text">
-              {{ hasMultipleLanguages() ? 'Multilenguaje disponible (ES / EN)' : 'Idioma oficial: ' + currentLang().toUpperCase() }}
-            </span>
+            <!-- Botón de Idioma: Se muestra ÚNICAMENTE si el juego tiene ambos idiomas definidos -->
+            @if (hasMultipleLanguages()) {
+              <div class="lang-toggle-pill">
+                <button
+                  type="button"
+                  class="lang-btn"
+                  [class.active-lang]="currentLang() === 'es'"
+                  (click)="setLanguage('es')"
+                >
+                  ES
+                </button>
+                <button
+                  type="button"
+                  class="lang-btn"
+                  [class.active-lang]="currentLang() === 'en'"
+                  (click)="setLanguage('en')"
+                >
+                  EN
+                </button>
+              </div>
+            }
           </div>
-          <span class="version-badge">Oficial v3.2</span>
+
+          <!-- Indicador de Disponibilidad de Idioma -->
+          <div class="rules-meta-indicator">
+            <div class="meta-left">
+              <span class="material-symbols-outlined indicator-icon">
+                {{ hasMultipleLanguages() ? 'translate' : 'language' }}
+              </span>
+              <span class="indicator-text">
+                {{ hasMultipleLanguages() ? 'Multilenguaje disponible (ES / EN)' : 'Idioma oficial: ' + currentLang().toUpperCase() }}
+              </span>
+            </div>
+            <span class="version-badge">Oficial v3.2</span>
+          </div>
+
+          <!-- Segmento Conmutador: Resumen Rápido vs Reglas Completas -->
+          <div class="mode-segmented-bar">
+            <button
+              type="button"
+              class="segment-btn"
+              [class.active-segment]="viewMode() === 'summary'"
+              (click)="setViewMode('summary')"
+            >
+              <span class="material-symbols-outlined segment-icon">bolt</span>
+              <span>Resumen Rápido</span>
+            </button>
+            <button
+              type="button"
+              class="segment-btn"
+              [class.active-segment]="viewMode() === 'full'"
+              (click)="setViewMode('full')"
+            >
+              <span class="material-symbols-outlined segment-icon">menu_book</span>
+              <span>Reglas Completas</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Segmento Conmutador: Resumen Rápido vs Reglas Completas -->
-        <div class="mode-segmented-bar">
-          <button
-            type="button"
-            class="segment-btn"
-            [class.active-segment]="viewMode() === 'summary'"
-            (click)="setViewMode('summary')"
-          >
-            <span class="material-symbols-outlined segment-icon">bolt</span>
-            <span>Resumen Rápido</span>
-          </button>
-          <button
-            type="button"
-            class="segment-btn"
-            [class.active-segment]="viewMode() === 'full'"
-            (click)="setViewMode('full')"
-          >
-            <span class="material-symbols-outlined segment-icon">menu_book</span>
-            <span>Reglas Completas</span>
-          </button>
-        </div>
-      </div>
-    }
+        <!-- Card de Identidad Temática con Imagen Alusiva del Juego -->
+        <div
+          class="game-hero-card"
+          [style.background-image]="game.metadata.theme?.gradient"
+        >
+          @if (getGameImage(game); as bg) {
+            <div
+              class="card-thematic-art"
+              [style.background-image]="'url(' + bg + ')'"
+            ></div>
+          }
 
-    <!-- Contenido de Reglas -->
-      @if (selectedGame(); as game) {
+          <div class="game-hero-content">
+            <!-- Marco destacado con la Ilustración Temática del Juego -->
+            <div class="game-art-showcase">
+              <img
+                [src]="getGameImage(game)"
+                [alt]="game.metadata.name"
+                class="game-art-image"
+              />
+            </div>
+
+            <!-- Ficha Técnica e Identidad del Juego -->
+            <div class="game-hero-info">
+              <div class="game-hero-header">
+                <span class="game-hero-emoji">{{ game.metadata.emoji }}</span>
+                <div class="game-hero-titles">
+                  <h2 class="game-hero-name">{{ game.metadata.name }}</h2>
+                  @if (game.metadata.subtitle) {
+                    <span class="game-hero-subtitle">{{ game.metadata.subtitle }}</span>
+                  }
+                </div>
+              </div>
+
+              <p class="game-hero-tagline">{{ game.metadata.tagline }}</p>
+
+              <!-- Badges de Especificaciones Técnicas del Juego -->
+              <div class="game-specs-grid">
+                <div class="spec-chip">
+                  <span class="material-symbols-outlined spec-icon">group</span>
+                  <span>{{ game.metadata.minPlayers }} - {{ game.metadata.maxPlayers }} jugadores</span>
+                </div>
+
+                <div class="spec-chip">
+                  <span class="material-symbols-outlined spec-icon">military_tech</span>
+                  <span>
+                    {{
+                      game.metadata.victoryType === 'highest_score'
+                        ? 'Mayor puntuación gana'
+                        : 'Menor puntuación gana'
+                    }}
+                  </span>
+                </div>
+
+                <div class="spec-chip">
+                  <span class="material-symbols-outlined spec-icon">timer</span>
+                  <span>
+                    {{
+                      game.metadata.defaultRounds
+                        ? game.metadata.defaultRounds + ' rondas oficiales'
+                        : 'Puntuación variable'
+                    }}
+                  </span>
+                </div>
+
+                <div class="spec-chip">
+                  <span class="material-symbols-outlined spec-icon">score</span>
+                  <span>Unidad: {{ game.metadata.scoreUnit }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenido de Reglas -->
         <div class="rules-content-section">
           <!-- Chips de Secciones Rápidas -->
           <div class="section-chips-row">
@@ -171,9 +245,136 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
     }
 
     .controls-card,
+    .game-hero-card,
     .rules-content-section {
       position: relative;
       z-index: 1;
+    }
+
+    /* Card de Identidad Temática e Imagen Alusiva del Juego */
+    .game-hero-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-md);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .game-hero-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    @media (max-width: 600px) {
+      .game-hero-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    .game-art-showcase {
+      width: 120px;
+      height: 120px;
+      min-width: 120px;
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.35) 100%);
+      border: 1.5px solid var(--color-border-default);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xs);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    :host-context([data-theme='light']) .game-art-showcase {
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.95) 0%, rgba(226, 232, 240, 0.7) 100%);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .game-art-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+      transition: transform 0.3s ease;
+    }
+
+    .game-hero-card:hover .game-art-image {
+      transform: scale(1.05);
+    }
+
+    .game-hero-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .game-hero-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .game-hero-emoji {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .game-hero-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .game-hero-name {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+      line-height: 1.2;
+    }
+
+    .game-hero-subtitle {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    .game-hero-tagline {
+      margin: 2px 0 var(--space-xs) 0;
+      font-size: 13px;
+      line-height: 1.4;
+      color: var(--color-text-secondary);
+    }
+
+    .game-specs-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .spec-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      background: var(--color-surface-container-high);
+      border: 1px solid var(--color-border-subtle);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .spec-icon {
+      font-size: 15px;
+      color: var(--color-primary);
     }
 
     .controls-card {
@@ -489,8 +690,10 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
 })
 export class RulesViewerComponent {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private registry = inject(GameRegistryService);
   private storage = inject(StorageService);
+  private matchManager = inject(MatchManagerService);
 
   readonly games = this.registry.games;
   selectedGameId = signal<string>('skull-king');
@@ -522,9 +725,26 @@ export class RulesViewerComponent {
   });
 
   constructor() {
+    // 1. Prioritize game selection: queryParam > active match in progress > recent storage match > first game
+    const qpGame = this.route.snapshot.queryParamMap.get('game');
+    const activeMatchGame = this.matchManager.currentMatch()?.gameId;
+    const lastActiveMatchGame = this.storage.activeMatches()[0]?.gameId;
+    const allGames = this.games();
+    const fallbackGameId = allGames[0]?.metadata?.id || 'skull-king';
+
+    const initialId =
+      (qpGame && this.registry.hasGame(qpGame) && qpGame) ||
+      (activeMatchGame && this.registry.hasGame(activeMatchGame) && activeMatchGame) ||
+      (lastActiveMatchGame && this.registry.hasGame(lastActiveMatchGame) && lastActiveMatchGame) ||
+      fallbackGameId;
+
+    this.selectedGameId.set(initialId);
+
+    // 2. Listen to route queryParam updates
     this.route.queryParams.subscribe((qp) => {
-      if (qp['game'] && this.registry.hasGame(qp['game'])) {
-        this.selectedGameId.set(qp['game']);
+      const g = qp['game'];
+      if (g && this.registry.hasGame(g) && g !== this.selectedGameId()) {
+        this.selectedGameId.set(g);
       }
     });
 
@@ -534,9 +754,22 @@ export class RulesViewerComponent {
     }
   }
 
-  onGameSelect(event: Event): void {
-    const val = (event.target as HTMLSelectElement).value;
-    this.selectedGameId.set(val);
+  onGameSelectId(val: string): void {
+    if (this.registry.hasGame(val)) {
+      this.selectedGameId.set(val);
+      // Synchronize with URL query parameter so navigation/refresh preserves chosen game
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { game: val },
+        queryParamsHandling: 'merge',
+      });
+    }
+  }
+
+  getGameImage(game: GameDefinition): string {
+    const img = game.rules?.coverImage || game.metadata?.theme?.bgImageUrl || '';
+    if (!img) return '';
+    return img.startsWith('/') ? img : '/' + img;
   }
 
   setLanguage(lang: 'es' | 'en'): void {

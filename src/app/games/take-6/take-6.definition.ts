@@ -21,7 +21,7 @@ export const TAKE_6_DEFINITION: GameDefinition<Take6Config, Take6RoundInput> = {
       secondaryColor: '#dc2626',
       accentColor: '#047857',
       gradient: 'radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.16) 0%, rgba(220, 38, 38, 0.14) 50%, transparent 80%)',
-      bgImageUrl: 'assets/games/take-6-bg.svg',
+      bgImageUrl: '/assets/games/take-6-bg.svg',
     },
   },
   configOptions: [

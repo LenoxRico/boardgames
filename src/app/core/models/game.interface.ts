@@ -54,6 +54,7 @@ export interface GameRulesContent {
 
 export interface GameRules {
   languages: ('es' | 'en')[];
+  coverImage?: string;
   content: {
     es: GameRulesContent;
     en?: GameRulesContent;
