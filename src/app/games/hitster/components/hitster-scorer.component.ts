@@ -1252,9 +1252,12 @@ interface RevealedTrackDetails {
 
                         <!-- Panel de Resolución Rápida del Turno -->
                         <div class="smart-resolution-panel">
-                          <h4 class="panel-section-title">
-                            ¿Qué ocurrió en este turno con {{ activeGuesserName() }}?
-                          </h4>
+                          <div class="panel-header-row">
+                            <span class="material-symbols-outlined panel-header-icon">flaky</span>
+                            <h4 class="panel-section-title">
+                              ¿Qué ocurrió en este turno con {{ activeGuesserName() }}?
+                            </h4>
+                          </div>
 
                           <!-- 1. Colocación en la Línea de Tiempo -->
                           <div class="resolution-options">
@@ -1264,8 +1267,18 @@ interface RevealedTrackDetails {
                               [class.selected-action]="placementOutcome() === 'success'"
                               (click)="awardSuccessToActivePlayer()"
                             >
-                              <span class="material-symbols-outlined">check_circle</span>
-                              <span>✅ ¡Correcto! (+1 Carta para {{ activeGuesserName() }})</span>
+                              <div class="resolve-btn-content">
+                                <span class="material-symbols-outlined resolve-icon">
+                                  {{ placementOutcome() === 'success' ? 'check_circle' : 'add_circle' }}
+                                </span>
+                                <div class="resolve-btn-text">
+                                  <span class="resolve-main-label">✅ ¡Correcto!</span>
+                                  <span class="resolve-sub-label">+1 Carta para {{ activeGuesserName() }}</span>
+                                </div>
+                              </div>
+                              <span class="resolve-badge" [class.badge-active]="placementOutcome() === 'success'">
+                                {{ placementOutcome() === 'success' ? '✓ Marcado' : 'Seleccionar' }}
+                              </span>
                             </button>
 
                             <button
@@ -1274,61 +1287,100 @@ interface RevealedTrackDetails {
                               [class.selected-action]="placementOutcome() === 'fail'"
                               (click)="markActivePlayerFailed()"
                             >
-                              <span class="material-symbols-outlined">cancel</span>
-                              <span>❌ Falló (Carta descartada al pozo)</span>
+                              <div class="resolve-btn-content">
+                                <span class="material-symbols-outlined resolve-icon">
+                                  {{ placementOutcome() === 'fail' ? 'cancel' : 'highlight_off' }}
+                                </span>
+                                <div class="resolve-btn-text">
+                                  <span class="resolve-main-label">❌ Falló</span>
+                                  <span class="resolve-sub-label">Carta descartada al pozo</span>
+                                </div>
+                              </div>
+                              <span class="resolve-badge" [class.badge-active]="placementOutcome() === 'fail'">
+                                {{ placementOutcome() === 'fail' ? '✓ Descarte' : 'Seleccionar' }}
+                              </span>
                             </button>
                           </div>
 
                           <!-- 2. Desafío de Rivales con Ficha Hitster -->
                           <div class="rival-challenge-section">
-                            <span class="sub-section-label"
-                              >¿Algún rival desafió la colocación con su ficha?</span
-                            >
+                            <div class="sub-section-header">
+                              <span class="material-symbols-outlined sub-section-icon">crisis_alert</span>
+                              <span class="sub-section-label"
+                                >¿Algún rival desafió la colocación con su ficha?</span
+                              >
+                            </div>
+
                             <div class="rival-challenge-list">
                               @for (rival of rivalPlayers(); track rival.id) {
-                                <div class="rival-challenge-row">
-                                  <div class="rival-info-wrap">
-                                    <span class="rival-name">{{ rival.name }}</span>
-                                    <span
-                                      class="rival-tokens-badge"
-                                      [class.no-tokens]="getAvailableTokens(rival.id) <= 0"
-                                      title="Fichas Hitster disponibles"
-                                    >
-                                      🪙 {{ getAvailableTokens(rival.id) }}
-                                    </span>
+                                <div class="rival-challenge-card" [class.has-selection]="!!rivalOutcomes()[rival.id]">
+                                  <!-- Fila Superior: Nombre del Participante -->
+                                  <div class="rival-card-top">
+                                    <div class="rival-name-group">
+                                      <span class="material-symbols-outlined rival-avatar-icon">person</span>
+                                      <span class="rival-name">{{ rival.name }}</span>
+                                    </div>
+
+                                    @if (rivalOutcomes()[rival.id]; as outcome) {
+                                      <span
+                                        class="rival-outcome-pill"
+                                        [class.pill-win]="outcome === 'win'"
+                                        [class.pill-lose]="outcome === 'lose'"
+                                      >
+                                        {{ outcome === 'win' ? '🎯 Robó carta (-1 🪙)' : '💥 Falló desafío (-1 🪙)' }}
+                                      </span>
+                                    }
                                   </div>
-                                  <div class="challenge-actions-group">
-                                    <button
-                                      type="button"
-                                      class="btn-rival-action btn-rival-win"
-                                      [class.selected-action]="rivalOutcomes()[rival.id] === 'win'"
-                                      [disabled]="getAvailableTokens(rival.id) <= 0 && rivalOutcomes()[rival.id] !== 'win'"
-                                      (click)="awardStolenCardToRival(rival.id)"
-                                      title="Robó la carta con éxito (+1 carta, -1 ficha)"
+
+                                  <!-- Fila Inferior: Indicativo de Fichas y Botones de Acción (Debajo del Nombre) -->
+                                  <div class="rival-card-bottom">
+                                    <div
+                                      class="rival-tokens-indicator"
+                                      [class.no-tokens]="getAvailableTokens(rival.id) <= 0"
+                                      title="Fichas Hitster disponibles para desafiar"
                                     >
-                                      <span>🎯 Acertó (+1 🎵, -1 🪙)</span>
-                                    </button>
-                                    <button
-                                      type="button"
-                                      class="btn-rival-action btn-rival-lose"
-                                      [class.selected-action]="rivalOutcomes()[rival.id] === 'lose'"
-                                      [disabled]="getAvailableTokens(rival.id) <= 0 && rivalOutcomes()[rival.id] !== 'lose'"
-                                      (click)="penalizeRivalToken(rival.id)"
-                                      title="Desafío erróneo (pierde 1 ficha Hitster)"
-                                    >
-                                      <span>💥 Falló (-1 🪙)</span>
-                                    </button>
-                                    @if (rivalOutcomes()[rival.id]) {
+                                      <span class="token-coin">🪙</span>
+                                      <span class="token-count-num">{{ getAvailableTokens(rival.id) }}</span>
+                                      <span class="token-count-label">{{ getAvailableTokens(rival.id) === 1 ? 'ficha' : 'fichas' }}</span>
+                                    </div>
+
+                                    <div class="challenge-actions-group">
                                       <button
                                         type="button"
-                                        class="btn-rival-action btn-rival-clear"
-                                        (click)="clearRivalChallenge(rival.id)"
-                                        title="Limpiar selección de desafío"
+                                        class="btn-rival-action btn-rival-win"
+                                        [class.selected-action]="rivalOutcomes()[rival.id] === 'win'"
+                                        [disabled]="getAvailableTokens(rival.id) <= 0 && rivalOutcomes()[rival.id] !== 'win'"
+                                        (click)="awardStolenCardToRival(rival.id)"
+                                        title="Robó la carta con éxito (+1 carta, -1 ficha)"
                                       >
-                                        <span class="material-symbols-outlined icon-mini">restart_alt</span>
-                                        <span>Limpiar</span>
+                                        <span class="material-symbols-outlined action-icon">track_changes</span>
+                                        <span>Acertó (+1 🎵, -1 🪙)</span>
                                       </button>
-                                    }
+
+                                      <button
+                                        type="button"
+                                        class="btn-rival-action btn-rival-lose"
+                                        [class.selected-action]="rivalOutcomes()[rival.id] === 'lose'"
+                                        [disabled]="getAvailableTokens(rival.id) <= 0 && rivalOutcomes()[rival.id] !== 'lose'"
+                                        (click)="penalizeRivalToken(rival.id)"
+                                        title="Desafío erróneo (pierde 1 ficha Hitster)"
+                                      >
+                                        <span class="material-symbols-outlined action-icon">close</span>
+                                        <span>Falló (-1 🪙)</span>
+                                      </button>
+
+                                      @if (rivalOutcomes()[rival.id]) {
+                                        <button
+                                          type="button"
+                                          class="btn-rival-action btn-rival-clear"
+                                          (click)="clearRivalChallenge(rival.id)"
+                                          title="Limpiar selección de desafío"
+                                        >
+                                          <span class="material-symbols-outlined action-icon">restart_alt</span>
+                                          <span>Limpiar</span>
+                                        </button>
+                                      }
+                                    </div>
                                   </div>
                                 </div>
                               }
@@ -1343,11 +1395,29 @@ interface RevealedTrackDetails {
                               [class.selected-action]="bonusTokenAwarded()"
                               (click)="awardBonusTokenToActivePlayer()"
                             >
-                              <span class="material-symbols-outlined">star</span>
-                              <span
-                                >⭐ Supo Artista y Título (+1 Ficha 🪙 para
-                                {{ activeGuesserName() }} • Total: {{ getAvailableTokens(effectiveActiveGuesserId()) }} 🪙)</span
-                              >
+                              <div class="bonus-btn-left">
+                                <span class="material-symbols-outlined bonus-icon">
+                                  {{ bonusTokenAwarded() ? 'stars' : 'star' }}
+                                </span>
+                                <div class="bonus-text-col">
+                                  <span class="bonus-title">⭐ Supo Artista y Título (+1 Ficha 🪙)</span>
+                                  <span class="bonus-sub">
+                                    {{
+                                      bonusTokenAwarded()
+                                        ? '✓ Bonificación otorgada a ' + activeGuesserName() + ' (toca para desmarcar)'
+                                        : 'Bonificación si adivinó artista y título exactos'
+                                    }}
+                                  </span>
+                                </div>
+                              </div>
+                              <div class="bonus-btn-right">
+                                <span class="bonus-toggle-badge" [class.badge-active]="bonusTokenAwarded()">
+                                  {{ bonusTokenAwarded() ? '✓ Aplicado' : '+1 🪙' }}
+                                </span>
+                                <span class="bonus-total-chip" title="Fichas totales de {{ activeGuesserName() }}">
+                                  🪙 {{ getAvailableTokens(effectiveActiveGuesserId()) }}
+                                </span>
+                              </div>
                             </button>
                           </div>
                         </div>
@@ -4737,8 +4807,21 @@ interface RevealedTrackDetails {
         gap: var(--space-sm);
         text-align: left;
         background: var(--color-surface-container);
-        border-radius: var(--radius-md);
-        padding: var(--space-sm);
+        border: 1px solid var(--color-border-subtle);
+        border-radius: var(--radius-lg);
+        padding: var(--space-md);
+        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+      }
+
+      .panel-header-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .panel-header-icon {
+        font-size: 20px;
+        color: #ec4899;
       }
 
       .panel-section-title {
@@ -4746,72 +4829,171 @@ interface RevealedTrackDetails {
         font-size: 13px;
         font-weight: 800;
         color: var(--color-text-primary);
+        letter-spacing: 0.2px;
       }
 
       .resolution-options {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        gap: var(--space-sm);
+      }
+
+      .btn-resolve-success,
+      .btn-resolve-fail {
+        position: relative;
+        min-height: 58px;
+        border-radius: var(--radius-md);
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border-subtle);
+        color: var(--color-text-primary);
+        cursor: pointer;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 8px;
+        text-align: left;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .resolve-btn-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .resolve-icon {
+        font-size: 22px;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      .btn-resolve-success .resolve-icon {
+        color: #10b981;
+      }
+
+      .btn-resolve-fail .resolve-icon {
+        color: #ef4444;
+      }
+
+      .resolve-btn-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .resolve-main-label {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--color-text-primary);
+        line-height: 1.2;
+      }
+
+      .resolve-sub-label {
+        font-size: 10.5px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        line-height: 1.2;
+      }
+
+      .resolve-badge {
+        align-self: flex-end;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: var(--radius-full);
+        background: var(--color-surface-container-high);
+        color: var(--color-text-tertiary, #9ca3af);
+        border: 1px solid var(--color-border-subtle);
+        transition: all 0.2s ease;
+      }
+
+      /* Hover states (when NOT selected) */
+      .btn-resolve-success:hover:not(.selected-action) {
+        border-color: rgba(16, 185, 129, 0.5);
+        background: rgba(16, 185, 129, 0.08);
+        transform: translateY(-1px);
+      }
+
+      .btn-resolve-fail:hover:not(.selected-action) {
+        border-color: rgba(239, 68, 68, 0.5);
+        background: rgba(239, 68, 68, 0.08);
+        transform: translateY(-1px);
+      }
+
+      /* Active Selected States - HIGH CONTRAST & CLEAR DISTINCTION */
+      .btn-resolve-success.selected-action {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        border: 2px solid #34d399 !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45) !important;
+        transform: translateY(-1px);
+      }
+
+      .btn-resolve-success.selected-action .resolve-icon,
+      .btn-resolve-success.selected-action .resolve-main-label {
+        color: #ffffff !important;
+      }
+
+      .btn-resolve-success.selected-action .resolve-sub-label {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      .btn-resolve-success.selected-action .resolve-badge {
+        background: #ffffff !important;
+        color: #065f46 !important;
+        font-weight: 800 !important;
+        border-color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-resolve-fail.selected-action {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        border: 2px solid #f87171 !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.45) !important;
+        transform: translateY(-1px);
+      }
+
+      .btn-resolve-fail.selected-action .resolve-icon,
+      .btn-resolve-fail.selected-action .resolve-main-label {
+        color: #ffffff !important;
+      }
+
+      .btn-resolve-fail.selected-action .resolve-sub-label {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      .btn-resolve-fail.selected-action .resolve-badge {
+        background: #ffffff !important;
+        color: #991b1b !important;
+        font-weight: 800 !important;
+        border-color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 2. Rival Challenge Section */
+      .rival-challenge-section {
+        border-top: 1px solid var(--color-border-subtle);
+        padding-top: var(--space-sm);
+        display: flex;
+        flex-direction: column;
         gap: var(--space-xs);
       }
 
-      .btn-resolve-success {
-        min-height: 44px;
-        border-radius: var(--radius-md);
-        background: rgba(16, 185, 129, 0.15);
-        border: 1px solid #10b981;
-        color: #10b981;
-        font-size: 12px;
-        font-weight: 800;
+      .sub-section-header {
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 4px;
-        cursor: pointer;
-        padding: 6px;
-        transition: all 0.2s ease;
+        gap: 6px;
       }
 
-      .btn-resolve-success:hover,
-      .btn-resolve-success.selected-action {
-        background: #10b981;
-        color: #ffffff;
-        box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
-      }
-
-      .btn-resolve-fail {
-        min-height: 44px;
-        border-radius: var(--radius-md);
-        background: rgba(239, 68, 68, 0.15);
-        border: 1px solid rgba(239, 68, 68, 0.4);
-        color: #ef4444;
-        font-size: 12px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        cursor: pointer;
-        padding: 6px;
-        transition: all 0.2s ease;
-      }
-
-      .btn-resolve-fail:hover,
-      .btn-resolve-fail.selected-action {
-        background: #ef4444;
-        color: #ffffff;
-        box-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
-      }
-
-      .rival-challenge-section {
-        border-top: 1px solid var(--color-border-subtle);
-        padding-top: var(--space-xs);
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
+      .sub-section-icon {
+        font-size: 16px;
+        color: #8b5cf6;
       }
 
       .sub-section-label {
-        font-size: 11px;
+        font-size: 11.5px;
         font-weight: 700;
         color: var(--color-text-secondary);
       }
@@ -4819,61 +5001,134 @@ interface RevealedTrackDetails {
       .rival-challenge-list {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 8px;
       }
 
-      .rival-challenge-row {
+      .rival-challenge-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border-subtle);
+        border-radius: var(--radius-md);
+        padding: 8px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        transition: all 0.2s ease;
+      }
+
+      .rival-challenge-card.has-selection {
+        border-color: rgba(245, 158, 11, 0.4);
+        background: rgba(245, 158, 11, 0.03);
+      }
+
+      .rival-card-top {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 8px;
-        padding: 6px 8px;
-        background: var(--color-surface);
-        border-radius: var(--radius-sm);
       }
 
-      .rival-info-wrap {
+      .rival-name-group {
         display: flex;
         align-items: center;
         gap: 6px;
       }
 
+      .rival-avatar-icon {
+        font-size: 16px;
+        color: var(--color-text-secondary);
+      }
+
       .rival-name {
-        font-size: 12px;
+        font-size: 12.5px;
         font-weight: 700;
         color: var(--color-text-primary);
       }
 
-      .rival-tokens-badge {
-        font-size: 11px;
+      .rival-outcome-pill {
+        font-size: 10.5px;
         font-weight: 800;
-        color: #f59e0b;
-        background: rgba(245, 158, 11, 0.15);
-        border: 1px solid rgba(245, 158, 11, 0.3);
-        padding: 2px 6px;
+        padding: 2px 8px;
         border-radius: var(--radius-full);
       }
 
-      .rival-tokens-badge.no-tokens {
-        color: #ef4444;
+      .rival-outcome-pill.pill-win {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.4);
+      }
+
+      .rival-outcome-pill.pill-lose {
         background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+      }
+
+      .rival-card-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding-top: 6px;
+        border-top: 1px dashed var(--color-border-subtle);
+      }
+
+      .rival-tokens-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 800;
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        padding: 3px 8px;
+        border-radius: var(--radius-full);
+      }
+
+      .rival-tokens-indicator.no-tokens {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.12);
         border-color: rgba(239, 68, 68, 0.3);
+      }
+
+      .token-coin {
+        font-size: 12px;
+      }
+
+      .token-count-num {
+        font-weight: 900;
+      }
+
+      .token-count-label {
+        font-weight: 600;
+        opacity: 0.85;
       }
 
       .challenge-actions-group {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
+        flex-wrap: wrap;
       }
 
       .btn-rival-action {
-        padding: 4px 8px;
+        padding: 5px 10px;
         border-radius: var(--radius-sm);
         border: 1px solid var(--color-border-subtle);
         font-size: 11px;
         font-weight: 700;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--color-surface-container-high);
+        color: var(--color-text-secondary);
         transition: all 0.2s ease;
+      }
+
+      .btn-rival-action .action-icon {
+        font-size: 14px;
       }
 
       .btn-rival-action:disabled {
@@ -4882,52 +5137,49 @@ interface RevealedTrackDetails {
         filter: grayscale(1);
       }
 
-      .btn-rival-win {
+      /* Inactive button subtle colors */
+      .btn-rival-win:not(.selected-action):not(:disabled):hover {
         background: rgba(16, 185, 129, 0.12);
         border-color: rgba(16, 185, 129, 0.4);
         color: #10b981;
-        transition: all 0.2s ease;
       }
 
-      .btn-rival-win:hover:not(:disabled),
-      .btn-rival-win.selected-action {
-        background: #10b981;
-        color: #ffffff;
-        box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
-      }
-
-      .btn-rival-lose {
+      .btn-rival-lose:not(.selected-action):not(:disabled):hover {
         background: rgba(239, 68, 68, 0.12);
         border-color: rgba(239, 68, 68, 0.4);
         color: #ef4444;
-        transition: all 0.2s ease;
       }
 
-      .btn-rival-lose:hover:not(:disabled),
+      /* Selected active button states */
+      .btn-rival-win.selected-action {
+        background: #10b981 !important;
+        border-color: #34d399 !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.45) !important;
+      }
+
       .btn-rival-lose.selected-action {
-        background: #ef4444;
-        color: #ffffff;
-        box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        background: #ef4444 !important;
+        border-color: #f87171 !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.45) !important;
       }
 
       .btn-rival-clear {
-        background: var(--color-surface-container-high);
+        background: var(--color-surface-container-highest);
         border-color: var(--color-border-default);
         color: var(--color-text-secondary);
-        display: inline-flex;
-        align-items: center;
-        gap: 2px;
       }
 
       .btn-rival-clear:hover {
-        background: var(--color-surface-container-highest);
+        background: var(--color-surface-container);
         color: var(--color-text-primary);
+        border-color: var(--color-border-strong);
       }
 
-      .icon-mini {
-        font-size: 14px;
-      }
-
+      /* 3. Bonus Token Section */
       .bonus-token-section {
         border-top: 1px solid var(--color-border-subtle);
         padding-top: var(--space-xs);
@@ -4935,32 +5187,98 @@ interface RevealedTrackDetails {
 
       .btn-bonus-token {
         width: 100%;
-        min-height: 38px;
+        min-height: 48px;
         border-radius: var(--radius-md);
-        background: rgba(245, 158, 11, 0.12);
-        border: 1px solid #f59e0b;
-        color: #f59e0b;
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border-subtle);
+        color: var(--color-text-primary);
         font-size: 12px;
-        font-weight: 800;
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 6px;
+        justify-content: space-between;
+        padding: 8px 12px;
         cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+      }
+
+      .bonus-btn-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .bonus-icon {
+        font-size: 22px;
+        color: #f59e0b;
+        flex-shrink: 0;
+      }
+
+      .bonus-text-col {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .bonus-title {
+        font-size: 12.5px;
+        font-weight: 800;
+        color: var(--color-text-primary);
+      }
+
+      .bonus-sub {
+        font-size: 10.5px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+      }
+
+      .bonus-btn-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .bonus-toggle-badge {
+        font-size: 10.5px;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: var(--radius-full);
+        background: var(--color-surface-container-high);
+        color: var(--color-text-tertiary, #9ca3af);
+        border: 1px solid var(--color-border-subtle);
         transition: all 0.2s ease;
       }
 
-      .btn-bonus-token:hover,
-      .btn-bonus-token.selected-action {
-        background: rgba(245, 158, 11, 0.3);
-        border-color: #f59e0b;
+      .bonus-total-chip {
+        font-size: 11px;
+        font-weight: 800;
         color: #f59e0b;
-        box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        padding: 3px 8px;
+        border-radius: var(--radius-full);
       }
 
-      .btn-bonus-token:hover {
-        background: #f59e0b;
-        color: #ffffff;
+      .btn-bonus-token:hover:not(.selected-action) {
+        border-color: rgba(245, 158, 11, 0.5);
+        background: rgba(245, 158, 11, 0.05);
+      }
+
+      .btn-bonus-token.selected-action {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.28) 100%) !important;
+        border: 2px solid #f59e0b !important;
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35) !important;
+      }
+
+      .btn-bonus-token.selected-action .bonus-title {
+        color: #f59e0b !important;
+      }
+
+      .btn-bonus-token.selected-action .bonus-toggle-badge {
+        background: #f59e0b !important;
+        color: #000000 !important;
+        border-color: #f59e0b !important;
+        box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
       }
 
       .revealed-footer-actions {
