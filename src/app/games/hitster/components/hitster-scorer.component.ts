@@ -8,6 +8,7 @@ import {
   OnDestroy,
   ElementRef,
   ViewChild,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -5684,6 +5685,15 @@ export class HitsterScorerComponent implements OnDestroy {
         this.viewingRound.set(m.currentRound);
         this.initDraftForRound(m.currentRound);
 
+        // Sincronizar jugador activo del turno según la ronda actual
+        if (m.players && m.players.length > 0) {
+          const roundIdx = (m.currentRound - 1) % m.players.length;
+          const turnPlayer = m.players[roundIdx] || m.players[0];
+          if (!this.showDjModal() || !this.activeGuesserPlayerId()) {
+            this.activeGuesserPlayerId.set(turnPlayer.id);
+          }
+        }
+
         // Sincronizar de forma reactiva la configuración de Modo Digital de la partida
         if (m.config?.isDigitalMode !== undefined) {
           this.isDigitalMode.set(m.config.isDigitalMode);
@@ -5708,7 +5718,16 @@ export class HitsterScorerComponent implements OnDestroy {
     );
   }
 
+  @HostListener('document:visibilitychange')
+  onVisibilityChange(): void {
+    if (document.hidden) {
+      this.stopItunesAudio();
+      this.pauseTimer();
+    }
+  }
+
   ngOnDestroy(): void {
+    this.showDjModal.set(false);
     this.stopCameraScanner();
     this.stopTimer();
     this.stopItunesAudio();
@@ -5892,10 +5911,21 @@ export class HitsterScorerComponent implements OnDestroy {
     const draft = this.draftInputs();
     await this.matchManager.commitRound(draft);
 
-    const updatedMatch = this.match();
+    const updatedMatch =
+      (this.matchManager.currentMatch() as MatchRecord<HitsterConfig, HitsterRoundInput>) ||
+      this.match();
+
     if (updatedMatch.status !== 'completed') {
-      this.viewingRound.set(updatedMatch.currentRound);
-      this.initDraftForRound(updatedMatch.currentRound);
+      const nextRound = updatedMatch.currentRound;
+      this.viewingRound.set(nextRound);
+      this.initDraftForRound(nextRound);
+
+      const players = updatedMatch.players;
+      if (players && players.length > 0) {
+        const nextIdx = (nextRound - 1) % players.length;
+        const nextPlayer = players[nextIdx] || players[0];
+        this.activeGuesserPlayerId.set(nextPlayer.id);
+      }
     }
   }
 
@@ -6053,13 +6083,11 @@ export class HitsterScorerComponent implements OnDestroy {
 
   // DJ Modal & Scanner
   openDjScannerModal(): void {
-    if (!this.activeGuesserPlayerId()) {
-      const dj = this.currentDjPlayer();
-      if (dj) {
-        this.activeGuesserPlayerId.set(dj.id);
-      } else if (this.match().players.length > 0) {
-        this.activeGuesserPlayerId.set(this.match().players[0].id);
-      }
+    const dj = this.currentDjPlayer();
+    if (dj) {
+      this.activeGuesserPlayerId.set(dj.id);
+    } else if (this.match().players.length > 0) {
+      this.activeGuesserPlayerId.set(this.match().players[0].id);
     }
     this.showDjModal.set(true);
     if (!this.isDigitalMode()) {
@@ -6068,24 +6096,19 @@ export class HitsterScorerComponent implements OnDestroy {
   }
 
   async closeDjModal(): Promise<void> {
+    this.showDjModal.set(false);
     this.stopCameraScanner();
     this.stopTimer();
     this.stopItunesAudio();
+    this.resetDjTrackState();
 
     if (this.turnResolutionChosen()) {
       await this.confirmCurrentRound();
-      this.resetDjTrackState();
-      const dj = this.currentDjPlayer();
-      if (dj) {
-        this.activeGuesserPlayerId.set(dj.id);
-      }
       this.turnResolutionChosen.set(false);
       this.placementOutcome.set(null);
       this.rivalOutcomes.set({});
       this.bonusTokenAwarded.set(false);
     }
-
-    this.showDjModal.set(false);
   }
 
   setActiveGuesserPlayer(id: string): void {
@@ -6200,13 +6223,11 @@ export class HitsterScorerComponent implements OnDestroy {
   }
 
   async drawNextDigitalCardForActivePlayer(): Promise<void> {
-    if (!this.activeGuesserPlayerId()) {
-      const dj = this.currentDjPlayer();
-      if (dj) {
-        this.activeGuesserPlayerId.set(dj.id);
-      } else if (this.match().players.length > 0) {
-        this.activeGuesserPlayerId.set(this.match().players[0].id);
-      }
+    const dj = this.currentDjPlayer();
+    if (dj) {
+      this.activeGuesserPlayerId.set(dj.id);
+    } else if (this.match().players.length > 0) {
+      this.activeGuesserPlayerId.set(this.match().players[0].id);
     }
     this.showDjModal.set(true);
     await this.drawDigitalCard();
@@ -6219,14 +6240,21 @@ export class HitsterScorerComponent implements OnDestroy {
     this.rivalOutcomes.set({});
     this.bonusTokenAwarded.set(false);
 
-    if (this.match().status === 'completed') {
+    const currentMatch =
+      (this.matchManager.currentMatch() as MatchRecord<HitsterConfig, HitsterRoundInput>) ||
+      this.match();
+
+    if (currentMatch.status === 'completed') {
       this.closeDjModal();
       return;
     }
     this.resetDjTrackState();
-    const dj = this.currentDjPlayer();
-    if (dj) {
-      this.activeGuesserPlayerId.set(dj.id);
+    const nextRound = this.viewingRound();
+    const players = currentMatch.players;
+    if (players && players.length > 0) {
+      const nextIdx = (nextRound - 1) % players.length;
+      const nextPlayer = players[nextIdx] || players[0];
+      this.activeGuesserPlayerId.set(nextPlayer.id);
     }
     await this.drawDigitalCard();
   }
@@ -6238,14 +6266,21 @@ export class HitsterScorerComponent implements OnDestroy {
     this.rivalOutcomes.set({});
     this.bonusTokenAwarded.set(false);
 
-    if (this.match().status === 'completed') {
+    const currentMatch =
+      (this.matchManager.currentMatch() as MatchRecord<HitsterConfig, HitsterRoundInput>) ||
+      this.match();
+
+    if (currentMatch.status === 'completed') {
       this.closeDjModal();
       return;
     }
     this.resetDjTrackState();
-    const dj = this.currentDjPlayer();
-    if (dj) {
-      this.activeGuesserPlayerId.set(dj.id);
+    const nextRound = this.viewingRound();
+    const players = currentMatch.players;
+    if (players && players.length > 0) {
+      const nextIdx = (nextRound - 1) % players.length;
+      const nextPlayer = players[nextIdx] || players[0];
+      this.activeGuesserPlayerId.set(nextPlayer.id);
     }
     setTimeout(() => this.startCameraScanner(), 200);
   }
@@ -6535,6 +6570,12 @@ export class HitsterScorerComponent implements OnDestroy {
     this.isAudioLoading.set(true);
     try {
       const itunesResult = await searchItunesTrack(query);
+      if (!this.showDjModal()) {
+        this.isAudioLoading.set(false);
+        this.stopItunesAudio();
+        return;
+      }
+
       if (itunesResult && itunesResult.previewUrl) {
         this.revealedTrack.update((prev) => ({
           ...prev,
@@ -6548,19 +6589,27 @@ export class HitsterScorerComponent implements OnDestroy {
 
         this.playItunesAudioStream(itunesResult.previewUrl);
       } else {
-        // Si no se encuentra en iTunes, fallback a Spotify Web Player
         this.isAudioLoading.set(false);
-        this.resetTimer();
-        this.startTimer();
+        if (this.showDjModal()) {
+          this.resetTimer();
+          this.startTimer();
+        }
       }
     } catch {
       this.isAudioLoading.set(false);
-      this.resetTimer();
-      this.startTimer();
+      if (this.showDjModal()) {
+        this.resetTimer();
+        this.startTimer();
+      }
     }
   }
 
   private playItunesAudioStream(url: string): void {
+    if (!this.showDjModal()) {
+      this.stopItunesAudio();
+      return;
+    }
+
     if (this.itunesAudioRef?.nativeElement) {
       const audio = this.itunesAudioRef.nativeElement;
       audio.src = url;
@@ -6568,27 +6617,42 @@ export class HitsterScorerComponent implements OnDestroy {
       audio
         .play()
         .then(() => {
+          if (!this.showDjModal()) {
+            this.stopItunesAudio();
+            return;
+          }
           this.isAudioLoading.set(false);
           this.resetTimer();
           this.startTimer();
         })
         .catch(() => {
           this.isAudioLoading.set(false);
-          this.resetTimer();
-          this.startTimer();
+          if (this.showDjModal()) {
+            this.resetTimer();
+            this.startTimer();
+          }
         });
     } else {
       this.isAudioLoading.set(false);
-      this.resetTimer();
-      this.startTimer();
+      if (this.showDjModal()) {
+        this.resetTimer();
+        this.startTimer();
+      }
     }
   }
 
   private stopItunesAudio(): void {
     if (this.itunesAudioRef?.nativeElement) {
       const audio = this.itunesAudioRef.nativeElement;
-      audio.pause();
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.removeAttribute('src');
+        audio.load();
+      } catch {}
     }
+    this.isPlaying.set(false);
+    this.isAudioLoading.set(false);
   }
 
   onItunesAudioEnded(): void {
@@ -6613,6 +6677,12 @@ export class HitsterScorerComponent implements OnDestroy {
 
   // Controles de Reproducción y Temporizador
   startTimer(): void {
+    if (!this.showDjModal()) {
+      this.stopTimer();
+      this.stopItunesAudio();
+      return;
+    }
+
     this.stopTimer();
     this.isTimerRunning.set(true);
     this.isPlaying.set(true);
@@ -6622,6 +6692,11 @@ export class HitsterScorerComponent implements OnDestroy {
     }
 
     this.timerIntervalId = setInterval(() => {
+      if (!this.showDjModal()) {
+        this.stopTimer();
+        this.stopItunesAudio();
+        return;
+      }
       this.timerSecondsLeft.update((s) => {
         if (s <= 1) {
           this.stopTimer();
@@ -6646,10 +6721,7 @@ export class HitsterScorerComponent implements OnDestroy {
     this.timerSecondsLeft.set(this.timerDefaultDuration());
     this.isTimerRunning.set(false);
     this.isPlaying.set(false);
-    if (this.itunesAudioRef?.nativeElement) {
-      this.itunesAudioRef.nativeElement.currentTime = 0;
-      this.itunesAudioRef.nativeElement.pause();
-    }
+    this.stopItunesAudio();
   }
 
   private stopTimer(): void {
