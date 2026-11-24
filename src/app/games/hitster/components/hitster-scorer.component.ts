@@ -973,6 +973,22 @@ interface RevealedTrackDetails {
                                 >open_in_new</span
                               >
                             </a>
+                          } @else {
+                            <button
+                              type="button"
+                              class="btn-fallback-new-song"
+                              (click)="generateFallbackSongForCurrentTurn()"
+                              [disabled]="isAudioLoading()"
+                              title="Generar una canción nueva manualmente si no se pudo cargar el audio"
+                            >
+                              <span class="material-symbols-outlined fallback-dice-icon">
+                                {{ isAudioLoading() ? 'hourglass_top' : 'shuffle' }}
+                              </span>
+                              <div class="fallback-btn-texts">
+                                <strong>{{ isAudioLoading() ? 'Buscando canción...' : 'Generar Canción Nueva' }}</strong>
+                                <span>No se pudo reproducir el audio oficial • Toca para sacar otra</span>
+                              </div>
+                            </button>
                           }
                         </div>
                       </div>
@@ -4294,6 +4310,55 @@ interface RevealedTrackDetails {
         font-size: 14px;
       }
 
+      .btn-fallback-new-song {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        border-radius: var(--radius-lg);
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(139, 92, 246, 0.2) 100%);
+        border: 1px solid rgba(236, 72, 153, 0.4);
+        color: var(--color-text-primary);
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+      }
+
+      .btn-fallback-new-song:hover:not(:disabled) {
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.25) 0%, rgba(139, 92, 246, 0.3) 100%);
+        border-color: #ec4899;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2);
+      }
+
+      .btn-fallback-new-song:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .fallback-dice-icon {
+        font-size: 20px;
+        color: #ec4899;
+      }
+
+      .fallback-btn-texts {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+
+      .fallback-btn-texts strong {
+        font-size: 12px;
+        font-weight: 800;
+        color: #ec4899;
+      }
+
+      .fallback-btn-texts span {
+        font-size: 10px;
+        color: var(--color-text-secondary);
+      }
+
       /* Spotify Embed & Link */
       .spotify-embed-container {
         border-radius: 12px;
@@ -6210,6 +6275,11 @@ export class HitsterScorerComponent implements OnDestroy {
       this.activeGuesserPlayerId.set(this.match().players[0].id);
     }
     this.showDjModal.set(true);
+    await this.drawDigitalCard();
+  }
+
+  async generateFallbackSongForCurrentTurn(): Promise<void> {
+    this.resetDjTrackState();
     await this.drawDigitalCard();
   }
 
