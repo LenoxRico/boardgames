@@ -31,7 +31,12 @@ Para garantizar una experiencia visual inmersiva, cohesiva y uniforme sin proble
 Los gradientes y el arte alusivo de cada juego **se renderizan dentro de TODAS las tarjetas principales**, garantizando una estricta simetría visual en cualquier pantalla:
 - **En Catálogo:** Cada `.game-card` y el hero `.active-match-hero`.
 - **En Configuración de Partida:** La tarjeta de configuración `.match-setup-card`.
-- **En Visor de Reglas:** La tarjeta de controles `.controls-card`, la card dedicada de ilustración `.rules-image-card` y la tarjeta de identidad y especificaciones `.game-overview-card`.
+- **En Visor de Reglas:** **TODAS las tarjetas de la vista de reglas** llevan el fondo temático (`[style.background-image]="game.metadata.theme?.gradient"`):
+  1. La tarjeta de controles `.controls-card` (con marca de agua `*-bg.svg`).
+  2. La card dedicada de ilustración `.rules-image-card` (con la ilustración panorámica `*-rules.svg` ocupando todo el espacio).
+  3. La tarjeta de identidad y especificaciones `.game-overview-card` (con marca de agua `*-bg.svg`).
+  4. Cada tarjeta individual de sección de reglas `.rule-card` (con marca de agua `*-bg.svg`).
+  5. La tarjeta CTA final para iniciar partida `.start-game-cta-box` (con marca de agua `*-bg.svg`).
 - **En la Partida en Vivo:** **TODAS las tarjetas de la mesa**:
   1. `.match-header-card` (cabecera con steppers y repartidor).
   2. Cada `.player-card` (tarjeta de interacción y captura de datos por jugador).
@@ -91,14 +96,17 @@ Los gradientes y el arte alusivo de cada juego **se renderizan dentro de TODAS l
 El Visor de Reglas utiliza una arquitectura de doble tarjeta para la presentación del juego:
 1. **Card Dedicada de Ilustración (`.rules-image-card`):**
    - Aloja una ilustración vectorial panorámica dedicada (`<game-id>-rules.svg`) vinculada en `rules.coverImage`.
+   - **Regla Estricta de Exclusividad:** La imagen de `rules.coverImage` (`*-rules.svg`) **SÓLO se utiliza en esta tarjeta (`.rules-image-card`)**. Ninguna otra vista, componente ni tarjeta de la aplicación debe consumir esta imagen.
    - **Debe ser DIFERENTE a la marca de agua del fondo (`*-bg.svg`)**: mientras el fondo es una silueta o emblema para marcas de agua, la ilustración de reglas representa una escena activa o dinámica del juego (ej. la línea de tiempo musical con cassettes en Hitster, el cuarteto de Pelusas huyendo de la aspiradora, el cofre del tesoro con Kraken y Sirena en Skull King, la estampida del 6º buey en Toma 6, los dados poliédricos en el laberinto de Mino Dice, o las 5 máscaras sagradas ante la fogata en Samoa).
    - **Composición:** Formato panorámico centrado con `viewBox="0 0 800 400"` (ratio 2:1).
    - **Renderizado:** La ilustración ocupa todo el espacio de su tarjeta de manera centrada (`width: 100%; aspect-ratio: 2 / 1; object-fit: cover; max-height: 290px;`).
 2. **Card de Identidad y Especificaciones (`.game-overview-card`):**
    - Presenta el emoji, nombre oficial, subtítulo y tagline descriptivo del juego.
    - Contiene la cuadrícula de chips técnicos (número de jugadores, tipo de victoria, cantidad de rondas oficiales y unidad de puntaje).
-   - Incorpora la marca de agua temática `.card-thematic-art` en su esquina superior derecha.
-3. **Ruta Absoluta:** Todas las imágenes deben declararse iniciando obligatoriamente con barra diagonal (ej. `bgImageUrl: '/assets/games/<game-id>-bg.svg'` y `coverImage: '/assets/games/<game-id>-rules.svg'`).
+   - Incorpora la marca de agua temática `.card-thematic-art` en su esquina superior derecha utilizando obligatoriamente `metadata.theme.bgImageUrl` (`*-bg.svg`).
+3. **Regla de Uso para Todo lo Demás (Incluyendo Todas las Demás Cards de Reglas):**
+   - Para **absolutamente todas las demás tarjetas de la aplicación**, incluyendo **todas las tarjetas de la vista de reglas** (`.controls-card`, `.game-overview-card`, cada `.rule-card` y `.start-game-cta-box`), se utiliza **únicamente la imagen de fondo de marca de agua (`metadata.theme.bgImageUrl` / `*-bg.svg`)** sobre el gradiente temático de la tarjeta.
+4. **Ruta Absoluta:** Todas las imágenes deben declararse iniciando obligatoriamente con barra diagonal (ej. `bgImageUrl: '/assets/games/<game-id>-bg.svg'` y `coverImage: '/assets/games/<game-id>-rules.svg'`).
 
 ---
 
@@ -535,8 +543,8 @@ Completa este formulario al solicitar o diseñar un nuevo juego:
 | **Tiene Perdedor Destacado** | `true` o `false` | Sí | `true` si alguien detona el fin (ej. Take 6 al superar 66 pts). |
 | **Unidad de Puntuación** | `pts`, `cuernos`, `dados` | Sí | Etiqueta para los marcadores numéricos. |
 | **Tema Visual (`theme`)** | Colores primario/secundario y gradiente | Sí | Gradiente radial ambiental aplicado a las cards. |
-| **Marca de Agua SVG (`bgImageUrl`)** | `/assets/games/<id>-bg.svg` | Sí | Arte vectorial para marca de agua en cards (600x600, alta opacidad interna 0.85-0.95, foco en 410,230). |
-| **Ilustración de Reglas (`coverImage`)** | `/assets/games/<id>-rules.svg` | Sí | Ilustración panorámica dedicada para la card de reglas (800x400 / ratio 2:1, centrada y diferente al fondo). |
+| **Marca de Agua SVG (`bgImageUrl`)** | `/assets/games/<id>-bg.svg` | Sí | Arte vectorial para marca de agua en **TODAS las tarjetas de la app** (600x600, alta opacidad interna 0.85-0.95, foco en 410,230). |
+| **Ilustración de Reglas (`coverImage`)** | `/assets/games/<id>-rules.svg` | Sí | Ilustración panorámica dedicada **EXCLUSIVA para la card de reglas (.rules-image-card)** (800x400 / ratio 2:1, centrada y diferente al fondo). |
 | **Opciones Previas** | Rondas fijas, Límite, Expansiones | Opcional | Opciones booleanas o numéricas editables antes de iniciar. |
 | **Idiomas de Reglas** | `['es']` o `['es', 'en']` | Sí | Si contiene ambos, habilita botón conmutador de idioma. |
 | **Resumen Rápido (Mesa)** | 3 a 5 tarjetas clave | Sí | Objetivo, penalizaciones y casos especiales. |

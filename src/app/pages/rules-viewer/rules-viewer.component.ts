@@ -19,7 +19,7 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
           class="controls-card"
           [style.background-image]="game.metadata.theme?.gradient"
         >
-          @if (getGameImage(game); as bg) {
+          @if (getGameBgImage(game); as bg) {
             <div
               class="card-thematic-art"
               [style.background-image]="'url(' + bg + ')'"
@@ -194,7 +194,18 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
           <!-- Tarjetas de Contenido de Reglas -->
           <div class="sections-list">
             @for (sec of currentSections(); track sec.id) {
-              <div class="rule-card" [id]="sec.id">
+              <div
+                class="rule-card"
+                [id]="sec.id"
+                [style.background-image]="game.metadata.theme?.gradient"
+              >
+                @if (getGameBgImage(game); as bg) {
+                  <div
+                    class="card-thematic-art"
+                    [style.background-image]="'url(' + bg + ')'"
+                  ></div>
+                }
+
                 <div class="rule-header">
                   @if (sec.icon) {
                     <span class="material-symbols-outlined rule-header-icon">{{ sec.icon }}</span>
@@ -221,7 +232,17 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
           </div>
 
           <!-- CTA al final para iniciar partida con este juego -->
-          <div class="start-game-cta-box">
+          <div
+            class="start-game-cta-box"
+            [style.background-image]="game.metadata.theme?.gradient"
+          >
+            @if (getGameBgImage(game); as bg) {
+              <div
+                class="card-thematic-art"
+                [style.background-image]="'url(' + bg + ')'"
+              ></div>
+            }
+
             <div class="cta-text">
               <h4>¿Listos para jugar a {{ game.metadata.name }}?</h4>
               <p>Inicia el marcador en vivo con cálculo automático de rondas.</p>
@@ -249,6 +270,8 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
     .controls-card,
     .rules-image-card,
     .game-overview-card,
+    .rule-card,
+    .start-game-cta-box,
     .rules-content-section {
       position: relative;
       z-index: 1;
@@ -567,12 +590,20 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
     }
 
     .rule-card {
+      position: relative;
+      overflow: hidden;
       background: var(--color-surface-container);
       border: 1px solid var(--color-border-default);
       border-radius: var(--radius-xl);
       padding: var(--space-md);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
       scroll-margin-top: 80px;
+    }
+
+    .rule-header,
+    .rule-body {
+      position: relative;
+      z-index: 1;
     }
 
     .rule-header {
@@ -634,6 +665,8 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
     }
 
     .start-game-cta-box {
+      position: relative;
+      overflow: hidden;
       background: var(--color-surface-container-high);
       border: 1px solid var(--color-border-strong);
       border-radius: var(--radius-xl);
@@ -642,6 +675,12 @@ import { GameDefinition, GameRuleSection } from '../../core/models/game.interfac
       justify-content: space-between;
       align-items: center;
       gap: var(--space-md);
+    }
+
+    .cta-text,
+    .btn-cta-start {
+      position: relative;
+      z-index: 1;
     }
 
     .cta-text h4 {
@@ -764,7 +803,7 @@ export class RulesViewerComponent {
   }
 
   getGameImage(game: GameDefinition): string {
-    return this.getRulesCoverImage(game);
+    return this.getGameBgImage(game);
   }
 
   setLanguage(lang: 'es' | 'en'): void {
