@@ -850,9 +850,11 @@ export class HitsterEngine
   }
 
   /**
-   * Evalúa si algún jugador o equipo ha ganado la partida al completar su línea de tiempo.
-   * En caso de empate en cartas (ej. dos jugadores alcanzaron 10 cartas en la misma ronda),
-   * el desempate oficial de Hitster favorece a quien tenga más fichas Hitster en mano.
+   * Evalúa si algún jugador o equipo ha ganado la partida al completar su línea de tiempo
+   * o si se ha alcanzado el límite de rondas configuradas.
+   * En caso de empate en cartas (ej. dos jugadores alcanzaron la meta de cartas o la misma
+   * cantidad de cartas al final de las rondas), el desempate oficial de Hitster favorece
+   * a quien tenga más fichas Hitster en mano.
    */
   evaluateMatchStatus(
     totalScores: Record<string, number>,
@@ -871,15 +873,23 @@ export class HitsterEngine
     }
 
     const target = config?.targetCards ?? 10;
-    const winners = playerIds.filter((pid) => (totalScores[pid] ?? 0) >= target);
+    const maxRounds = (config as any)?.rounds;
+    const hasTargetWinner = playerIds.some((pid) => (totalScores[pid] ?? 0) >= target);
+    const hasReachedMaxRounds = Boolean(maxRounds && roundsPlayed >= maxRounds);
 
-    // Si nadie alcanzó el objetivo, la partida continúa
-    if (winners.length === 0) {
+    // Si nadie alcanzó el objetivo de cartas ni se llegó al límite de rondas, la partida continúa
+    if (!hasTargetWinner && !hasReachedMaxRounds) {
       return { isGameOver: false, winnerIds: [] };
     }
 
+    // Si alguien alcanzó el objetivo de cartas, filtramos a los jugadores que llegaron al target.
+    // Si la partida finaliza por límite de rondas sin llegar al target, compiten todos los jugadores.
+    const candidateIds = hasTargetWinner
+      ? playerIds.filter((pid) => (totalScores[pid] ?? 0) >= target)
+      : [...playerIds];
+
     // Ordenar ganadores por total de cartas (descendente), luego por fichas Hitster (descendente)
-    const rankedWinners = [...winners].sort((a, b) => {
+    const rankedCandidates = [...candidateIds].sort((a, b) => {
       const cardsDiff = (totalScores[b] ?? 0) - (totalScores[a] ?? 0);
       if (cardsDiff !== 0) return cardsDiff;
       const tokensA = tokensByPlayer ? (tokensByPlayer[a] ?? 0) : 0;
@@ -887,26 +897,37 @@ export class HitsterEngine
       return tokensB - tokensA;
     });
 
-    const topWinnerId = rankedWinners[0];
+    const topWinnerId = rankedCandidates[0];
     const topCards = totalScores[topWinnerId] ?? 0;
     const topTokens = tokensByPlayer ? (tokensByPlayer[topWinnerId] ?? 0) : 0;
 
     // Verificar si hay empate absoluto en cartas y fichas
-    const tiedWinners = rankedWinners.filter((pid) => {
+    const tiedWinners = rankedCandidates.filter((pid) => {
       const c = totalScores[pid] ?? 0;
       const t = tokensByPlayer ? (tokensByPlayer[pid] ?? 0) : 0;
       return c === topCards && t === topTokens;
     });
 
-    const reason =
-      tiedWinners.length > 1
-        ? `¡Empate histórico! Varios jugadores completaron ${topCards} canciones en su línea de tiempo con ${topTokens} fichas.`
-        : `¡Victoria! Ha completado su línea de tiempo con ${topCards} canciones en orden cronológico.`;
+    let reason: string;
+    if (hasTargetWinner) {
+      reason =
+        tiedWinners.length > 1
+          ? `¡Empate histórico! Varios jugadores completaron la meta de ${topCards} canciones en su línea de tiempo con ${topTokens} fichas.`
+          : `¡Victoria! Ha completado su línea de tiempo con ${topCards} canciones en orden cronológico.`;
+    } else {
+      reason =
+        tiedWinners.length > 1
+          ? `¡Empate al finalizar las ${roundsPlayed} rondas con ${topCards} canciones y ${topTokens} fichas!`
+          : `¡Partida finalizada tras ${roundsPlayed} rondas! Ganador con ${topCards} canciones en su línea de tiempo y ${topTokens} fichas.`;
+    }
+
+    const allRankings = this.rankPlayers(totalScores, tokensByPlayer || {}, target);
 
     return {
       isGameOver: true,
       reason,
       winnerIds: tiedWinners,
+      rankings: allRankings,
     };
   }
 

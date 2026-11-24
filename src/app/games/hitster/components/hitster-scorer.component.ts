@@ -622,6 +622,70 @@ interface RevealedTrackDetails {
         </div>
       </div>
 
+      <!-- MODAL DE RESULTADOS FINALES / VICTORIA -->
+      @if (showFinalResultsModal() || match().status === 'completed') {
+        <div class="final-results-overlay">
+          <div
+            class="final-results-card"
+            [style.background-image]="gameTheme()?.gradient"
+          >
+            @if (gameTheme()?.bgImageUrl; as bg) {
+              <div
+                class="card-thematic-art"
+                [style.background-image]="'url(' + bg + ')'"
+              ></div>
+            }
+            <div class="results-header">
+              <span class="trophy-badge">🏆</span>
+              <h2 class="results-title">¡Partida de Hitster Finalizada!</h2>
+              <span class="results-sub">
+                {{ matchEvaluation().reason || '¡Línea de tiempo cronológica completada!' }}
+              </span>
+            </div>
+
+            <!-- Podio de Clasificación -->
+            <div class="results-podium">
+              @for (item of matchEvaluation().rankings; track item.playerId) {
+                @let player = getPlayerById(item.playerId);
+                <div class="podium-row" [class.winner-row]="item.rank === 1">
+                  <div class="podium-left">
+                    <span class="medal-icon">
+                      {{ item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : item.rank === 3 ? '🥉' : item.rank + 'º' }}
+                    </span>
+                    <div class="podium-player">
+                      <span class="podium-name font-bold">{{ player?.name }}</span>
+                      @if (item.isWinner) {
+                        <span class="winner-label">👑 Ganador</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="podium-right">
+                    <span class="podium-score tabular-nums font-bold">{{ item.totalCards }} / {{ targetCards() }} canciones</span>
+                    <span class="podium-tokens tabular-nums">🪙 {{ item.totalTokens }} fichas</span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Botones de Acción Final -->
+            <div class="results-actions">
+              <button type="button" class="btn-primary-action" (click)="viewMatchHistory()">
+                <span class="material-symbols-outlined">history</span>
+                <span>Ver Historial de Partidas</span>
+              </button>
+              <button type="button" class="btn-secondary-action" (click)="returnToCatalog()">
+                <span class="material-symbols-outlined">storefront</span>
+                <span>Volver al Catálogo</span>
+              </button>
+              <button type="button" class="btn-secondary-action" (click)="toggleFinalResultsModal()">
+                <span class="material-symbols-outlined">visibility</span>
+                <span>Revisar Mesa</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
       <!-- MODAL 1: Escáner DJ / Reproductor sin Spoilers -->
       @if (showDjModal()) {
         <div class="modal-overlay" (click)="closeDjModal()">
@@ -672,7 +736,8 @@ interface RevealedTrackDetails {
                       [class.active-chip]="p.id === effectiveActiveGuesserId()"
                       (click)="setActiveGuesserPlayer(p.id)"
                     >
-                      {{ p.name }}
+                      <span class="chip-name">{{ p.name }}</span>
+                      <span class="chip-tokens">🪙 {{ getAvailableTokens(p.id) }}</span>
                     </button>
                   }
                 </div>
@@ -1222,26 +1287,48 @@ interface RevealedTrackDetails {
                             <div class="rival-challenge-list">
                               @for (rival of rivalPlayers(); track rival.id) {
                                 <div class="rival-challenge-row">
-                                  <span class="rival-name">{{ rival.name }}:</span>
+                                  <div class="rival-info-wrap">
+                                    <span class="rival-name">{{ rival.name }}</span>
+                                    <span
+                                      class="rival-tokens-badge"
+                                      [class.no-tokens]="getAvailableTokens(rival.id) <= 0"
+                                      title="Fichas Hitster disponibles"
+                                    >
+                                      🪙 {{ getAvailableTokens(rival.id) }}
+                                    </span>
+                                  </div>
                                   <div class="challenge-actions-group">
                                     <button
                                       type="button"
                                       class="btn-rival-action btn-rival-win"
                                       [class.selected-action]="rivalOutcomes()[rival.id] === 'win'"
+                                      [disabled]="getAvailableTokens(rival.id) <= 0 && rivalOutcomes()[rival.id] !== 'win'"
                                       (click)="awardStolenCardToRival(rival.id)"
-                                      title="Robó la carta con éxito (+1 carta para el rival)"
+                                      title="Robó la carta con éxito (+1 carta, -1 ficha)"
                                     >
-                                      <span>🎯 Acertó (+1 🎵)</span>
+                                      <span>🎯 Acertó (+1 🎵, -1 🪙)</span>
                                     </button>
                                     <button
                                       type="button"
                                       class="btn-rival-action btn-rival-lose"
                                       [class.selected-action]="rivalOutcomes()[rival.id] === 'lose'"
+                                      [disabled]="getAvailableTokens(rival.id) <= 0 && rivalOutcomes()[rival.id] !== 'lose'"
                                       (click)="penalizeRivalToken(rival.id)"
                                       title="Desafío erróneo (pierde 1 ficha Hitster)"
                                     >
                                       <span>💥 Falló (-1 🪙)</span>
                                     </button>
+                                    @if (rivalOutcomes()[rival.id]) {
+                                      <button
+                                        type="button"
+                                        class="btn-rival-action btn-rival-clear"
+                                        (click)="clearRivalChallenge(rival.id)"
+                                        title="Limpiar selección de desafío"
+                                      >
+                                        <span class="material-symbols-outlined icon-mini">restart_alt</span>
+                                        <span>Limpiar</span>
+                                      </button>
+                                    }
                                   </div>
                                 </div>
                               }
@@ -1259,7 +1346,7 @@ interface RevealedTrackDetails {
                               <span class="material-symbols-outlined">star</span>
                               <span
                                 >⭐ Supo Artista y Título (+1 Ficha 🪙 para
-                                {{ activeGuesserName() }})</span
+                                {{ activeGuesserName() }} • Total: {{ getAvailableTokens(effectiveActiveGuesserId()) }} 🪙)</span
                               >
                             </button>
                           </div>
@@ -3405,7 +3492,7 @@ interface RevealedTrackDetails {
       }
 
       .turn-player-chip {
-        padding: 4px 12px;
+        padding: 4px 10px;
         border-radius: var(--radius-full);
         background: var(--color-surface-container);
         border: 1px solid var(--color-border-default);
@@ -3415,6 +3502,18 @@ interface RevealedTrackDetails {
         cursor: pointer;
         white-space: nowrap;
         transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .chip-tokens {
+        font-size: 10px;
+        font-weight: 800;
+        background: rgba(245, 158, 11, 0.2);
+        padding: 1px 5px;
+        border-radius: var(--radius-full);
+        color: #f59e0b;
       }
 
       .turn-player-chip.active-chip {
@@ -3422,6 +3521,11 @@ interface RevealedTrackDetails {
         border-color: #ec4899;
         color: #ffffff;
         box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+      }
+
+      .turn-player-chip.active-chip .chip-tokens {
+        background: rgba(255, 255, 255, 0.25);
+        color: #ffffff;
       }
 
       /* MODAL DE SELECCIÓN DE BARAJA DIGITAL */
@@ -4723,9 +4827,15 @@ interface RevealedTrackDetails {
         align-items: center;
         justify-content: space-between;
         gap: 8px;
-        padding: 4px 6px;
+        padding: 6px 8px;
         background: var(--color-surface);
         border-radius: var(--radius-sm);
+      }
+
+      .rival-info-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
       }
 
       .rival-name {
@@ -4734,8 +4844,25 @@ interface RevealedTrackDetails {
         color: var(--color-text-primary);
       }
 
+      .rival-tokens-badge {
+        font-size: 11px;
+        font-weight: 800;
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.15);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        padding: 2px 6px;
+        border-radius: var(--radius-full);
+      }
+
+      .rival-tokens-badge.no-tokens {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.3);
+      }
+
       .challenge-actions-group {
         display: flex;
+        align-items: center;
         gap: 4px;
       }
 
@@ -4746,6 +4873,13 @@ interface RevealedTrackDetails {
         font-size: 11px;
         font-weight: 700;
         cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-rival-action:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        filter: grayscale(1);
       }
 
       .btn-rival-win {
@@ -4755,7 +4889,7 @@ interface RevealedTrackDetails {
         transition: all 0.2s ease;
       }
 
-      .btn-rival-win:hover,
+      .btn-rival-win:hover:not(:disabled),
       .btn-rival-win.selected-action {
         background: #10b981;
         color: #ffffff;
@@ -4769,11 +4903,29 @@ interface RevealedTrackDetails {
         transition: all 0.2s ease;
       }
 
-      .btn-rival-lose:hover,
+      .btn-rival-lose:hover:not(:disabled),
       .btn-rival-lose.selected-action {
         background: #ef4444;
         color: #ffffff;
         box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+      }
+
+      .btn-rival-clear {
+        background: var(--color-surface-container-high);
+        border-color: var(--color-border-default);
+        color: var(--color-text-secondary);
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+      }
+
+      .btn-rival-clear:hover {
+        background: var(--color-surface-container-highest);
+        color: var(--color-text-primary);
+      }
+
+      .icon-mini {
+        font-size: 14px;
       }
 
       .bonus-token-section {
@@ -5375,6 +5527,141 @@ interface RevealedTrackDetails {
         display: flex;
         justify-content: flex-end;
       }
+
+      /* Resultados Finales Overlay / Victoria */
+      .final-results-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-md);
+        overflow-y: auto;
+      }
+
+      .final-results-card {
+        max-width: 600px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md);
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+        background: var(--color-surface-container);
+        border: 1px solid var(--color-border-default);
+        border-radius: var(--radius-xl);
+        padding: var(--space-md);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .results-header {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .trophy-badge {
+        font-size: 48px;
+      }
+
+      .results-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 800;
+        color: #ec4899;
+      }
+
+      .results-sub {
+        font-size: 13px;
+        color: var(--color-text-secondary);
+        max-width: 480px;
+        line-height: 1.4;
+      }
+
+      .results-podium {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .podium-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        background: var(--color-surface-container-high);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-border-subtle);
+      }
+
+      .podium-row.winner-row {
+        background: rgba(236, 72, 153, 0.15);
+        border-color: #ec4899;
+      }
+
+      .podium-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .medal-icon {
+        font-size: 24px;
+      }
+
+      .podium-player {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .podium-name {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--color-text-primary);
+      }
+
+      .winner-label {
+        font-size: 11px;
+        font-weight: 800;
+        color: #ec4899;
+        background: rgba(236, 72, 153, 0.2);
+        padding: 2px 8px;
+        border-radius: var(--radius-full);
+      }
+
+      .podium-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+      }
+
+      .podium-score {
+        font-size: 16px;
+        font-weight: 800;
+        color: #ec4899;
+      }
+
+      .podium-tokens {
+        font-size: 12px;
+        font-weight: 700;
+        color: #f59e0b;
+      }
+
+      .results-actions {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs);
+        margin-top: var(--space-xs);
+      }
     `,
   ],
 })
@@ -5396,6 +5683,7 @@ export class HitsterScorerComponent implements OnDestroy {
   // Estado del flujo de juego
   showRulesModal = signal(false);
   showAbandonConfirmModal = signal(false);
+  showFinalResultsModal = signal(false);
   showDjModal = signal(false);
   showMusicSettingsModal = signal(false);
   showDeckSelectModal = signal(false);
@@ -5601,14 +5889,42 @@ export class HitsterScorerComponent implements OnDestroy {
 
   // Acumulados y rankings en vivo
   cumulativeStats = computed(() => {
-    const m = this.match();
+    const m =
+      (this.matchManager.currentMatch() as MatchRecord<HitsterConfig, HitsterRoundInput>) ||
+      this.match();
     const allInputs = m.rounds.map((r) => r.data);
     const pids = m.players.map((p) => p.id);
     return this.engine.calculateCumulativeState(allInputs, pids, m.config);
   });
 
+  matchEvaluation = computed(() => {
+    const m =
+      (this.matchManager.currentMatch() as MatchRecord<HitsterConfig, HitsterRoundInput>) ||
+      this.match();
+    const stats = this.cumulativeStats();
+    const tokensByPlayer: Record<string, number> = {};
+    for (const p of m.players) {
+      tokensByPlayer[p.id] = stats[p.id]?.totalTokens ?? this.startingTokens();
+    }
+    return this.engine.evaluateMatchStatus(
+      m.cumulativeScores,
+      m.rounds.length,
+      m.config,
+      tokensByPlayer
+    );
+  });
+
+  isGameOver = computed(() => {
+    const m =
+      (this.matchManager.currentMatch() as MatchRecord<HitsterConfig, HitsterRoundInput>) ||
+      this.match();
+    return m.status === 'completed' || this.matchEvaluation().isGameOver;
+  });
+
   rankedPlayers = computed(() => {
-    const m = this.match();
+    const m =
+      (this.matchManager.currentMatch() as MatchRecord<HitsterConfig, HitsterRoundInput>) ||
+      this.match();
     const stats = this.cumulativeStats();
     const cardsMap: Record<string, number> = {};
     const tokensMap: Record<string, number> = {};
@@ -5639,6 +5955,26 @@ export class HitsterScorerComponent implements OnDestroy {
     }
     return map;
   });
+
+  getAvailableTokens(playerId: string): number {
+    return this.getCumulativeStatsForPlayer(playerId).totalTokens;
+  }
+
+  getPlayerById(playerId: string) {
+    return this.match().players.find((p) => p.id === playerId);
+  }
+
+  toggleFinalResultsModal(): void {
+    this.showFinalResultsModal.update((v) => !v);
+  }
+
+  returnToCatalog(): void {
+    this.router.navigate(['/tabs/catalog']);
+  }
+
+  viewMatchHistory(): void {
+    this.router.navigate(['/tabs/history']);
+  }
 
   roundRows = computed(() => {
     return this.match().rounds.map((r) => ({
@@ -5841,8 +6177,8 @@ export class HitsterScorerComponent implements OnDestroy {
     this.initDraftForRound(r);
   }
 
-  private initDraftForRound(roundNum: number): void {
-    const m = this.match();
+  private initDraftForRound(roundNum: number, matchOverride?: MatchRecord<HitsterConfig, HitsterRoundInput>): void {
+    const m = matchOverride || (this.matchManager.currentMatch() as MatchRecord<HitsterConfig, HitsterRoundInput>) || this.match();
     if (roundNum === m.currentRound) {
       if (m.currentDraftRoundData && Object.keys(m.currentDraftRoundData).length > 0) {
         this.draftInputs.set(JSON.parse(JSON.stringify(m.currentDraftRoundData)));
@@ -5960,17 +6296,21 @@ export class HitsterScorerComponent implements OnDestroy {
       (this.matchManager.currentMatch() as MatchRecord<HitsterConfig, HitsterRoundInput>) ||
       this.match();
 
-    if (updatedMatch.status !== 'completed') {
-      const nextRound = updatedMatch.currentRound;
-      this.viewingRound.set(nextRound);
-      this.initDraftForRound(nextRound);
+    if (updatedMatch.status === 'completed' || this.matchEvaluation().isGameOver) {
+      this.showFinalResultsModal.set(true);
+      this.showDjModal.set(false);
+      return;
+    }
 
-      const players = updatedMatch.players;
-      if (players && players.length > 0) {
-        const nextIdx = (nextRound - 1) % players.length;
-        const nextPlayer = players[nextIdx] || players[0];
-        this.activeGuesserPlayerId.set(nextPlayer.id);
-      }
+    const nextRound = updatedMatch.currentRound;
+    this.viewingRound.set(nextRound);
+    this.initDraftForRound(nextRound, updatedMatch);
+
+    const players = updatedMatch.players;
+    if (players && players.length > 0) {
+      const nextIdx = (nextRound - 1) % players.length;
+      const nextPlayer = players[nextIdx] || players[0];
+      this.activeGuesserPlayerId.set(nextPlayer.id);
     }
   }
 
@@ -6294,7 +6634,8 @@ export class HitsterScorerComponent implements OnDestroy {
       (this.matchManager.currentMatch() as MatchRecord<HitsterConfig, HitsterRoundInput>) ||
       this.match();
 
-    if (currentMatch.status === 'completed') {
+    if (currentMatch.status === 'completed' || this.matchEvaluation().isGameOver) {
+      this.showFinalResultsModal.set(true);
       this.closeDjModal();
       return;
     }
@@ -6320,7 +6661,8 @@ export class HitsterScorerComponent implements OnDestroy {
       (this.matchManager.currentMatch() as MatchRecord<HitsterConfig, HitsterRoundInput>) ||
       this.match();
 
-    if (currentMatch.status === 'completed') {
+    if (currentMatch.status === 'completed' || this.matchEvaluation().isGameOver) {
+      this.showFinalResultsModal.set(true);
       this.closeDjModal();
       return;
     }
@@ -6938,6 +7280,7 @@ export class HitsterScorerComponent implements OnDestroy {
     if (current === 'win') {
       // Toggle off al volver a pulsar
       this.removeLastWonCardFromPlayer(rivalId);
+      this.adjustTokensDelta(rivalId, 1);
       this.rivalOutcomes.update((m) => {
         const next = { ...m };
         delete next[rivalId];
@@ -6948,11 +7291,17 @@ export class HitsterScorerComponent implements OnDestroy {
     }
 
     if (current === 'lose') {
-      // Revertir penalización de ficha
-      this.adjustTokensDelta(rivalId, 1);
+      // Pasó de 'lose' (-1 ficha) a 'win' (-1 ficha y +1 carta).
+      // El delta de fichas sigue siendo -1, solo se suma la carta ganada.
+      this.awardCardToPlayer(rivalId);
+    } else {
+      // Nuevo desafío: validar fichas disponibles
+      const availableTokens = this.getAvailableTokens(rivalId);
+      if (availableTokens <= 0) return;
+      this.awardCardToPlayer(rivalId);
+      this.adjustTokensDelta(rivalId, -1);
     }
 
-    this.awardCardToPlayer(rivalId);
     this.rivalOutcomes.update((m) => ({ ...m, [rivalId]: 'win' }));
     this.turnResolutionChosen.set(true);
   }
@@ -6972,13 +7321,37 @@ export class HitsterScorerComponent implements OnDestroy {
     }
 
     if (current === 'win') {
-      // Revertir carta ganada si pasa de ganar a perder
+      // Pasó de 'win' (+1 carta, -1 ficha) a 'lose' (0 cartas, -1 ficha).
+      // Se retira la carta ganada y el delta de fichas sigue siendo -1
       this.removeLastWonCardFromPlayer(rivalId);
+    } else {
+      // Nuevo desafío: validar fichas disponibles
+      const availableTokens = this.getAvailableTokens(rivalId);
+      if (availableTokens <= 0) return;
+      this.adjustTokensDelta(rivalId, -1);
     }
 
-    this.adjustTokensDelta(rivalId, -1);
     this.rivalOutcomes.update((m) => ({ ...m, [rivalId]: 'lose' }));
     this.turnResolutionChosen.set(true);
+  }
+
+  clearRivalChallenge(rivalId: string): void {
+    const current = this.rivalOutcomes()[rivalId];
+    if (!current) return;
+
+    if (current === 'win') {
+      this.removeLastWonCardFromPlayer(rivalId);
+      this.adjustTokensDelta(rivalId, 1);
+    } else if (current === 'lose') {
+      this.adjustTokensDelta(rivalId, 1);
+    }
+
+    this.rivalOutcomes.update((m) => {
+      const next = { ...m };
+      delete next[rivalId];
+      return next;
+    });
+    this.checkIfAnyResolutionRemaining();
   }
 
   awardBonusTokenToActivePlayer(): void {

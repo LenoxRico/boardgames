@@ -242,6 +242,20 @@ describe('HitsterEngine', () => {
       expect(status.isGameOver).toBe(true);
       expect(status.winnerIds).toEqual(['p1', 'p2']);
       expect(status.reason).toContain('Empate');
+      expect(status.rankings).toBeDefined();
+      expect(status.rankings?.length).toBe(2);
+    });
+
+    it('finaliza la partida al alcanzar el límite de rondas configuradas aunque no se llegue a 10 cartas', () => {
+      const scores = { p1: 7, p2: 5 };
+      const tokens = { p1: 2, p2: 4 };
+      const configWithRounds = { ...defaultConfig, rounds: 10 } as any;
+
+      const status = engine.evaluateMatchStatus(scores, 10, configWithRounds, tokens);
+      expect(status.isGameOver).toBe(true);
+      expect(status.winnerIds).toEqual(['p1']);
+      expect(status.reason).toContain('10 rondas');
+      expect(status.rankings?.[0].playerId).toBe('p1');
     });
   });
 
