@@ -133,6 +133,61 @@
   box-sizing: border-box;
 }
 
+/* Mobile Virtual Keyboard Responsive Architecture */
+:root {
+  --visual-viewport-height: 100dvh;
+  --visual-viewport-offset-top: 0px;
+  --keyboard-height: 0px;
+}
+
+/* Ensure inputs and textareas have clear scroll margins so scrollIntoView never overlaps header/keyboard */
+input:not([type='checkbox']):not([type='radio']):not([type='button']):not([type='submit']):not([type='reset']):not([type='file']):not([type='range']):not([type='color']),
+textarea {
+  scroll-margin-top: 72px;
+  scroll-margin-bottom: 50px;
+}
+
+/* When virtual keyboard is open on mobile (iPhone / Android / Capacitor) */
+.keyboard-open {
+  /* Extra bottom padding to allow any input to easily scroll into center view above keyboard */
+  .tabletop-shell {
+    padding-bottom: calc(var(--keyboard-height, 280px) + 24px) !important;
+  }
+
+  input:not([type='checkbox']):not([type='radio']):not([type='button']):not([type='submit']):not([type='reset']):not([type='file']):not([type='range']):not([type='color']),
+  textarea {
+    scroll-margin-bottom: calc(var(--keyboard-height, 280px) + 32px);
+  }
+
+  /* Fixed overlays dynamically clamp their height to the remaining visible screen */
+  .modal-overlay,
+  .rules-modal-overlay {
+    height: var(--visual-viewport-height, 100dvh) !important;
+    max-height: var(--visual-viewport-height, 100dvh) !important;
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-top: calc(var(--space-sm) + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Dialogs fit inside the visible viewport and allow smooth scrolling within */
+  .modal-dialog-card,
+  .dj-modal-dialog,
+  .card-edit-modal-dialog,
+  .deck-select-modal-dialog,
+  .music-settings-dialog,
+  .rules-modal-dialog,
+  .rules-dialog-card,
+  .wizard-dialog-card,
+  [class*='-dialog'],
+  [class*='dialog-card'] {
+    max-height: calc(var(--visual-viewport-height, 100dvh) - 24px) !important;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+}
+
 /* Enable Full Smooth Scrolling on Web & Mobile iOS/Android */
 html {
   margin: 0;
