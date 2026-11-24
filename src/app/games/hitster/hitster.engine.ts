@@ -19,6 +19,7 @@ export interface HitsterConfig {
   preferredMusicProvider?: MusicProvider; // 'spotify' | 'itunes'
   isDigitalMode?: boolean; // Jugar 100% digital sin cartas físicas (aleatorio)
   digitalDeckEdition?: 'latino' | 'us' | 'es' | 'all'; // Edición digital para sacar canciones ('latino' por defecto)
+  cardCountry?: string; // Edición de las cartas físicas para escáner ('us' por defecto si físico)
 }
 
 export interface HitsterTimelineCard {

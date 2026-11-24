@@ -73,6 +73,9 @@ interface RevealedTrackDetails {
               <span class="badge badge-mode">
                 {{ modeLabel() }}
               </span>
+              @if (isDigitalMode()) {
+                <span class="badge badge-digital">🎲 Digital</span>
+              }
             </div>
             <p class="dealer-text">
               <span>100 años de éxitos • Objetivo: {{ targetCards() }} canciones</span>
@@ -81,20 +84,6 @@ interface RevealedTrackDetails {
             </p>
           </div>
           <div class="header-actions">
-            <!-- Botón Pill de Modo Digital (Sin Cartas Físicas) -->
-            <button
-              type="button"
-              class="btn-digital-mode-pill"
-              [class.active-digital]="isDigitalMode()"
-              (click)="toggleDigitalMode()"
-              title="Activar/Desactivar Modo Digital para jugar sin cartas físicas"
-            >
-              <span class="digital-pill-icon">🎲</span>
-              <span class="digital-pill-text">
-                {{ isDigitalMode() ? 'Digital: ON' : 'Digital: OFF' }}
-              </span>
-            </button>
-
             <!-- Botón Pill de Proveedor Musical (Spotify / Apple Music) -->
             <button
               type="button"
@@ -706,15 +695,6 @@ interface RevealedTrackDetails {
                               <strong class="deck-main-name">{{ digitalDeckName() }}</strong>
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            class="btn-change-deck-pill"
-                            (click)="openDeckSelectModal()"
-                            title="Cambiar versión para todos los participantes"
-                          >
-                            <span class="material-symbols-outlined">swap_horiz</span>
-                            <span>Cambiar</span>
-                          </button>
                         </div>
 
                         <div class="digital-deck-stats">
@@ -1434,27 +1414,6 @@ interface RevealedTrackDetails {
                 }
               </div>
 
-              <!-- Selector de Edición o País de tus Cartas Hitster -->
-              <div class="settings-edition-section">
-                <span class="settings-subheading">Edición o País de tus Cartas Hitster:</span>
-                <div class="edition-pills-row">
-                  @for (opt of countryOptions; track opt.code) {
-                    <button
-                      type="button"
-                      class="country-edition-pill"
-                      [class.active]="selectedCardCountry() === opt.code"
-                      (click)="setCardCountry(opt.code)"
-                    >
-                      <span>{{ opt.flag }} {{ opt.label }}</span>
-                    </button>
-                  }
-                </div>
-                <p class="settings-sub-hint">
-                  Las cartas con prefijo regional (ej. hitstergame.com/us/...) se auto-detectan.
-                  Este ajuste asegura la concordancia exacta en mazos nacionales.
-                </p>
-              </div>
-
               <!-- Toggle de Redirección Automática para Spotify -->
               @if (musicProvider() === 'spotify') {
                 <div class="toggle-setting-row" (click)="toggleAutoRedirectSpotify()">
@@ -1927,6 +1886,16 @@ interface RevealedTrackDetails {
         background: rgba(139, 92, 246, 0.15);
         border: 1px solid rgba(139, 92, 246, 0.3);
         color: #8b5cf6;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .badge-digital {
+        padding: 2px 8px;
+        border-radius: var(--radius-full);
+        background: rgba(16, 185, 129, 0.15);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #10b981;
         font-size: 11px;
         font-weight: 700;
       }
@@ -5695,11 +5664,21 @@ export class HitsterScorerComponent implements OnDestroy {
           }
         }
 
-        // Sincronizar de forma reactiva la configuración de Modo Digital de la partida
+        // Sincronizar de forma reactiva la configuración de Modo Digital y Baraja/País de la partida
         if (m.config?.isDigitalMode !== undefined) {
           this.isDigitalMode.set(m.config.isDigitalMode);
         }
-        if (m.config?.digitalDeckEdition) {
+        if (m.config?.isDigitalMode && m.config?.digitalDeckEdition) {
+          const deck = m.config.digitalDeckEdition;
+          this.digitalDeck.set(deck);
+          this.selectedCardCountry.set(deck);
+        } else if (!m.config?.isDigitalMode && m.config?.cardCountry) {
+          const cCountry = m.config.cardCountry;
+          this.selectedCardCountry.set(cCountry);
+          if (cCountry === 'latino' || cCountry === 'us' || cCountry === 'es' || cCountry === 'all') {
+            this.digitalDeck.set(cCountry);
+          }
+        } else if (m.config?.digitalDeckEdition) {
           const deck = m.config.digitalDeckEdition;
           this.digitalDeck.set(deck);
           this.selectedCardCountry.set(deck);
