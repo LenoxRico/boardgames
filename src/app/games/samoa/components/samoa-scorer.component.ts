@@ -2639,6 +2639,15 @@ export class SamoaScorerComponent {
       },
       { allowSignalWrites: true }
     );
+
+    effect(
+      () => {
+        // Limpiar siempre el estado de selección de máscaras cada vez que cambie el jugador en turno
+        this.currentVotingPlayerIdx();
+        this.clearCurrentPlayerMaskState();
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   setViewingRound(r: number): void {
@@ -2785,21 +2794,27 @@ export class SamoaScorerComponent {
     await this.router.navigate(['/tabs/catalog']);
   }
 
+  clearCurrentPlayerMaskState(): void {
+    this.tempOwnMask.set('');
+    this.tempGuesses.set({});
+  }
+
   startDeductionWizard(): void {
     this.wizardVotes.set({});
     this.currentVotingPlayerIdx.set(0);
-    this.tempOwnMask.set('');
-    this.tempGuesses.set({});
+    this.clearCurrentPlayerMaskState();
     this.evaluationResults.set({});
     this.wizardStep.set('handover');
     this.showDeductionWizard.set(true);
   }
 
   cancelDeductionWizard(): void {
+    this.clearCurrentPlayerMaskState();
     this.showDeductionWizard.set(false);
   }
 
   proceedToVoting(): void {
+    this.clearCurrentPlayerMaskState();
     this.wizardStep.set('voting');
   }
 
@@ -2834,12 +2849,14 @@ export class SamoaScorerComponent {
     };
     this.wizardVotes.set(updatedVotes);
 
+    this.clearCurrentPlayerMaskState();
+
     if (this.currentVotingPlayerIdx() + 1 < this.match().players.length) {
       this.currentVotingPlayerIdx.update((i) => i + 1);
-      this.tempOwnMask.set('');
-      this.tempGuesses.set({});
+      this.clearCurrentPlayerMaskState();
       this.wizardStep.set('handover');
     } else {
+      this.clearCurrentPlayerMaskState();
       const pids = this.match().players.map((p) => p.id);
       const evalResults = evaluateDeductionVotes(pids, updatedVotes);
       this.evaluationResults.set(evalResults);
@@ -2871,6 +2888,7 @@ export class SamoaScorerComponent {
       return next;
     });
 
+    this.clearCurrentPlayerMaskState();
     this.showDeductionWizard.set(false);
   }
 
