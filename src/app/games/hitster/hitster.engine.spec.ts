@@ -6,6 +6,8 @@ import {
   parseSpotifyTrackUrl,
   HITSTER_DEMO_TRACKS,
   searchItunesTrack,
+  drawRandomCardFromDeck,
+  HITSTER_CORE_CARDS,
 } from './hitster.engine';
 
 describe('HitsterEngine', () => {
@@ -112,6 +114,21 @@ describe('HitsterEngine', () => {
       expect(parsed.url).toBe('https://hitstergame.com/us/88888');
     });
 
+    it('resuelve correctamente cartas de Hitster Latino (aaaa0102 / mx / latino)', () => {
+      const parsedLatino = parseSpotifyTrackUrl('https://hitstergame.com/latino/00308');
+      expect(parsedLatino.isHitsterCard).toBe(true);
+      expect(parsedLatino.cardId).toBe('00308');
+      expect(parsedLatino.trackId).toBe('1DoK3CdipMjplLk5LXUdcp');
+
+      const parsedSku = parseSpotifyTrackUrl('www.hitstergame.com/mx/aaaa0102/00001');
+      expect(parsedSku.cardId).toBe('00001');
+      expect(parsedSku.trackId).toBe('1Ikzf2CUcmHzNf4ETPJexW');
+
+      const parsedDirect = parseSpotifyTrackUrl('00002', undefined, 'latino');
+      expect(parsedDirect.cardId).toBe('00002');
+      expect(parsedDirect.trackId).toBe('3OOWm0MiN6yL4eJsJNXyYk');
+    });
+
     it('maneja strings vacíos o inválidos con elegancia', () => {
       expect(parseSpotifyTrackUrl('').url).toBe('');
       expect(parseSpotifyTrackUrl('   ').url).toBe('');
@@ -146,6 +163,25 @@ describe('HitsterEngine', () => {
       const res = engine.calculateRound(5, inputs, previous, defaultConfig);
       expect(res['p1'].totalCards).toBe(10);
       expect(res['p1'].isWinner).toBe(true);
+    });
+
+    it('acepta wonCardsDetails con información cronológica de canciones', () => {
+      const inputs: Record<string, HitsterRoundInput> = {
+        p1: {
+          cardsWon: 2,
+          tokensDelta: 0,
+          wonCardsDetails: [
+            { id: 'c1', title: 'Song 1982', artist: 'Artist 1', year: 1982 },
+            { id: 'c2', title: 'Song 1999', artist: 'Artist 2', year: 1999 },
+          ],
+        },
+      };
+
+      const res = engine.calculateRound(1, inputs, { p1: 0 }, defaultConfig);
+      expect(res['p1'].roundCards).toBe(2);
+      expect(res['p1'].totalCards).toBe(2);
+      expect(inputs['p1'].wonCardsDetails?.length).toBe(2);
+      expect(inputs['p1'].wonCardsDetails?.[0].year).toBe(1982);
     });
   });
 
@@ -233,13 +269,72 @@ describe('HitsterEngine', () => {
   });
 
   describe('HITSTER_DEMO_TRACKS', () => {
-    it('incluye catálogo de canciones de prueba a través de distintas décadas y términos de iTunes', () => {
-      expect(HITSTER_DEMO_TRACKS.length).toBeGreaterThanOrEqual(10);
+    it('incluye catálogo de canciones de prueba a través de distintas décadas y categorías (latino y global)', () => {
+      expect(HITSTER_DEMO_TRACKS.length).toBeGreaterThanOrEqual(25);
       const decades = new Set(HITSTER_DEMO_TRACKS.map((t) => t.decade));
       expect(decades.has('70s')).toBe(true);
       expect(decades.has('80s')).toBe(true);
       expect(decades.has('90s')).toBe(true);
-      expect(HITSTER_DEMO_TRACKS[0].itunesSearchTerm).toBeDefined();
+      expect(decades.has('00s')).toBe(true);
+      expect(decades.has('10s')).toBe(true);
+      expect(decades.has('20s')).toBe(true);
+
+      const latinTracks = HITSTER_DEMO_TRACKS.filter((t) => t.category === 'latino');
+      const globalTracks = HITSTER_DEMO_TRACKS.filter((t) => t.category === 'global');
+      expect(latinTracks.length).toBeGreaterThanOrEqual(15);
+      expect(globalTracks.length).toBeGreaterThanOrEqual(10);
+
+      // Verifica presencia de clásicos latinos legendarios
+      const titles = latinTracks.map((t) => t.title);
+      expect(titles).toContain('Pedro Navaja');
+      expect(titles).toContain('La Incondicional');
+      expect(titles).toContain('De Música Ligera');
+      expect(titles).toContain('Despacito');
+      expect(titles).toContain('Mi Gente');
+    });
+  });
+
+  describe('drawRandomCardFromDeck', () => {
+    const mockDeck = {
+      '00001': 'track_01',
+      '00002': 'track_02',
+      '00003': 'track_03',
+    };
+
+    it('extrae una carta aleatoria con su ID normalizado y trackId', () => {
+      const drawn = drawRandomCardFromDeck(mockDeck, []);
+      expect(drawn).not.toBeNull();
+      expect(['00001', '00002', '00003']).toContain(drawn?.cardId);
+      expect(drawn?.trackId).toBeDefined();
+    });
+
+    it('excluye cartas que ya han sido jugadas (tanto formato normalizado como padded)', () => {
+      const drawn = drawRandomCardFromDeck(mockDeck, ['00001', '2']);
+      expect(drawn).not.toBeNull();
+      expect(drawn?.cardId).toBe('00003');
+      expect(drawn?.trackId).toBe('track_03');
+    });
+
+    it('retorna null cuando todas las cartas de la baraja han sido jugadas', () => {
+      const drawn = drawRandomCardFromDeck(mockDeck, ['00001', '00002', '00003']);
+      expect(drawn).toBeNull();
+    });
+
+    it('soporta barajas combinadas con claves prefijadas (latino_, us_, es_)', () => {
+      const combinedDeck = {
+        'latino_00001': 'track_latino_1',
+        'us_00001': 'track_us_1',
+        'es_00001': 'track_es_1',
+      };
+      const drawn = drawRandomCardFromDeck(combinedDeck, ['latino_00001', 'us_00001']);
+      expect(drawn).not.toBeNull();
+      expect(drawn?.cardId).toBe('es_00001');
+      expect(drawn?.trackId).toBe('track_es_1');
+    });
+
+    it('retorna null con baraja vacía o inválida', () => {
+      expect(drawRandomCardFromDeck({}, [])).toBeNull();
+      expect(drawRandomCardFromDeck(null as any, [])).toBeNull();
     });
   });
 });

@@ -17,7 +17,14 @@ export const HITSTER_RULES: GameRules = {
           title: 'El Turno del DJ',
           icon: 'album',
           content:
-            '1. El DJ escanea el código QR de una carta física.\n2. La música suena sin mostrar título, artista ni año.\n3. El jugador en turno decide dónde colocarla en su línea de tiempo (antes, entre o después de sus cartas actuales).\n4. ¡Cuidado con los rivales! Pueden usar sus fichas Hitster para desafiar la posición.\n5. El DJ pulsa "Revelar": si está bien colocada, ¡la carta se suma a su línea de tiempo!',
+            '1. El DJ escanea el código QR de una carta física o pulsa "Sacar Canción Aleatoria" en Modo Digital.\n2. La música suena sin mostrar título, artista ni año.\n3. El jugador en turno decide dónde colocarla en su línea de tiempo (antes, entre o después de sus cartas actuales).\n4. ¡Cuidado con los rivales! Pueden usar sus fichas Hitster para desafiar la posición.\n5. El DJ pulsa "Revelar": si está bien colocada, ¡la carta se suma a su línea de tiempo!',
+        },
+        {
+          id: 'digital-mode-rule',
+          title: 'Modo Digital (Sin Cartas Físicas)',
+          icon: 'shuffle',
+          content:
+            '¿No tienes las cartas físicas de Hitster Latino o quieres jugar de viaje? Activa el interruptor "Digital: ON". En cada turno, la app saca una canción aleatoria de la baraja oficial (incluyendo Hitster Latino con más de 300 éxitos) sin repetir canciones en la partida.',
         },
         {
           id: 'hitster-tokens',

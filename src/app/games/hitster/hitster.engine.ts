@@ -17,6 +17,19 @@ export interface HitsterConfig {
   gameMode: HitsterGameMode; // 'original' | 'pro' | 'expert' | 'cooperative'
   timerSeconds: number; // Duración del temporizador de escucha en segundos (30 por defecto)
   preferredMusicProvider?: MusicProvider; // 'spotify' | 'itunes'
+  isDigitalMode?: boolean; // Jugar 100% digital sin cartas físicas (aleatorio)
+  digitalDeckEdition?: 'latino' | 'us' | 'es' | 'all'; // Edición digital para sacar canciones ('latino' por defecto)
+}
+
+export interface HitsterTimelineCard {
+  id: string;
+  cardId?: string; // Número de carta (ej. "00023")
+  title: string;
+  artist: string;
+  year: number; // Año oficial de lanzamiento
+  albumArt?: string;
+  spotifyUrl?: string;
+  appleMusicUrl?: string;
 }
 
 export interface HitsterRoundInput {
@@ -27,6 +40,7 @@ export interface HitsterRoundInput {
   songsSkipped?: number; // Fichas gastadas para pasar / cambiar de canción
   perfectGuesses?: number; // Fichas ganadas por adivinar artista + título (Pro/Expert)
   tokensSpentForCard?: number; // Fichas gastadas (3 fichas) para comprar la carta directamente
+  wonCardsDetails?: HitsterTimelineCard[]; // Detalles de las cartas ganadas para la línea de tiempo
 }
 
 export interface HitsterRoundResult {
@@ -73,6 +87,7 @@ export interface HitsterDemoTrack {
   artist: string;
   year: number;
   decade: string;
+  category?: 'latino' | 'global';
   spotifyTrackId: string;
   spotifyUrl: string;
   itunesSearchTerm?: string;
@@ -117,16 +132,19 @@ export async function searchItunesTrack(term: string): Promise<ItunesTrackInfo |
 }
 
 /**
- * Catálogo de canciones de demostración clásicas por décadas (1960s - 2020s)
- * para jugar inmediatamente o probar el modo DJ sin tarjetas físicas.
+ * Catálogo enriquecido de canciones de demostración por décadas (1960s - 2020s)
+ * combinando grandes himnos latinos (Hitster Latino) y clásicos internacionales
+ * para jugar de forma inmediata en Modo Digital o probar el reproductor DJ.
  */
 export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
+  // --- CLÁSICOS INTERNACIONALES ---
   {
     id: 'demo-1965',
     title: "(I Can't Get No) Satisfaction",
     artist: 'The Rolling Stones',
     year: 1965,
     decade: '60s',
+    category: 'global',
     spotifyTrackId: '2PzDXAhNmMy1lD634o2ZgV',
     spotifyUrl: 'https://open.spotify.com/track/2PzDXAhNmMy1lD634o2ZgV',
     itunesSearchTerm: 'Rolling Stones Satisfaction',
@@ -137,6 +155,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     artist: 'Queen',
     year: 1975,
     decade: '70s',
+    category: 'global',
     spotifyTrackId: '4u7EnebtmKWzUH433cf5Qv',
     spotifyUrl: 'https://open.spotify.com/track/4u7EnebtmKWzUH433cf5Qv',
     itunesSearchTerm: 'Queen Bohemian Rhapsody',
@@ -147,6 +166,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     artist: 'ABBA',
     year: 1976,
     decade: '70s',
+    category: 'global',
     spotifyTrackId: '0GjEhRrOhbyBMr7KG5p0m4',
     spotifyUrl: 'https://open.spotify.com/track/0GjEhRrOhbyBMr7KG5p0m4',
     itunesSearchTerm: 'ABBA Dancing Queen',
@@ -157,6 +177,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     artist: 'Michael Jackson',
     year: 1982,
     decade: '80s',
+    category: 'global',
     spotifyTrackId: '5ChkMS8Otdzsq2hnSt4Omm',
     spotifyUrl: 'https://open.spotify.com/track/5ChkMS8Otdzsq2hnSt4Omm',
     itunesSearchTerm: 'Michael Jackson Billie Jean',
@@ -167,6 +188,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     artist: 'Eurythmics',
     year: 1983,
     decade: '80s',
+    category: 'global',
     spotifyTrackId: '1TfqLAPs4KFs2HQ6AyFYxm',
     spotifyUrl: 'https://open.spotify.com/track/1TfqLAPs4KFs2HQ6AyFYxm',
     itunesSearchTerm: 'Eurythmics Sweet Dreams',
@@ -177,6 +199,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     artist: 'Rick Astley',
     year: 1987,
     decade: '80s',
+    category: 'global',
     spotifyTrackId: '4cOdK2wGLETKBW3PvgPWqT',
     spotifyUrl: 'https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT',
     itunesSearchTerm: 'Rick Astley Never Gonna Give You Up',
@@ -187,6 +210,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     artist: 'Nirvana',
     year: 1991,
     decade: '90s',
+    category: 'global',
     spotifyTrackId: '5ghIWrM2980CTj0fI9vFIO',
     spotifyUrl: 'https://open.spotify.com/track/5ghIWrM2980CTj0fI9vFIO',
     itunesSearchTerm: 'Nirvana Smells Like Teen Spirit',
@@ -197,6 +221,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     artist: 'Britney Spears',
     year: 1999,
     decade: '90s',
+    category: 'global',
     spotifyTrackId: '3MjUtNVVq3C8Fn0MP3zhcW',
     spotifyUrl: 'https://open.spotify.com/track/3MjUtNVVq3C8Fn0MP3zhcW',
     itunesSearchTerm: 'Britney Spears Baby One More Time',
@@ -207,6 +232,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     artist: 'Beyoncé ft. JAY-Z',
     year: 2003,
     decade: '00s',
+    category: 'global',
     spotifyTrackId: '5IVuqXILoxVWvWEPm82Jxr',
     spotifyUrl: 'https://open.spotify.com/track/5IVuqXILoxVWvWEPm82Jxr',
     itunesSearchTerm: 'Beyonce Crazy In Love',
@@ -217,6 +243,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     artist: 'Adele',
     year: 2011,
     decade: '10s',
+    category: 'global',
     spotifyTrackId: '4OSBTYWVwsQhGLF9v0E957',
     spotifyUrl: 'https://open.spotify.com/track/4OSBTYWVwsQhGLF9v0E957',
     itunesSearchTerm: 'Adele Rolling in the Deep',
@@ -227,6 +254,7 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     artist: 'Daft Punk ft. Pharrell Williams',
     year: 2013,
     decade: '10s',
+    category: 'global',
     spotifyTrackId: '2Foc5Q5nqNiosCNqttzHof',
     spotifyUrl: 'https://open.spotify.com/track/2Foc5Q5nqNiosCNqttzHof',
     itunesSearchTerm: 'Daft Punk Get Lucky',
@@ -237,17 +265,250 @@ export const HITSTER_DEMO_TRACKS: HitsterDemoTrack[] = [
     artist: 'The Weeknd',
     year: 2020,
     decade: '20s',
+    category: 'global',
     spotifyTrackId: '0VjIjW4GlULA7k21f1Jglc',
     spotifyUrl: 'https://open.spotify.com/track/0VjIjW4GlULA7k21f1Jglc',
     itunesSearchTerm: 'The Weeknd Blinding Lights',
   },
+
+  // --- ÉXITOS LATINOS (HITSTER LATINO) ---
+  {
+    id: 'demo-lat-1978',
+    title: 'Pedro Navaja',
+    artist: 'Rubén Blades & Willie Colón',
+    year: 1978,
+    decade: '70s',
+    category: 'latino',
+    spotifyTrackId: '0l1zBq81KjL7NlqB4G1u24',
+    spotifyUrl: 'https://open.spotify.com/track/0l1zBq81KjL7NlqB4G1u24',
+    itunesSearchTerm: 'Ruben Blades Pedro Navaja',
+  },
+  {
+    id: 'demo-lat-1985',
+    title: 'Devuélveme a mi chica',
+    artist: 'Hombres G',
+    year: 1985,
+    decade: '80s',
+    category: 'latino',
+    spotifyTrackId: '46c5N6v6gZ1r6kP014N0Nq',
+    spotifyUrl: 'https://open.spotify.com/track/46c5N6v6gZ1r6kP014N0Nq',
+    itunesSearchTerm: 'Hombres G Devuelveme a mi chica',
+  },
+  {
+    id: 'demo-lat-1988',
+    title: 'La Incondicional',
+    artist: 'Luis Miguel',
+    year: 1988,
+    decade: '80s',
+    category: 'latino',
+    spotifyTrackId: '6naxalmIoLFYR06082162q',
+    spotifyUrl: 'https://open.spotify.com/track/6naxalmIoLFYR06082162q',
+    itunesSearchTerm: 'Luis Miguel La Incondicional',
+  },
+  {
+    id: 'demo-lat-1990',
+    title: 'De Música Ligera',
+    artist: 'Soda Stereo',
+    year: 1990,
+    decade: '90s',
+    category: 'latino',
+    spotifyTrackId: '1TfZhKjK12x425J4dJ4K4U',
+    spotifyUrl: 'https://open.spotify.com/track/1TfZhKjK12x425J4dJ4K4U',
+    itunesSearchTerm: 'Soda Stereo De Musica Ligera',
+  },
+  {
+    id: 'demo-lat-1993',
+    title: 'Macarena',
+    artist: 'Los Del Río',
+    year: 1993,
+    decade: '90s',
+    category: 'latino',
+    spotifyTrackId: '1lO9O51Y48m0mH5f0Z27vK',
+    spotifyUrl: 'https://open.spotify.com/track/1lO9O51Y48m0mH5f0Z27vK',
+    itunesSearchTerm: 'Los Del Rio Macarena',
+  },
+  {
+    id: 'demo-lat-1996',
+    title: 'La Flaca',
+    artist: 'Jarabe de Palo',
+    year: 1996,
+    decade: '90s',
+    category: 'latino',
+    spotifyTrackId: '7d0Z7iE411lC4q9M6iSj1Q',
+    spotifyUrl: 'https://open.spotify.com/track/7d0Z7iE411lC4q9M6iSj1Q',
+    itunesSearchTerm: 'Jarabe de Palo La Flaca',
+  },
+  {
+    id: 'demo-lat-1998',
+    title: 'Suavemente',
+    artist: 'Elvis Crespo',
+    year: 1998,
+    decade: '90s',
+    category: 'latino',
+    spotifyTrackId: '2flP1tqV7q15ZtM7wJ5P0G',
+    spotifyUrl: 'https://open.spotify.com/track/2flP1tqV7q15ZtM7wJ5P0G',
+    itunesSearchTerm: 'Elvis Crespo Suavemente',
+  },
+  {
+    id: 'demo-lat-2002',
+    title: 'A Dios le Pido',
+    artist: 'Juanes',
+    year: 2002,
+    decade: '00s',
+    category: 'latino',
+    spotifyTrackId: '2wA4pT8CvdqD52g3Vb1G2k',
+    spotifyUrl: 'https://open.spotify.com/track/2wA4pT8CvdqD52g3Vb1G2k',
+    itunesSearchTerm: 'Juanes A Dios le Pido',
+  },
+  {
+    id: 'demo-lat-2004',
+    title: 'Gasolina',
+    artist: 'Daddy Yankee',
+    year: 2004,
+    decade: '00s',
+    category: 'latino',
+    spotifyTrackId: '6ia35bK2g3P4dG5q1H9K2G',
+    spotifyUrl: 'https://open.spotify.com/track/6ia35bK2g3P4dG5q1H9K2G',
+    itunesSearchTerm: 'Daddy Yankee Gasolina',
+  },
+  {
+    id: 'demo-lat-2004-b',
+    title: 'La Camisa Negra',
+    artist: 'Juanes',
+    year: 2004,
+    decade: '00s',
+    category: 'latino',
+    spotifyTrackId: '2cOuFfQ3rB9J7j2W2s2Z0D',
+    spotifyUrl: 'https://open.spotify.com/track/2cOuFfQ3rB9J7j2W2s2Z0D',
+    itunesSearchTerm: 'Juanes La Camisa Negra',
+  },
+  {
+    id: 'demo-lat-2005',
+    title: "Hips Don't Lie",
+    artist: 'Shakira ft. Wyclef Jean',
+    year: 2005,
+    decade: '00s',
+    category: 'latino',
+    spotifyTrackId: '3ZFTkvIEUrbd9VuvqYumQg',
+    spotifyUrl: 'https://open.spotify.com/track/3ZFTkvIEUrbd9VuvqYumQg',
+    itunesSearchTerm: 'Shakira Hips Dont Lie',
+  },
+  {
+    id: 'demo-lat-2010',
+    title: 'Danza Kuduro',
+    artist: 'Don Omar ft. Lucenzo',
+    year: 2010,
+    decade: '10s',
+    category: 'latino',
+    spotifyTrackId: '2a1TDV10j4rT0k1J2d8g5h',
+    spotifyUrl: 'https://open.spotify.com/track/2a1TDV10j4rT0k1J2d8g5h',
+    itunesSearchTerm: 'Don Omar Danza Kuduro',
+  },
+  {
+    id: 'demo-lat-2014',
+    title: 'Bailando',
+    artist: 'Enrique Iglesias ft. Descemer Bueno, Gente de Zona',
+    year: 2014,
+    decade: '10s',
+    category: 'latino',
+    spotifyTrackId: '0e8jX1mF4K1nK8j6h8K5L2',
+    spotifyUrl: 'https://open.spotify.com/track/0e8jX1mF4K1nK8j6h8K5L2',
+    itunesSearchTerm: 'Enrique Iglesias Bailando',
+  },
+  {
+    id: 'demo-lat-2017',
+    title: 'Despacito',
+    artist: 'Luis Fonsi ft. Daddy Yankee',
+    year: 2017,
+    decade: '10s',
+    category: 'latino',
+    spotifyTrackId: '6habFhsOp2NvshLv26DqMb',
+    spotifyUrl: 'https://open.spotify.com/track/6habFhsOp2NvshLv26DqMb',
+    itunesSearchTerm: 'Luis Fonsi Despacito',
+  },
+  {
+    id: 'demo-lat-2017-b',
+    title: 'Mi Gente',
+    artist: 'J Balvin & Willy William',
+    year: 2017,
+    decade: '10s',
+    category: 'latino',
+    spotifyTrackId: '1DoK3CdipMjplLk5LXUdcp',
+    spotifyUrl: 'https://open.spotify.com/track/1DoK3CdipMjplLk5LXUdcp',
+    itunesSearchTerm: 'J Balvin Mi Gente',
+  },
+  {
+    id: 'demo-lat-2020',
+    title: 'Dákiti',
+    artist: 'Bad Bunny & Jhayco',
+    year: 2020,
+    decade: '20s',
+    category: 'latino',
+    spotifyTrackId: '47EiUVwUp4IrFuG6BCu9bP',
+    spotifyUrl: 'https://open.spotify.com/track/47EiUVwUp4IrFuG6BCu9bP',
+    itunesSearchTerm: 'Bad Bunny Dakiti',
+  },
+  {
+    id: 'demo-lat-2021',
+    title: 'Todo de Ti',
+    artist: 'Rauw Alejandro',
+    year: 2021,
+    decade: '20s',
+    category: 'latino',
+    spotifyTrackId: '4fSIb4hdOQ151TILNsSEaJ',
+    spotifyUrl: 'https://open.spotify.com/track/4fSIb4hdOQ151TILNsSEaJ',
+    itunesSearchTerm: 'Rauw Alejandro Todo de Ti',
+  },
+  {
+    id: 'demo-lat-2023',
+    title: 'Bzrp Music Sessions, Vol. 53',
+    artist: 'Bizarrap & Shakira',
+    year: 2023,
+    decade: '20s',
+    category: 'latino',
+    spotifyTrackId: '4nr1w0m4o3m0Z1w0p2h0z1',
+    spotifyUrl: 'https://open.spotify.com/track/4nr1w0m4o3m0Z1w0p2h0z1',
+    itunesSearchTerm: 'Bizarrap Shakira Bzrp Music Sessions Vol 53',
+  },
 ];
 
 /**
- * Diccionario integrado de cartas Hitster fundamentales (ediciones US y España)
+ * Diccionario integrado de cartas Hitster fundamentales (ediciones Latino, US y España)
  * para garantizar resolución offline inmediata y cobertura en pruebas unitarias.
  */
 export const HITSTER_CORE_CARDS: Record<string, Record<string, string>> = {
+  latino: {
+    '00001': '1Ikzf2CUcmHzNf4ETPJexW',
+    '1': '1Ikzf2CUcmHzNf4ETPJexW',
+    '00002': '3OOWm0MiN6yL4eJsJNXyYk',
+    '2': '3OOWm0MiN6yL4eJsJNXyYk',
+    '00003': '6JAUEdbkqPJYp4EeH3a3FU',
+    '3': '6JAUEdbkqPJYp4EeH3a3FU',
+    '00004': '1lDx45n8dnAU1v9yct5bxU',
+    '4': '1lDx45n8dnAU1v9yct5bxU',
+    '00010': '2nkgtQejMhfvrpH5KIzIub',
+    '10': '2nkgtQejMhfvrpH5KIzIub',
+    '00020': '1p7m9H4H8s0Y7SgRm7j3ED',
+    '20': '1p7m9H4H8s0Y7SgRm7j3ED',
+    '00100': '06CjoRh35NWhEmpPPs1nzD',
+    '100': '06CjoRh35NWhEmpPPs1nzD',
+    '00200': '45rQqSqb95p5lkZy13Tl1u',
+    '200': '45rQqSqb95p5lkZy13Tl1u',
+    '00306': '3gO8mvkxIcyF9N7Vd1WM2i',
+    '306': '3gO8mvkxIcyF9N7Vd1WM2i',
+    '00307': '3slDIEuZJqMRq0P0UI8Ps9',
+    '307': '3slDIEuZJqMRq0P0UI8Ps9',
+    '00308': '1DoK3CdipMjplLk5LXUdcp',
+    '308': '1DoK3CdipMjplLk5LXUdcp',
+  },
+  mx: {
+    '00001': '1Ikzf2CUcmHzNf4ETPJexW',
+    '1': '1Ikzf2CUcmHzNf4ETPJexW',
+    '00002': '3OOWm0MiN6yL4eJsJNXyYk',
+    '2': '3OOWm0MiN6yL4eJsJNXyYk',
+    '00308': '1DoK3CdipMjplLk5LXUdcp',
+    '308': '1DoK3CdipMjplLk5LXUdcp',
+  },
   us: {
     '00001': '0KMGxYKeUzK9wc5DZCt3HT',
     '1': '0KMGxYKeUzK9wc5DZCt3HT',
@@ -287,6 +548,37 @@ export const HITSTER_CORE_CARDS: Record<string, Record<string, string>> = {
     '268': '5RzFJd6W40SDTyZkX6xx45',
   },
 };
+
+/**
+ * Selecciona al azar una carta de la baraja especificada que no haya sido jugada aún.
+ * Soporta normalización de números de carta con o sin ceros a la izquierda.
+ */
+export function drawRandomCardFromDeck(
+  cardsMap: Record<string, string>,
+  usedCardIds: string[] | Set<string> = []
+): { cardId: string; trackId: string } | null {
+  if (!cardsMap || typeof cardsMap !== 'object') return null;
+  const usedSet = usedCardIds instanceof Set ? usedCardIds : new Set(usedCardIds);
+
+  const allKeys = Object.keys(cardsMap);
+  if (allKeys.length === 0) return null;
+
+  const availableKeys = allKeys.filter((k) => {
+    const isDigits = /^[0-9]+$/.test(k);
+    const norm = isDigits ? String(parseInt(k, 10)) : k;
+    const padded = isDigits ? k.padStart(5, '0') : k;
+    return !usedSet.has(k) && !usedSet.has(norm) && !usedSet.has(padded);
+  });
+
+  if (availableKeys.length === 0) return null;
+
+  const randomIndex = Math.floor(Math.random() * availableKeys.length);
+  const chosenKey = availableKeys[randomIndex];
+  const trackId = cardsMap[chosenKey];
+  const cardId = /^[0-9]+$/.test(chosenKey) ? chosenKey.padStart(5, '0') : chosenKey;
+
+  return { cardId, trackId };
+}
 
 /**
  * Función pura que analiza y parsea cualquier formato de URL, URI o código de Spotify,
@@ -364,10 +656,20 @@ export function parseSpotifyTrackUrl(
       (sku ? dbToSearch?.[sku]?.[paddedId] || dbToSearch?.[sku]?.[normId] : undefined) ||
       dbToSearch?.[country]?.[paddedId] ||
       dbToSearch?.[country]?.[normId] ||
+      (country === 'latino' || country === 'mx'
+        ? dbToSearch?.['aaaa0102']?.[paddedId] ||
+          dbToSearch?.['aaaa0102']?.[normId] ||
+          dbToSearch?.['aaaa0053']?.[paddedId] ||
+          dbToSearch?.['aaaa0053']?.[normId] ||
+          HITSTER_CORE_CARDS['latino']?.[paddedId] ||
+          HITSTER_CORE_CARDS['latino']?.[normId]
+        : undefined) ||
       dbToSearch?.['global']?.[paddedId] ||
       dbToSearch?.['global']?.[normId] ||
       HITSTER_CORE_CARDS[country]?.[paddedId] ||
       HITSTER_CORE_CARDS[country]?.[normId] ||
+      HITSTER_CORE_CARDS['latino']?.[paddedId] ||
+      HITSTER_CORE_CARDS['latino']?.[normId] ||
       HITSTER_CORE_CARDS['us']?.[paddedId] ||
       HITSTER_CORE_CARDS['us']?.[normId];
 
@@ -403,10 +705,20 @@ export function parseSpotifyTrackUrl(
     const foundTrackId =
       dbToSearch?.[country]?.[paddedId] ||
       dbToSearch?.[country]?.[normId] ||
+      (country === 'latino' || country === 'mx'
+        ? dbToSearch?.['aaaa0102']?.[paddedId] ||
+          dbToSearch?.['aaaa0102']?.[normId] ||
+          dbToSearch?.['aaaa0053']?.[paddedId] ||
+          dbToSearch?.['aaaa0053']?.[normId] ||
+          HITSTER_CORE_CARDS['latino']?.[paddedId] ||
+          HITSTER_CORE_CARDS['latino']?.[normId]
+        : undefined) ||
       dbToSearch?.['global']?.[paddedId] ||
       dbToSearch?.['global']?.[normId] ||
       HITSTER_CORE_CARDS[country]?.[paddedId] ||
       HITSTER_CORE_CARDS[country]?.[normId] ||
+      HITSTER_CORE_CARDS['latino']?.[paddedId] ||
+      HITSTER_CORE_CARDS['latino']?.[normId] ||
       HITSTER_CORE_CARDS['us']?.[paddedId] ||
       HITSTER_CORE_CARDS['us']?.[normId];
 

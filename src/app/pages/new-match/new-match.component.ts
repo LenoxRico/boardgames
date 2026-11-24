@@ -136,7 +136,7 @@ import { GameDefinition, GameConfigOption } from '../../core/models/game.interfa
             <div class="config-options-list">
               @for (opt of game.configOptions; track opt.key) {
                 @if (isOptionVisible(opt)) {
-                  <div class="config-item">
+                  <div class="config-item" [class.config-item-column]="opt.type === 'select'">
                     <div class="config-text">
                       <span class="config-label">{{ opt.label }}</span>
                       @if (opt.description) {
@@ -144,7 +144,7 @@ import { GameDefinition, GameConfigOption } from '../../core/models/game.interfa
                       }
                     </div>
 
-                    <div class="config-control">
+                    <div class="config-control" [class.config-control-full]="opt.type === 'select'">
                       @if (opt.type === 'boolean') {
                         <label class="switch">
                           <input
@@ -172,6 +172,18 @@ import { GameDefinition, GameConfigOption } from '../../core/models/game.interfa
                             +
                           </button>
                         </div>
+                      } @else if (opt.type === 'select') {
+                        <select
+                          class="config-select-control"
+                          [value]="configValues()[opt.key]"
+                          (change)="setSelectConfig(opt.key, $event)"
+                        >
+                          @for (choice of opt.options; track choice.value) {
+                            <option [value]="choice.value">
+                              {{ choice.label }}
+                            </option>
+                          }
+                        </select>
                       }
                     </div>
                   </div>
@@ -506,10 +518,26 @@ import { GameDefinition, GameConfigOption } from '../../core/models/game.interfa
       border: 1px solid var(--color-border-subtle);
     }
 
+    .config-item.config-item-column {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-sm);
+    }
+
     .config-text {
       display: flex;
       flex-direction: column;
       gap: 2px;
+    }
+
+    .config-control-full {
+      width: 100%;
+    }
+
+    .config-control-full .config-select-control {
+      width: 100%;
+      max-width: 100%;
+      min-height: 44px;
     }
 
     .config-label {
@@ -599,6 +627,20 @@ import { GameDefinition, GameConfigOption } from '../../core/models/game.interfa
       min-width: 30px;
       text-align: center;
       color: var(--color-primary);
+    }
+
+    .config-select-control {
+      min-height: 40px;
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      max-width: 260px;
+      cursor: pointer;
     }
 
     .actions-footer {
@@ -715,6 +757,11 @@ export class NewMatchComponent {
   setBooleanConfig(key: string, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     this.configValues.update((cfg) => ({ ...cfg, [key]: checked }));
+  }
+
+  setSelectConfig(key: string, event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.configValues.update((cfg) => ({ ...cfg, [key]: value }));
   }
 
   adjustNumberConfig(key: string, delta: number, boundary?: number): void {
